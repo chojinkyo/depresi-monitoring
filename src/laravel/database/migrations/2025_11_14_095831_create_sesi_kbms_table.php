@@ -17,7 +17,7 @@ return new class extends Migration
             $table->time("jam_mulai");
             $table->time("jam_akhir");
             $table->unsignedTinyInteger("tingkat");
-            $table->foreignId("id_sekolah")->constrained("sekolahs");
+            $table->unique(['tanggal', 'tingkat']);
             $table->timestamps();
         });
     }

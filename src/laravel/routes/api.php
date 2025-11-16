@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\Admin\SiswaController;
+use App\Http\Controllers\SesiKbmController;
+use App\Models\SesiKbm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,5 +17,10 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth');
 
 Route::group(['middleware'=>['jwt:guest,auth']], function() {
+    Route::post('/admin/sesi-kbm/config', [SesiKbmController::class, 'config_update']);
+    Route::get('/admin/sesi-kbm/config', [SesiKbmController::class, 'get_config']);
     Route::resource('/admin/siswa', SiswaController::class);
+    Route::resource('/admin/sesi-kbm', SesiKbmController::class);
+    
+    Route::post('/admin/sesi-kbm/bulk-create', [SesiKbmController::class, 'bulk_auto_store']);
 });

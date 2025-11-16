@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('log_harians', function (Blueprint $table) {
             $table->id();
-            $table->longText('catatan');
             $table->string('swafoto_url');
-            $table->foreignId('id_sesi_kbm')->constrained('sesi_kbms');
+            $table->longText('catatan')->nullable();
+            $table->string('lampiran_url')->nullable();
             $table->enum('label', ['senang', 'marah', 'sedih', 'takut', 'jijik']);
-            $table->enum('keterangan', ['hadir', 'izin', 'sakit', 'tanpa keterangan']);
+            $table->enum('keterangan', ['hadir', 'izin', 'sakit', 'alpa'])->default('alpa');
+            $table->foreignId('id_sesi_kbm')->constrained('sesi_kbms')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamp('tercatat_pada');
         });
     }

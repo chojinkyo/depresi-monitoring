@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string("avatar_url")->nullable();
             $table->unsignedSmallInteger("tahun_masuk");
             $table->unsignedTinyInteger("tingkat")->default(1);
+            $table->foreignId('id_user')->constrained('users');
             $table->enum("status_mental", ['normal', 'sedang', 'tinggi'])->default('normal');
             $table->timestamps();
         });

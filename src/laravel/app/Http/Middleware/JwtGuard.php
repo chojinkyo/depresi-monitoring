@@ -6,9 +6,9 @@ use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Tymon\JWTAuth\Facades\JWTAuth as FacadesJWTAuth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
-class JwtAuth
+class JwtGuard
 {
     /**
      * Handle an incoming request.
@@ -19,7 +19,7 @@ class JwtAuth
     {
         try
         {
-            $auth=FacadesJWTAuth::parseToken()->authenticate();
+            $auth=JWTAuth::parseToken()->authenticate();
             return $next($request);
         }
         catch(\Exception $e)

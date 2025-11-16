@@ -14,9 +14,9 @@ class RegisterController extends Controller
     public function admin_register(Request $request)
     {
         $validator=Validator::make($request->all(), [
-            'nip'=>'required|unique:admins|unique:users,username|min:18|max:18',
-            'nama'=>'required|min:2',
-            'password'=>'required|min:6|max:35|regex:/[A-Z]/|regex:/[0-9]/|regex:/[\W_]/',
+            'nip'=>'required|digits:18|unique:admins|unique:users,username',
+            'nama'=>'required|max:50',
+            'password'=>'required|between:6,35|regex:/[A-Z]/|regex:/[0-9]/|regex:/[\W_]/',
             'email'=>'required|unique:admins|email',
             'no_telp'=>'required|unique:admins|regex:/(08)[0-9]{9,11}/',
             'confirm_password'=>'required|same:password',
