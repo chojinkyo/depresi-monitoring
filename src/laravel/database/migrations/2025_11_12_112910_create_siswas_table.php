@@ -16,13 +16,16 @@ return new class extends Migration
             $table->string("nama");
             $table->string("email")->unique();
             $table->string("no_telp")->unique();
-            $table->mediumText("alamat");
-            $table->date("tanggal_lahir");
             $table->string("avatar_url")->nullable();
-            $table->unsignedSmallInteger("tahun_masuk");
-            $table->unsignedTinyInteger("tingkat")->default(1);
-            $table->foreignId('id_user')->constrained('users');
+            $table->date("tanggal_lahir");
+            $table->date("tanggal_masuk");
+            $table->enum('semester_masuk', ['genap', 'ganjil']);
             $table->enum("status_mental", ['normal', 'sedang', 'tinggi'])->default('normal');
+            $table->foreignId('id_user')->constrained('users');
+            $table->foreignId('id_kelas')->constrained('kelas');
+            $table->foreignId('id_angkatan')->constrained('angkatans');
+            $table->mediumText("alamat");
+            $table->unsignedTinyInteger("tingkat")->default(1);
             $table->timestamps();
         });
     }

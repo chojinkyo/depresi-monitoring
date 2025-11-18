@@ -11,16 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sesi_kbms', function (Blueprint $table) {
+        Schema::create('kalender_akademiks', function (Blueprint $table) {
             $table->id();
-            $table->date("tanggal");
-            $table->time("jam_mulai");
-            $table->time("jam_akhir");
-            $table->mediumText('catatan');
-            $table->dateTime('batas_input');
-            $table->unsignedTinyInteger("tingkat");
+            $table->string('kegiatan');
+            $table->date('tanggal');
             $table->foreignId('id_tahun_ajaran')->constrained('tahun_ajarans');
-            $table->enum('status', ['ditunda', 'dibuka', 'ditutup', 'dibatalkan']);
             $table->timestamps();
         });
     }
@@ -30,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sesi_kbms');
+        Schema::dropIfExists('kalender_akademiks');
     }
 };

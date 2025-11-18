@@ -19,9 +19,14 @@ class Siswa extends Model
         static::deleted(function($siswa) {
             $siswa->user()->delete();
         });
+        
     }
     public function User() : BelongsTo
     {
         return $this->belongsTo(User::class, 'id_user');
+    }
+    public function TahunAngkatan() : BelongsTo
+    {
+        return $this->belongsTo(Angkatan::class, 'id_angkatan');
     }
 }

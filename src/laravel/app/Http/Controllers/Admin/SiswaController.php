@@ -43,19 +43,21 @@ class SiswaController extends Controller implements HasMiddleware
     }
     public function store(Request $request)
     {
-        $current_year=now()->year;
+        
         $current_date=now()->format('Y-m-d');
         $validator = Validator::make($request->all(), [
             "nama"=>"required|max:50",
             "alamat"=>"required|max:255",
             "gender"=>"required|in:1,0",
-            "tanggal_lahir"=>"date|date_format:Y-m-d|before:$current_date",
-            "tahun_masuk"=>"required|date_format:Y|before:$current_year",
+            "tanggal_lahir"=>"required|date_format:Y-m-d|before:$current_date",
+            "tanggal_masuk"=>"required|date_format:Y-m-d|before:$current_date",
             "avatar"=>"nullable|images|mimes:jpg,png,jpeg|max:500",
             "tingkat"=>"required|integer|max:3",
             "nisn"=>"required|unique:siswas|digits:10",
             "email"=>"required|email|unique:siswas",
             'no_telp'=>'required|unique:siswas|regex:/(08)[0-9]{9,11}/',
+            'id_kelas'=>'required|exists:kelas,id',
+            'id_angkata'=>'required|exists:angkatans,id'
         ]);
 
         if($validator->fails())

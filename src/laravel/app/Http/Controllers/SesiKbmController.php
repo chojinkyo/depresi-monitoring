@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KalenderAkademik;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use \App\Models\SesiKbm;
+use App\Models\TahunAjaran;
 use \App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -42,6 +44,13 @@ class SesiKbmController extends Controller implements HasMiddleware
     }
     public function store(Request $request)
     {
+        $tahun_ajaran=TahunAjaran::select('id')->where('is_aktif', true)->first();
+        if($tahun_ajaran==null) 
+        {
+            return response()->json([
+                'message'=>'Tidak bisa membuat sesi kbm, tidak ada tahun ajaran yang aktif'
+            ], 401);
+        }
         $validator = Validator::make($request->all(), [
             "tanggal"=>"required|date|date_format:Y-m-d",
             "jam_mulai"=>"required|date_format:H:i",
@@ -52,6 +61,7 @@ class SesiKbmController extends Controller implements HasMiddleware
                 "between:1,3",
             ]
         ]);
+        
 
         if($validator->fails())
         {
@@ -64,8 +74,14 @@ class SesiKbmController extends Controller implements HasMiddleware
                 , 422
             );
         }
-        
         $stored_data = $validator->validated();
+        $kalender=KalenderAkademik::where('id_tahun_ajaran', $tahun_ajaran->id)
+        ->where('tanggal', $stored_data['tanggal'])->first();
+        if($kalender!=null)
+        {
+
+        }
+        
         SesiKbm::create($stored_data);
         return response()->json([
             "message"=>"Sesi KBM created successfully"
@@ -141,6 +157,7 @@ class SesiKbmController extends Controller implements HasMiddleware
     }
     public function config_update(Request $request)
     {
+
         $validator=Validator::make($request->all(), [
             'tanggal_mulai'=>'required|date|date_format:Y-m-d',
             'tanggal_akhir'=>'required|date|date_format:Y-m-d|after:tanggal_mulai',
@@ -150,6 +167,7 @@ class SesiKbmController extends Controller implements HasMiddleware
             'jadwal.*.jam_mulai'=>'required|date_format:H:i',
             'jadwal.*.jam_akhir'=>'required|date_format:H:i|after:jam_mulai'
         ]);
+        
         if($validator->fails())
         {
             return response()->json([
@@ -159,8 +177,9 @@ class SesiKbmController extends Controller implements HasMiddleware
         }
         try
         {
+            $data=[...$validator->validated()];
             $config_path='app/data/config.json';
-            $config_json=json_encode($validator->validated());
+            $config_json=json_encode($data);
 
             Storage::put($config_path, $config_json);
             return response()->json(['message'=>storage_path()], 200);
