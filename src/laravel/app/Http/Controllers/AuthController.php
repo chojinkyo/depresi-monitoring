@@ -22,17 +22,21 @@ class AuthController extends Controller
             ], 422);
         }
 
-        if(!$token=Auth::guard('api')->attempt($validator->validated()))
+        if(Auth::guard('web')->attempt($validator->validated()))
         {
+            $user = Auth::user();
+            $user->tokens()->delete();
             return response()->json([
-                'message'=>'Unauthorized',
-                'data'=>$validator->validated()
-            ], 401);
+                'message'=>'Login success',
+                'token'=>$user->createToken('auth_token')->plainTextToken
+            ], 200);
         }
 
+        
+
         return response()->json([
-            'message'=>'Login success',
-            'token'=>$token
-        ], 200);
+            'message'=>'Unauthorized',
+            'data'=>$validator->validated()
+        ], 401);
     }
 }

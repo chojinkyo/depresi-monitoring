@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->year('tahun_mulai');
             $table->year('tahun_akhir');
-            $table->boolean('is_aktif')->default(false);
-            $table->enum('semester', ['ganjil', 'genap'])->default('ganjil');
+            $table->date('tanggal_mulai');
+            $table->date('tanggal_akhir');
             $table->enum('status', ['aktif', 'nonaktif', 'ditutup', 'arsip'])->default('nonaktif');
+            $table->enum('semester', ['ganjil', 'genap'])->default('ganjil');
+            $table->boolean('is_aktif')->default(false);
             $table->timestamps();
         });
     }

@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Angkatan;
 use App\Models\TahunAjaran;
 use App\Rules\SatuTahunAjaranAktif;
 use App\Rules\SingleActive;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class TahunAjaranController extends Controller
@@ -24,88 +27,112 @@ class TahunAjaranController extends Controller
         $row=TahunAjaran::find($id);
         if($row==null)
         {
-            return response()->json([
-                'message'=>'Tahun ajaran tidak ditemukan'
-            ], 404);
+            $response=['message'=>'Tahun ajaran tidak ditemukan'];
+            return response()->json($response, 404);
         }
 
-        return response()->json([
+        $response=
+        [
             "message"=>"Tahun ajaran $row->tahun_mulai/$row->tahun_akhir",
             "data"=>$row
-        ], 200);
+        ];
+        return response()->json($response, 200);
     }
     public function store(Request $request)
     {
         $validator=Validator::make($request->all(), [
-            'tahun_mulai'=>'required|date_format:Y|unique:tahun_ajarans',
+            'tahun_mulai'=>'required|date_format:Y|unique:tahun_ajarans|unique:angkatans,tahun',
+            'tanggal_mulai'=>'required|date_format:Y-m-d',
+            'tanggal_akhir'=>'required|date_format:Y-m-d|after:tanggal_mulai',
             'is_aktif'=>['nullable','boolean',new SingleActive('tahun_ajarans','is_aktif')],
             'status'=>'nullable|in:aktif,nonaktif,ditutup,arsip',
         ]);
         if($validator->fails())
         {
-            return response()->json([
+            $response=
+            [
                 'message'=>'Input invalid',
                 'errors'=>$validator->errors()
-            ], 422);
+            ];
+            return response()->json($response, 422);
         }
         $data=$validator->validated();
         $tahun_akhir=(int)$data['tahun_mulai'] + 1;
-        $data=[...$data,'tahun_akhir'=>Carbon::createFromDate($tahun_akhir,1,1)->format('Y')];
-        if(isset($data['is_aktif']) && $data['is_aktif']) $data=[...$data,'status'=>'aktif'];
+        $data=[...$data,'tahun_akhir'=>"$tahun_akhir"];
 
-        $new_entri=TahunAjaran::create($data);
-        return response()->json([
-            'message'=>'Tahun ajaran baru berhasil dibuat',
-            'data'=>$new_entri
-        ], 200);
+        if(isset($data['is_aktif']) && $data['is_aktif']) 
+            $data=[...$data,'status'=>'aktif'];
+        
+        DB::beginTransaction();
+        try
+        {
+            $tahun_ajaran=TahunAjaran::create($data);
+            $response=
+            [
+                'message'=>'Tahun ajaran baru berhasil dibuat',
+                'data'=>$tahun_ajaran
+            ];
+            DB::commit();
+            return response()->json($response, 200);
+        }
+        catch(\Exception $e)
+        {
+            $response=['message'=>'Gagal membuat tahun ajaran baru'];
+            DB::rollBack();
+            return response()->json($response);
+        }
     }
     public function update(Request $request, $id)
     {
-        $row=TahunAjaran::find($id);
-        if($row==null)
+        $tahun_ajaran=TahunAjaran::find($id);
+        if($tahun_ajaran==null)
         {
-            return response()->json([
-                'message'=>'Tahun ajaran tidak ditemukan'
-            ], 404);
+            $response=['message'=>'Tahun ajaran tidak ditemukan'];
+            return response()->json($response, 404);
         }
         $validator=Validator::make($request->all(), [
-            'tahun_mulai'=>'required|date_format:Y|unique:tahun_ajarans,tahun_mulai,'.$id,
+            'tahun_mulai'=>'required|date_format:Y|unique:tahun_ajarans,tahun_mulai,'.$id.'unique:angkatans,tahun,id_tahun_mulai,'.$id,
+            'tanggal_mulai'=>'required|date_format:Y-m-d',
+            'tanggal_akhir'=>'required|date_format:Y-m-d|after:tanggal_mulai',
             'is_aktif'=>['nullable','boolean',new SingleActive('tahun_ajarans','is_aktif',$id)],
             'status'=>'nullable|in:aktif,nonaktif,ditutup,arsip',
         ]);
         if($validator->fails())
         {
-            return response()->json([
+            $response=
+            [
                 'message'=>'Input invalid',
                 'errors'=>$validator->errors()
-            ], 422);
+            ];
+            return response()->json($response, 422);
         }
         
         $data=$validator->validated();
         $tahun_akhir=(int)$data['tahun_mulai'] + 1;
-        $data=[...$data,'tahun_akhir'=>Carbon::createFromDate($tahun_akhir,1,1)->format('Y')];
+        $data=[...$data,'tahun_akhir'=>"$tahun_akhir"];
 
-        if(isset($data['is_aktif']) && $data['is_aktif']) $data=[...$data,'status'=>'aktif'];
+        if(isset($data['is_aktif']) && $data['is_aktif']) 
+            $data=[...$data,'status'=>'aktif'];
 
-        $row->update($data);
-        return response()->json([
-            'message'=>"Tahun ajaran $row->tahun_mulai/$row->tahun_akhir berhasil diupdate",
-            'data'=>$row
-        ], 200);
+        $tahun_ajaran->update($data);
+        $response=
+        [
+            'message'=>"Tahun ajaran $tahun_ajaran->tahun_mulai/$tahun_ajaran->tahun_akhir berhasil diupdate",
+            'data'=>$tahun_ajaran
+        ];
+        return response()->json($response, 200);
     }
     public function destroy($id)
     {
         $row=TahunAjaran::find($id);
         if($row==null)
         {
-            return response()->json([
-                'message'=>'Tahun ajaran tidak ditemukan'
-            ], 404);
+            $response=['message'=>'Tahun ajaran tidak ditemukan'];
+            return response()->json($response, 404);
         }
 
         $row->delete();
-        return response()->json([
-            'message'=>'Tahun ajaran berhasil dihapus'
-        ], 200);
+        $response=['message'=>'Tahun ajaran berhasil dihapus'];
+        return response()->json($response, 200);
     }
 }

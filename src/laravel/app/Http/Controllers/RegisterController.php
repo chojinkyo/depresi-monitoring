@@ -46,8 +46,8 @@ class RegisterController extends Controller
         try
         {
             $user=User::create($user_data);
-            $admin_data=[...$admin_data,'user_id'=>$user->id];
-            $admin=Admin::create($admin_data);
+            $admin_data=[...$admin_data,'id_user'=>$user->id];
+            Admin::create($admin_data);
 
             DB::commit();
             return response()->json([

@@ -8,11 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Siswa extends Model
 {
     protected $primaryKey="nisn";
-    public $incrementing = false;
-    protected $keyType = 'string';
-    protected $guarded = [
-        'created_at', 'updated_at'
-    ];
+    protected $keyType='string';
+    protected $guarded=['created_at', 'updated_at'];
+    public $incrementing=false;
 
     public static function booted()
     {
@@ -21,11 +19,11 @@ class Siswa extends Model
         });
         
     }
-    public function User() : BelongsTo
+    public function user() : BelongsTo
     {
         return $this->belongsTo(User::class, 'id_user');
     }
-    public function TahunAngkatan() : BelongsTo
+    public function tahun_angkatan() : BelongsTo
     {
         return $this->belongsTo(Angkatan::class, 'id_angkatan');
     }

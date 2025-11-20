@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sesi_liburs', function (Blueprint $table) {
-            $table->boolean('status', ['libur', 'kbm', 'daring', 'masuk']);
+        Schema::create('kbm_kelas_liburs', function (Blueprint $table) {
             $table->foreignId('id_kelas')->constrained('kelas');
-            $table->foreignId('id_kalender')->constrained('kalender_akademiks');
+            $table->foreignId('id_kbm')->constrained('sesi_kbms');
         });
     }
 
@@ -23,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sesi_liburs');
+        Schema::dropIfExists('kbm_kelas_liburs');
     }
 };

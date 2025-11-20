@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kalender_akademiks', function (Blueprint $table) {
+        Schema::create('dash21s', function (Blueprint $table) {
             $table->id();
-            $table->date('tanggal');
-            $table->string('kegiatan');
-            $table->foreignId('id_tahun_ajaran')->constrained('tahun_ajarans');
+            $table->string('kuisioner_url');
+            $table->boolean('depressed')->default(false);
+            $table->string('id_siswa');
+            $table->foreign('id_siswa')->references('nisn')->on('siswas');
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kalender_akademiks');
+        Schema::dropIfExists('dash21s');
     }
 };

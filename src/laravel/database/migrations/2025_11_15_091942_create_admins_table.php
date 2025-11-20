@@ -12,15 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('admins', function (Blueprint $table) {
-            $table->id();
+            $table->string('nip')->primary();
             $table->string('nama');
-            $table->string('nip')->unique();
             $table->string('email')->unique();
             $table->string('no_telp')->unique();
             $table->mediumText('alamat')->nullable();
             $table->string('avatar_url')->nullable();
             $table->boolean('gender')->default(true);
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('id_user')->constrained('users');
             $table->timestamps();
         });
     }

@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('sesi_kbms', function (Blueprint $table) {
             $table->id();
-            $table->date("tanggal");
-            $table->time("jam_mulai");
-            $table->time("jam_akhir");
-            $table->mediumText('catatan');
-            $table->dateTime('batas_input');
+            $table->dateTime('waktu_mulai');
+            $table->dateTime('waktu_akhir');
+            $table->dateTime('batas_input_mulai');
+            $table->dateTime('batas_input_akhir');
             $table->unsignedTinyInteger("tingkat");
+            $table->mediumText('catatan')->nullable();
             $table->foreignId('id_tahun_ajaran')->constrained('tahun_ajarans');
             $table->enum('status', ['ditunda', 'dibuka', 'ditutup', 'dibatalkan']);
+            $table->enum('pemakaian', ['all', 'some']);
             $table->timestamps();
         });
     }
