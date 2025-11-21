@@ -13,13 +13,21 @@ return new class extends Migration
     {
         Schema::create('log_harians', function (Blueprint $table) {
             $table->id();
-            $table->string('swafoto_url');
-            $table->longText('catatan')->nullable();
+            $table->string('id_siswa');
+            $table->string('swafoto_url')->nullable();
             $table->string('lampiran_url')->nullable();
-            $table->enum('label', ['senang', 'marah', 'sedih', 'takut', 'jijik']);
+            $table->longText('catatan')->nullable();
+            $table->enum('label', ['senang', 'marah', 'sedih', 'takut', 'jijik'])->default('senang');
             $table->enum('keterangan', ['hadir', 'izin', 'sakit', 'alpa'])->default('alpa');
-            $table->foreignId('id_sesi_kbm')->constrained('sesi_kbms')->onDelete('cascade')->onUpdate('cascade');
-            $table->timestamp('tercatat_pada');
+            $table->foreignId('id_sesi_kbm')
+            ->constrained('sesi_kbms')
+            ->onDelete('cascade')
+            ->onUpdate('cascade');
+            $table->foreign('id_siswa')
+            ->references('nisn')
+            ->on('siswas');
+            $table->timestamp('tercatat_pada')
+            ->nullable();
         });
     }
 

@@ -24,7 +24,6 @@ class KelasSeed extends Seeder
                 array_push($data, [
                     'nama'=>"$g-$i",
                     'tingkat'=>$id,
-                    'id_tahun_ajaran'=>1
                 ]);
             }
             $id++;

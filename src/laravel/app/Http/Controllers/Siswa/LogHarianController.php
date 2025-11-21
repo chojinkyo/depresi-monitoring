@@ -5,15 +5,35 @@ namespace App\Http\Controllers\Siswa;
 use App\Http\Controllers\Controller;
 use App\Models\LogHarian;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 
 class LogHarianController extends Controller
 {
-    public function logging(Request $request,LogHarian $log_harian)
+    public static function middleware()
+    {
+        return ['auth:sanctum'];
+    }
+    public function logging(Request $request, LogHarian $log_harian)
     {
         // pengecekan kepemilikan log
         $log=$log_harian;
+        if($log==null)
+        {
+            $response=['message'=>'Tidak ada kewajiban log harian'];
+            return response()->json($response, Response::HTTP_NOT_FOUND);
+        }
+        $siswa=Auth::user()->siswa;
+        if($log->id_siswa!=$siswa->nisn)
+        {
+            $response=['message'=>"Unauthorized. Log ini bukan milik siswa dengan id $siswa->nisn"];
+            return response()->json($response, Response::HTTP_UNAUTHORIZED);
+        }
+        
         $validator=Validator::make($request->all(), [
             'label'=>'required|in:senang,marah,sedih,takut,jijik',
             'catatan'=>'nullable|max:255',
@@ -24,18 +44,29 @@ class LogHarianController extends Controller
         ]);
         if($validator->fails())
         {
-            return response()->json([
-                'message'=>'Input invalid',
+            $response=
+            [
+                'message'=>'Inputs invalid',
                 'errors'=>$validator->errors()
-            ], 422);
+            ];
+            return response()->json($response, 422);
         }
 
         DB::beginTransaction();
         try
         {
-            $data=array_diff($validator->validated(), array_flip(['swafoto']));
+            $data=array_diff_key($validator->validated(), array_flip(['swafoto']));
+            $file=$request->file('swafoto');
+            if($file!=null)
+            {
+                $filename="log_".now()->format('dmYHis')."_".$siswa->nisn.$file->getClientOriginalExtension();
+                $storage_path="/data/images/log_harian/$siswa->nisn/";
+                Storage::disk('public')->put(file_get_contents($file), $storage_path.$filename);
+                $data=[...$data,"swafoto_url"=>$storage_path.$filename];
+            }
+            $log->update($data);
+            // LAKUKAN REQUEST KE API CEK DEPRESI DISINI. LAKUKAN QUERY TERLEBIH DAHULU
 
-            $log->update($validator->validated());
             DB::commit();
             return response()->json([
                 'message'=>'Absensi berhasil dilakukan'
@@ -44,9 +75,8 @@ class LogHarianController extends Controller
         catch(\Exception $e)
         {
             DB::rollBack();
-            return response()->json([
-                'message'=>'Absensi gagal. Coba lagi nanti'
-            ], 500);
+            $response=['message'=>'Absensi gagal. Coba lagi nanti'];
+            return response()->json($response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
     }

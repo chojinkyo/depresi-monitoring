@@ -58,7 +58,7 @@ class SesiKbmController extends Controller implements HasMiddleware
             "batas_input_akhir"=>"required_with:batas_input_mulai|date_format:Y-m-d H:i|after:batas_input_mulai",
             "tingkat"=>"required|integer|between:1,3",
             "pemakaian"=>"required|in:all,some",
-            "kelas"=>["required_with:tingkat","required_if:pemakaian,some","array","min:1",new KelasAdaDanTingkatSama($request->tingkat, count($request->kelas))],
+            "kelas"=>["required_if:pemakaian,some","array","min:1",new KelasAdaDanTingkatSama($request->tingkat, count($request->kelas ?? []))],
         ]);
         if($validator->fails())
         {
@@ -104,11 +104,21 @@ class SesiKbmController extends Controller implements HasMiddleware
             }
         }
         $stored_data['id_tahun_ajaran']=$tahun_ajaran->id;
-        $response=["message"=>"Sesi KBM created successfully"];
-        $kbm=SesiKbm::create($stored_data);
-        if($stored_data['pemakaian']=='some')
-            $kbm->kelas_libur()->sync($stored_data['kelas']);
-        return response()->json($response, 200);
+        try
+        {
+            $response=["message"=>"Sesi KBM created successfully"];
+            $kbm=SesiKbm::create($stored_data);
+            if($stored_data['pemakaian']=='some')
+                $kbm->kelas_libur()->sync($stored_data['kelas']);
+            $kbm->create_log_siswa();
+            return response()->json($response, 200);
+        }
+        catch(\Exception $e)
+        {
+            return response()->json([
+                'message'=>'gagal menambah sesi kbm'
+            ], 500);
+        }
     }
     public function update(Request $request, $id)
     {

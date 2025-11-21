@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\Admin\SiswaController;
+use App\Http\Controllers\KalenderAkademikController;
 use App\Http\Controllers\SesiKbmController;
 use App\Http\Controllers\TahunAjaranController;
 use App\Models\SesiKbm;
@@ -25,6 +26,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::resource('/admin/siswa', SiswaController::class);
     Route::resource('/admin/sesi-kbm', SesiKbmController::class);
     Route::resource('/admin/tahun-ajaran', TahunAjaranController::class);
+    Route::resource('/admin/kalender-akademik', KalenderAkademikController::class);
 });
 Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::post('/siswa/absen', []);

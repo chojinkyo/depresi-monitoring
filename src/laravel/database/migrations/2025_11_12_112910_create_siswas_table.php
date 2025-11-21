@@ -26,6 +26,7 @@ return new class extends Migration
             $table->foreignId('id_angkatan')->constrained('angkatans');
             $table->boolean('gender');
             $table->boolean('perlu_survey')->default(false);
+            $table->boolean('kelulusan')->default(false);
             $table->mediumText("alamat");
             $table->unsignedTinyInteger("tingkat")->default(1);
             $table->timestamps();

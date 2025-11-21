@@ -49,6 +49,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function profile()
+    {
+        return match ($this->role) {
+            'admin'=>$this->admin(),
+            'siswa'=>$this->siswa(),
+            default => null
+        };
+    }
     public function admin() : HasOne
     {
         return $this->hasOne(Admin::class, 'id_user');

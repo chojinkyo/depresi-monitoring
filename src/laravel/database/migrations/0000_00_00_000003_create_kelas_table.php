@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->unsignedTinyInteger('tingkat')->default(1);
-            $table->foreignId('id_tahun_ajaran')->constrained('tahun_ajarans');
+            $table->boolean('is_aktif')->default(false);
             // tambahkan wali kelas
             $table->timestamps();
         });
