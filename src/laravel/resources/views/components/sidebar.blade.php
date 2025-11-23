@@ -1,10 +1,5 @@
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
-    <!-- Close Button (hanya tampil di mobile saat sidebar dibuka) -->
-    <!-- <button class="sidebar-close" id="sidebarClose">
-        <i class="bi bi-arrow-left"></i>
-    </button> -->
-
     <!-- User Container -->
     <div class="user-container">
         <div class="user-profile">
@@ -29,8 +24,8 @@
                     'text' => 'Dashboard',
                     'active' => request()->is('siswa')
                 ])
-            </li>
-            <li class="nav-item">
+                                    </li>
+                                    <li class="nav-item">
                 @include('components.buttons.button-sidebar', [
                     'href' => '/siswa/presensi',
                     'icon' => 'bi-calendar-check',
@@ -40,10 +35,10 @@
             </li>
             <li class="nav-item">
                 @include('components.buttons.button-sidebar', [
-                    'href' => '#',
+                    'href' => '/siswa/jadwal',
                     'icon' => 'bi-calendar-event',
                     'text' => 'Jadwal',
-                    'active' => false
+                    'active' => request()->is('siswa/jadwal')
                 ])
             </li>
             <li class="nav-item">
@@ -67,9 +62,9 @@
 
     <!-- Logout Section -->
     <div class="logout-section">
-        <button class="btn-logout">
+        <a href="/login" class="btn-logout">
             <i class="bi bi-box-arrow-right"></i>
             <span>Keluar</span>
-        </button>
+        </a>
     </div>
 </aside>

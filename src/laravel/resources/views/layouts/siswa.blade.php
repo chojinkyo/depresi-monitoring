@@ -23,11 +23,6 @@
     @yield('styles')
 </head>
 <body>
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" id="mobileMenuToggle">
-        <i class="bi bi-list"></i>
-    </button>
-
     <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
@@ -36,7 +31,7 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Header Component -->
+        <!-- Header Component (hamburger ada di sini) -->
         @include('components.header', [
             'title' => $pageTitle ?? 'Dashboard',
             'subtitle' => $pageSubtitle ?? 'Sistem Manajemen Siswa'

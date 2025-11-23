@@ -7,8 +7,10 @@ Route::view('/login', 'auth.login')->name('login');
 Route::view('/forgot-password', 'auth.forgot-password')->name('password.request');
 
 // Dashboard Siswa Routes
-Route::view('/siswa', 'dashboard.siswa')->name('siswa.dashboard');  // ← Ubah ini
+Route::view('/siswa', 'dashboard.siswa')->name('siswa.dashboard');
 Route::view('/siswa/presensi', 'siswa.presensi')->name('siswa.presensi');
+Route::view('/siswa/jadwal', 'siswa.jadwal')->name('siswa.jadwal');
+
 
 // Default redirect
 Route::get('/', function () {

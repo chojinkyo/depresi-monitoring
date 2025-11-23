@@ -199,24 +199,70 @@ body {
 }
 
 /* ===================================
-   MOBILE MENU
+   MAIN CONTENT
+   =================================== */
+.main-content {
+    margin-left: 256px;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+/* Header */
+.main-header {
+    background: #FFFFFF;
+    padding: 20px 32px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-title {
+    flex: 1;
+}
+
+.header-title h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1E2939;
+    margin: 0;
+}
+
+.header-subtitle {
+    font-size: 14px;
+    color: #6B7280;
+    margin: 4px 0 0 0;
+}
+
+/* Content Container */
+.content-container {
+    padding: 32px;
+}
+
+/* ===================================
+   MOBILE MENU TOGGLE (di dalam header)
    =================================== */
 .mobile-menu-toggle {
     display: none;
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 1001;
+    width: 40px;
+    height: 40px;
     background: linear-gradient(135deg, #51A2FF 0%, #AD46FF 100%);
     border: none;
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(81, 162, 255, 0.3);
+    border-radius: 10px;
     color: white;
     font-size: 20px;
     cursor: pointer;
     transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.mobile-menu-toggle:hover {
+    transform: scale(1.05);
+}
+
+.mobile-menu-toggle:active {
+    transform: scale(0.95);
 }
 
 /* Sidebar Close Button */
@@ -261,19 +307,16 @@ body {
    RESPONSIVE
    =================================== */
 @media (max-width: 768px) {
+    /* Show hamburger in header */
     .mobile-menu-toggle {
         display: flex;
         align-items: center;
         justify-content: center;
-        opacity: 1;
-        visibility: visible;
-        transition: opacity 0.1s ease, visibility 0.1s ease;
     }
 
-    /* HIDE hamburger when sidebar is open */
+    /* Hide hamburger when sidebar is open */
     .mobile-menu-toggle.hide {
         opacity: 0;
-        visibility: hidden;
         pointer-events: none;
     }
 
@@ -298,12 +341,6 @@ body {
 
     .main-header {
         padding: 16px 20px;
-        padding-left: 80px;
-    }
-
-    /* Adjust header padding when sidebar is open */
-    .sidebar.active ~ .main-content .main-header {
-        padding-left: 20px;
     }
 
     .content-container {
@@ -312,5 +349,9 @@ body {
 
     .header-title h1 {
         font-size: 20px;
+    }
+
+    .header-subtitle {
+        font-size: 13px;
     }
 }
