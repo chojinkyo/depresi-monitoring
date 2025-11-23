@@ -25,7 +25,7 @@ class JadwalHarianController extends Controller
         }
         catch(\Exception $e)
         {
-
+            
         }
     }
     public function store(Request $request)

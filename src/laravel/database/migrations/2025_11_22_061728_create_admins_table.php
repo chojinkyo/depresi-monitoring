@@ -17,6 +17,11 @@ return new class extends Migration
             $table->date('tgl_lahir');
             $table->boolean('gender');
             $table->mediumText('alamat');
+            $table->foreignId('id_user')
+            ->nullable()
+            ->constrained('users')
+            ->onDelete('set null')
+            ->onUpdate('cascade');
             $table->timestamps();
         });
     }

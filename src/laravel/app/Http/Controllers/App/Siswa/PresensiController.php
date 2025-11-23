@@ -172,19 +172,19 @@ class PresensiController extends Controller
             $data_diary=
             [
                 ...array_diff_key($data, array_flip(['swafoto', 'doc', 'ket', 'status'])),
+                'id_presensi'=>$presensi->id,
                 'swafoto'=>$strg_path,
                 'swafoto_pred'=>' ',
                 'catatan_pred'=>' ',
                 'catatan_ket'=>' ',
-                'id_presensi'=>$presensi->id
             ];
-            $diary=Diary::create($data_diary);
+            Diary::create($data_diary);
 
             $lst_rkp=RekapEmosi::where('id_siswa',$id_sis)->sortBy('waktu')->first();
             $rkp_dte=$lst_rkp ? Carbon::parse($lst_rkp->waktu) : now()->subDays(14);
             if(now()->diffInDays($rkp_dte)>=14)
             {
-                // Call the ML model for Bi-weekly recap here
+                // Call the ML model for bi-weekly recap here
                 $new_rkp_data=
                 [
                     'tgl'=>now()->format('Y-m-d'),

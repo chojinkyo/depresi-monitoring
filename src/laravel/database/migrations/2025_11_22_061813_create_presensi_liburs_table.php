@@ -18,7 +18,8 @@ return new class extends Migration
             $table->date('tgl_selesai')->date_format('d-m');
             $table->json("jenjang");
             $table->foreignId('id_author')
-            ->constrained('user')
+            ->nullable()
+            ->constrained('users')
             ->onDelete('set null')
             ->onUpdate('cascade');
             $table->timestamp('waktu')->useCurrent()->useCurrentOnUpdate();

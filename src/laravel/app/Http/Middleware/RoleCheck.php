@@ -16,7 +16,6 @@ class RoleCheck
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        $user=Auth
         return $next($request);
     }
 }

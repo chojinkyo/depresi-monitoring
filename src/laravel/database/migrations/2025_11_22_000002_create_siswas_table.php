@@ -20,10 +20,10 @@ return new class extends Migration
             $table->boolean('gender');
             $table->boolean('status');
             $table->foreignId('id_user')
-            ->constrained('user')
+            ->nullable()
+            ->constrained('users')
             ->onDelete('set null')
-            ->onUpdate('cascade')
-            ->nullable();
+            ->onUpdate('cascade');
             $table->foreignId('id_thak_masuk')
             ->constrained('tahun_akademik')
             ->onDelete('restrict')

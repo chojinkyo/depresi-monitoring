@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Validator;
 
 class PresensiLiburController extends Controller
 {
-    public static function middleware()
-    {
-        return ['auth', 'role:admin'];
-    }
+    // public static function middleware()
+    // {
+    //     return ['auth', 'role:admin'];
+    // }
     public function index()
     {
         $lbr=PresensiLibur::all()->sortBy('tgl_mulai');
