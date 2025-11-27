@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('tanggal_lahir');
             $table->mediumText('alamat');
             $table->boolean('gender');
-            $table->boolean('status');
+            $table->boolean('status')->default(true);
             $table->foreignId('id_user')
             ->nullable()
             ->constrained('users')

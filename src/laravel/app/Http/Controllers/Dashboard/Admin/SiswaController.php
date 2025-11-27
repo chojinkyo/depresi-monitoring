@@ -28,6 +28,7 @@ class SiswaController extends Controller implements HasMiddleware
         $siswa=Siswa::where('status', true);
         // advanced filters
         $siswa=$siswa->get();
+        return view('admin.siswa.index', compact('siswa'));
     }
     public function show($id)
     {
@@ -66,9 +67,6 @@ class SiswaController extends Controller implements HasMiddleware
             ->with('error', 'Data siswa tidak ditemukan');
         }
 
-    
-        
-
         DB::beginTransaction();
         try
         {
@@ -94,8 +92,6 @@ class SiswaController extends Controller implements HasMiddleware
                 'password'=>'Nubi-'.$tgl_lahir,
             ];
             $user=User::create($data_user);
-
-            
 
             $data_siswa=
             [

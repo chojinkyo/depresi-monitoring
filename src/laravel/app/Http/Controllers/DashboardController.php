@@ -12,15 +12,15 @@ class DashboardController extends Controller implements HasMiddleware
     {
         return 
         [
-            // new Middleware('auth', only : ['adminDashboard', 'guruDashboard']),
-            // new Middleware('auth:sanctum', only : ['siswaDashboard']),
-            // new Middleware('role:admin,guru', only : ['adminDashboard', 'guruDashboard']),
-            // new Middleware('role:siswa', only : ['siswaDashboard'])
+            new Middleware('auth', only : ['adminDashboard', 'guruDashboard']),
+            new Middleware('auth:sanctum', only : ['siswaDashboard']),
+            new Middleware('role:admin,guru', only : ['adminDashboard', 'guruDashboard']),
+            new Middleware('role:siswa', only : ['siswaDashboard'])
         ];
     }
     public function adminDashboard()
     {
-        return view('layouts.admin_dashboard');
+        return view('dashboard.admin');
     }
     public function siswaDashboard()
     {

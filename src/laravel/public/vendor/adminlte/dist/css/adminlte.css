@@ -28760,6 +28760,8 @@ html.maximized-card {
   border-top-left-radius: 0.25rem;
   border-top-right-radius: 0.25rem;
 }
+/* CUSTOM */
+
 
 .collapsed-card .card-header {
   border-bottom: 0;

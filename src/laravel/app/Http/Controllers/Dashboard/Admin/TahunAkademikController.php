@@ -18,7 +18,7 @@ class TahunAkademikController extends Controller
     public function index()
     {
         $thak=TahunAkademik::all()->sortBy('nama_tahun');
-        return;
+        return view('admin.tahun_akademik.index', compact('thak'));
     }
     public function create()
     {

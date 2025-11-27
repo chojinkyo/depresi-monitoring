@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Siswa;
+namespace App\Http\Controllers\App\Siswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Diary;

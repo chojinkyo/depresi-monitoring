@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
-use GuzzleHttp\Middleware;
+
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller implements HasMiddleware
 {
@@ -16,12 +18,13 @@ class LoginController extends Controller implements HasMiddleware
         return 
         [
             new Middleware('guest', except : ['postLogout']),
-            new Middleware('auth', only : ['postLogout'])
+            new Middleware('auth', only : ['postLogout']),
+            
         ];
     }
     public function index()
     {
-
+        return view('auth.web_login');
     }
     public function postLogin(Request $request)
     {
@@ -43,7 +46,8 @@ class LoginController extends Controller implements HasMiddleware
         if(Auth::guard('web')->attempt($credentials, $request->remember))
         {
             $request->session()->regenerate();
-            return redirect()->intended('/admin/dashboard');
+            $role=auth('web')->user()->role;
+            return redirect()->intended("/$role/dashboard");
         }
         $response=['credential'=>'username/password salah'];
         return back()->withErrors($response);

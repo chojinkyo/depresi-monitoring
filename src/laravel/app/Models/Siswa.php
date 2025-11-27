@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Storage;
 
 class Siswa extends Model
 {
+    protected $table='siswa';
+    protected $guarded=['id', 'created_at', 'updated_at'];
     //
     public static function booted()
     {
