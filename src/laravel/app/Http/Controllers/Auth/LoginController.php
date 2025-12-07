@@ -24,7 +24,7 @@ class LoginController extends Controller implements HasMiddleware
     }
     public function index()
     {
-        return view('auth.web_login');
+        return view('auth.sanctum_login');
     }
     public function postLogin(Request $request)
     {

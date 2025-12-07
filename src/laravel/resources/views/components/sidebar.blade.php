@@ -62,9 +62,12 @@
 
     <!-- Logout Section -->
     <div class="logout-section">
-        <a href="/login" class="btn-logout">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Keluar</span>
-        </a>
+        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+            @csrf
+            <button type="submit" class="btn-logout" style="background: none; border: none; width: 100%; text-align: left; display: flex; align-items: center; cursor: pointer;">
+                <i class="bi bi-box-arrow-right"></i>
+                <span style="margin-left: 10px;">Keluar</span>
+            </button>
+        </form>
     </div>
 </aside>

@@ -256,8 +256,8 @@ return [
     |
     */
 
-    'use_route_url' => false,
-    'dashboard_url' => 'home',
+    'use_route_url' => true,
+    'dashboard_url' => 'admin.dashboard',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',
@@ -280,6 +280,7 @@ return [
     | For detailed instructions you can look the asset bundling section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Other-Configuration
     |
+    |
     */
 
     'laravel_asset_bundling' => false,
@@ -295,6 +296,7 @@ return [
     |
     | For detailed instructions you can look here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Menu-Configuration
+    |
     |
     */
 
@@ -378,7 +380,7 @@ return [
         ],
         [
             'text'      => 'Logout',
-            'url'       => '#',
+            'url'       => 'logout',
             'method'    => 'POST',
             'icon'      => 'fas fa-sign-out-alt',
             'classes'   => 'nav-link',
@@ -513,6 +515,16 @@ return [
                     'type' => 'js',
                     'asset' => false,
                     'location' => '//cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js',
+                ],
+            ],
+        ],
+        'CustomLogout' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => 'js/admin-logout.js',
                 ],
             ],
         ],
