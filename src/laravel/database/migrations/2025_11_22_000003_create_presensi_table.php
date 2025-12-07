@@ -23,7 +23,7 @@ return new class extends Migration
             ->constrained('tahun_akademik')
             ->onDelete('restrict')
             ->onUpdate('cascade');
-            $table->timestamp('waktu')->useCurrent()->useCurrentOnUpdate();
+            $table->timestamps();
         });
     }
 

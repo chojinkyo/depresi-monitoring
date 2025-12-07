@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\App\Siswa\PresensiController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Dashboard\Admin\PresensiLiburController as HariLiburController;
 use App\Http\Controllers\Dashboard\Admin\SiswaController as AdminSiswaController;
@@ -60,5 +61,6 @@ Route::group(['middleware'=>['auth', 'role:siswa']], function() {
     
     // Route Siswa Lainnya
     Route::view('/siswa/presensi', 'siswa.presensi')->name('siswa.presensi');
+    Route::post('/siswa/presensi', [PresensiController::class, 'store'])->name('siswa.presensi.store');
     Route::view('/siswa/jadwal', 'siswa.jadwal')->name('siswa.jadwal');
 });
