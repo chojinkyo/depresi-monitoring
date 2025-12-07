@@ -1,0 +1,5 @@
+.card-header.no-after::after
+{
+    display: none;
+    content: none;
+}

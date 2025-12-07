@@ -14,12 +14,16 @@ class TahunAjaranSeed extends Seeder
      */
     public function run(): void
     {
-        $year=Carbon::now()->format('Y');
+        $year0=Carbon::now()->format('Y');
         $year1=Carbon::now()->addYear()->format('Y');
+        $date0=Carbon::now()->format('Y-m-d');
+        $date1=Carbon::now()->addYear()->format('Y-m-d');
         $data=
         [
-            'tahun_mulai'=>"$year",
+            'tahun_mulai'=>"$year0",
             'tahun_akhir'=>"$year1",
+            'tanggal_mulai'=>$date0,
+            'tanggal_akhir'=>$date1,
             'is_aktif'=>true,
             'status'=>'aktif'
         ];

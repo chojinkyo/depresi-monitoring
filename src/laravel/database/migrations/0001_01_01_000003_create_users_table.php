@@ -11,13 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // NOTE PERUBAHAN DARI DESIGN :
+        // - Menambah email untuk menghubungi user.
+        // - Menghapus kolom namalengkap
+        // - Mengubah nama kolom "nama" menjadi "username"
+        // - Mengubah nama kolom "user_level" menjadi "role"
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->string('avatar_url')->nullable();
             $table->string('password');
             $table->string('email')->unique();
             $table->string('username')->unique();
-            $table->rememberToken();
-            $table->foreignId('role_id')->constrained('roles');
+            $table->boolean('status')->default(false);
+            $table->enum('role', ['siswa', 'admin', 'guru']);
             $table->timestamps();
         });
 

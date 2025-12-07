@@ -14,6 +14,10 @@ return [
     |
     */
 
+    'depression_detection_model' => [
+        'predict_expression'=>'',
+        'predict_depression'=>''
+    ],
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

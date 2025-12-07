@@ -1,28 +1,23 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\Admin\SiswaController;
-use App\Http\Controllers\SesiKbmController;
-use App\Http\Controllers\TahunAjaranController;
-use App\Models\SesiKbm;
-use App\Models\TahunAjaran;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\Sanctum\LoginController;
+use App\Http\Controllers\App\Siswa\PresensiController;
+
+// Route::get('/user', function (Request $request) {
+//     return $request->user();
+// })->middleware('auth');
 
 
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/admin/register', [RegisterController::class, 'admin_register']);
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth');
-
-Route::group(['middleware'=>['jwt:auth']], function() {
-    Route::post('/admin/sesi-kbm/bulk-create', [SesiKbmController::class, 'bulk_auto_store']);
-    Route::post('/admin/sesi-kbm/config', [SesiKbmController::class, 'config_update']);
-    Route::get('/admin/sesi-kbm/config', [SesiKbmController::class, 'get_config']);
-    Route::resource('/admin/siswa', SiswaController::class);
-    Route::resource('/admin/sesi-kbm', SesiKbmController::class);
-    Route::resource('/admin/tahun-ajaran', TahunAjaranController::class);
+Route::group(['middleware'=>['guest:sanctum']], function() {
+    Route::post('/login', [LoginController::class, 'postLogin'])->name('sanctum.login.post');
+    Route::post('/logout', [LoginController::class, 'postLogin'])->name('sanctum.logout.post');
 });
+
+Route::group(['middleware'=>['auth:sanctum','role:siswa']], function() {
+    Route::get('/siswa/presensi', [PresensiController::class, 'create']);
+    Route::post('/siswa/presensi', [PresensiController::class, 'store']);
+});
+
