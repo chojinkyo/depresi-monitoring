@@ -229,13 +229,13 @@
 
                 <form id="loginForm">
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email / Username</label>
+                        <label for="email" class="form-label">Username</label>
                         <input 
                             type="text" 
                             id="email" 
                             name="email"
                             class="form-control"
-                            placeholder="Masukkan email atau username"
+                            placeholder="Masukkan username"
                             required 
                             autofocus
                         >

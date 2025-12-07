@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('presensi', function (Blueprint $table) {
             $table->id();
             $table->enum('status', ['H', 'I', 'S', 'A']);
+            $table->string('doc_path')->nullable();
             $table->mediumText('ket')->nullable();
             $table->foreignId('id_siswa')
             ->constrained('siswa')
@@ -23,7 +24,7 @@ return new class extends Migration
             ->constrained('tahun_akademik')
             ->onDelete('restrict')
             ->onUpdate('cascade');
-            $table->timestamp('waktu')->useCurrent()->useCurrentOnUpdate();
+            $table->timestamp('waktu')->nullable()->useCurrent()->useCurrentOnUpdate();
         });
     }
 

@@ -6,9 +6,12 @@ use App\Models\Kelas;
 use App\Models\TahunAkademik;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class CreateForm extends Component
 {
+    use WithFileUploads;
+    
     public $form;
     protected $rules;
     public function __construct()

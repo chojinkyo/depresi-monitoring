@@ -14,6 +14,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -129,17 +130,28 @@ class PresensiController extends Controller
     }
     public function store(Request $request)
     {
+        // try
+        // {
+        //     $file=$request->file('swafoto');
+        //     $file?->storeAs('app/data/images/diaries/1234567890', now()->format('dmYHi').'.'.$file->getClientOriginalExtension(), 'private');
+        //     return response()->json(['message'=>$file==null], 200);
+        // }
+        // catch(\Exception $e)
+        // {
+        //     return response()->json(['message'=>$e->getMessage()], 500);
+        // }
         $validator=Validator::make($request->all(), [
-            'swafoto'=>'required|image|mime:jpg,png,jpeg|max:1024',
+            'swafoto'=>'required|image|mimes:jpg,png,jpeg|max:1024',
             'catatan'=>'required|max:255',
             'status'=>'required|in:H,I,S,A',
-            'emoji'=>'required|integer|between:1,5',
+            // 'emoji'=>'required|integer|between:1,5',
             'ket'=>'required_if:status,I,S|max:255',
-            'doc'=>'required_if:status,I,S|file|mime:pdf,jpg,png,jpeg|max:10240'
+            'doc'=>'required_if:status,I,S|file|mimes:pdf,jpg,png,jpeg|max:10240'
         ]);
         if($validator->fails())
         {
-            return;
+            $response=["errors"=>$validator->errors()];
+            return response()->json($response, 422);
         }
 
         DB::beginTransaction();
@@ -147,9 +159,10 @@ class PresensiController extends Controller
         $siswa=auth('sanctum')->user()->siswa;
         try
         {
+            
             $tgl=now()->format('Y-m-d');
-            $this->cekPresensi($tgl);
-            $this->cekLibur($tgl);
+            // $this->cekPresensi($tgl);
+            // $this->cekLibur($tgl);
 
             $thak=$this->getCurThak();
             $id_sis=$siswa->id;
@@ -163,24 +176,41 @@ class PresensiController extends Controller
             $presensi=Presensi::create($data_pres);
 
             $file=$request->file('swafoto');
-            $dir_path='/data/images/diaries/'.$siswa->nisn.'/'.$thak->nama_tahun;
-            $filename='pres_'.$siswa->nisn.'_'.now()->format('dmYHi').$file->getClientOriginalExtension();
+            $dir_path='app/data/images/diaries/'.$siswa->nisn.'/'.$thak->nama_tahun.'/';
+            $filename='pres_'.$siswa->nisn.'_'.now()->format('dmYHi').'.'.$file->getClientOriginalExtension();
             $strg_path=$dir_path.$filename;
-            Storage::disk('public')->put($strg_path, file_get_contents($file));
+            Storage::disk('private')->put($strg_path, file_get_contents($file));
             // Call the ML model for daily monitoring here.
+
+            $text='-';
+            $image='-';
+            $text_res=Http::post('http://model:8000/text', ['text'=>$data['catatan']]);
+            $image_res=Http::attach('file', file_get_contents($file), 'swafoto.jpg')->post('http://model:8000/image');
+            if($text_res->successful() && $image_res->successful())
+            {
+                $text=$text_res->json();
+                $image=$image_res->json();
+
+                $text=$text['response']['predicted'];
+                $image=$image['response']['predicted'];
+            }
+            else if($text_res->failed() || $image_res->failed())
+            {
+                return response()->json(['message'=>[json_decode($image_res->body(), true)]], 500);
+            }
 
             $data_diary=
             [
                 ...array_diff_key($data, array_flip(['swafoto', 'doc', 'ket', 'status'])),
                 'id_presensi'=>$presensi->id,
                 'swafoto'=>$strg_path,
-                'swafoto_pred'=>' ',
-                'catatan_pred'=>' ',
-                'catatan_ket'=>' ',
+                'swafoto_pred'=>$image,
+                'catatan_pred'=>$text,
+                'catatan_ket'=>'-',
             ];
             Diary::create($data_diary);
 
-            $lst_rkp=RekapEmosi::where('id_siswa',$id_sis)->sortBy('waktu')->first();
+            $lst_rkp=RekapEmosi::where('id_siswa',$id_sis)->latest('waktu')->first();
             $rkp_dte=$lst_rkp ? Carbon::parse($lst_rkp->waktu) : now()->subDays(14);
             if(now()->diffInDays($rkp_dte)>=14)
             {
@@ -207,12 +237,13 @@ class PresensiController extends Controller
         catch(\Exception $e)
         {
             DB::rollBack();
-            $code=200;
+            $code=500;
             $response=
             [
-                'message'=>'Berhasil presensi',
-                'data'=>[]
+                'errors'=>$e->getMessage()
             ];
+            return response()->json($response, $code);
+
         }
     }
 }

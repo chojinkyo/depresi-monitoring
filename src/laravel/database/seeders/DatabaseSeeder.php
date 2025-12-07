@@ -23,7 +23,14 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-            AdminSeed::class
+            ThakSeed::class,
+            KelasSeed::class,
+            AdminSeed::class,
+            SiswaSeed::class,
+            RiwayatKelasSeed::class,
+            PresensiSeed::class,
+            DiarySeed::class
+            
         ]);
 
     }

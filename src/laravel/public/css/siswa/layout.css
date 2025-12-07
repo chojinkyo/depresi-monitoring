@@ -1,0 +1,357 @@
+/* ===================================
+   LAYOUT SISWA - GLOBAL STYLES
+   =================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #F8F9FA;
+    overflow-x: hidden;
+}
+
+/* ===================================
+   SIDEBAR STYLES
+   =================================== */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 256px;
+    background: linear-gradient(180deg, #51A2FF 0%, #AD46FF 100%);
+    padding: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+/* User Profile Container */
+.user-container {
+    background: rgba(255, 255, 255, 0.3);
+    padding: 16px;
+    border-radius: 0 0 25px 25px;
+    margin-bottom: 20px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.user-avatar {
+    width: 48px;
+    height: 48px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    color: #8200DB;
+    flex-shrink: 0;
+}
+
+.user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #FFFFFF;
+    margin: 0;
+}
+
+.user-role {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+.welcome-divider {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 12px;
+}
+
+.welcome-text {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0;
+}
+
+/* Navigation */
+.nav-menu {
+    padding: 0 16px;
+}
+
+.nav-item {
+    margin-bottom: 8px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 12px;
+    border-radius: 14px;
+    color: #FFFFFF;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 15px;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+}
+
+.nav-link.active {
+    background: #FFFFFF;
+    color: #8200DB;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.nav-icon {
+    font-size: 20px;
+}
+
+.nav-text {
+    flex: 1;
+}
+
+/* Logout Button */
+.logout-section {
+    padding: 16px;
+    margin-top: auto;
+}
+
+.btn-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    gap: 8px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 12px;
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-logout:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* ===================================
+   MAIN CONTENT
+   =================================== */
+.main-content {
+    margin-left: 256px;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+/* Header */
+.main-header {
+    background: #FFFFFF;
+    padding: 20px 32px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.header-title h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1E2939;
+    margin: 0;
+}
+
+.header-subtitle {
+    font-size: 14px;
+    color: #6B7280;
+    margin: 4px 0 0 0;
+}
+
+/* Content Container */
+.content-container {
+    padding: 32px;
+}
+
+/* ===================================
+   MAIN CONTENT
+   =================================== */
+.main-content {
+    margin-left: 256px;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+/* Header */
+.main-header {
+    background: #FFFFFF;
+    padding: 20px 32px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-title {
+    flex: 1;
+}
+
+.header-title h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1E2939;
+    margin: 0;
+}
+
+.header-subtitle {
+    font-size: 14px;
+    color: #6B7280;
+    margin: 4px 0 0 0;
+}
+
+/* Content Container */
+.content-container {
+    padding: 32px;
+}
+
+/* ===================================
+   MOBILE MENU TOGGLE (di dalam header)
+   =================================== */
+.mobile-menu-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #51A2FF 0%, #AD46FF 100%);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.mobile-menu-toggle:hover {
+    transform: scale(1.05);
+}
+
+.mobile-menu-toggle:active {
+    transform: scale(0.95);
+}
+
+/* Sidebar Close Button */
+.sidebar-close {
+    display: none;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 8px;
+    color: #FFFFFF;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+.sidebar-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Overlay ketika sidebar dibuka di mobile */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.sidebar-overlay.active {
+    display: block;
+}
+
+/* ===================================
+   RESPONSIVE
+   =================================== */
+@media (max-width: 768px) {
+    /* Show hamburger in header */
+    .mobile-menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Hide hamburger when sidebar is open */
+    .mobile-menu-toggle.hide {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .sidebar {
+        left: -256px;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    /* Show close button when sidebar is active */
+    .sidebar.active .sidebar-close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .main-header {
+        padding: 16px 20px;
+    }
+
+    .content-container {
+        padding: 20px;
+    }
+
+    .header-title h1 {
+        font-size: 20px;
+    }
+
+    .header-subtitle {
+        font-size: 13px;
+    }
+}

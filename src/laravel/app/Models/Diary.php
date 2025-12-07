@@ -7,4 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Diary extends Model
 {
     //
+    protected $guarded = ['id'];
+    protected $table='diary';
+
+    public $timestamps = false;
 }

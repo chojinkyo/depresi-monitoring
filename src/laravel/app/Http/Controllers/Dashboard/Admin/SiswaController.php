@@ -78,7 +78,7 @@ class SiswaController extends Controller implements HasMiddleware
             {
                 $filename=uniqid().'_'.now()->format('dmY').$file->getClientOriginalExtension();
                 $storage_path='/data/images/avatars/'.$filename;
-                Storage::disk('public')->put($storage_path, file_get_contents($file));
+                Storage::disk('private')->put($storage_path, file_get_contents($file));
             }
 
             // Create user
@@ -162,8 +162,8 @@ class SiswaController extends Controller implements HasMiddleware
                 $filename=uniqid().'_'.now()->format('dmY').$file->getClientOriginalExtension();
                 $old_path=$user->avatar_url;
                 $storage_path='/data/images/avatars/'.$filename;
-                Storage::disk('public')->delete($old_path);
-                Storage::disk('public')->put($storage_path, file_get_contents($file));
+                Storage::disk('private')->delete($old_path);
+                Storage::disk('private')->put($storage_path, file_get_contents($file));
             }
             if($user->username==$siswa->nisn && $siswa->nisn!=$data['nisn'])
             {

@@ -10,7 +10,6 @@
         <div class="card shadow-sm mb-4">
             <div class="card-header no-after py-3 d-flex align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">{{ $title }}</h6>
-
                 <div class="d-flex align-items-center">
                     <input type="text" name="" id="" class="form-control mr-2" placeholder="search items">
                     @if($addRoute)
@@ -18,6 +17,7 @@
                         href="#" 
                         class="btn btn-primary d-block d-flex align-items-center"
                         x-on:click="event.preventDefault();"
+                        onclick="Livewire.dispatch('{{ $addRoute }}')"
                         data-toggle="modal"
                         data-target="#create-modal">
                             <i class="fas fa-plus mr-2"></i> Tambah

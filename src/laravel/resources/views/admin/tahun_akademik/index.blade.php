@@ -2,7 +2,11 @@
 
 @section('title', 'Index Tahun Akademik')
 @section('content_header')
-    <h1>Tahun Akademik</h1>
+    <div class="row justify-content-center">
+        <div class="col-10">
+            <h1 class="m-0">Tahun Akademik</h1>
+        </div>
+    </div>
 @endsection
 
 @section('content')

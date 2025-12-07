@@ -1,4 +1,4 @@
-.card-header.no-after::after
+.card-header.no-after::after, .card-footer.no-after::after
 {
     display: none;
     content: none;

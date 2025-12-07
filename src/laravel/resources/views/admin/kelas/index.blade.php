@@ -2,13 +2,17 @@
 
 @section('title', 'Index Siswa')
 @section('content_header')
-    <h1>Kelas</h1>
+    <div class="row justify-content-center">
+        <div class="col-10">
+            <h1 class="m-0">Kelas</h1>
+        </div>
+    </div>
 @endsection
 
 @section('content')
 <x-table
     title="Daftar Kelas"
-    :headers="['No', 'Nama Kelas', 'Jenjang', 'Jurusan', 'Jumlah Siswa']"
+    :headers="['No', 'Nama Kelas', 'Jenjang', 'Jurusan']"
     addRoute="kelas.create"
 >
     <livewire:kelas.table-data />

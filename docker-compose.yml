@@ -9,10 +9,21 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./src/laravel/:/var/www/html
+      - ./src/laravel:/var/www/html
+      - ./src/laravel/storage:/var/www/html/storage
+      - ./src/laravel/public:/var/www/html/public
     depends_on:
       - db
+      - model
     command: php artisan serve --host=0.0.0.0 --port=8000
+  model :
+    image: depresiku_model:latest
+    container_name: depresiku_model
+    ports:
+      - "8001:8000"
+    restart: unless-stopped
+    volumes:
+     - ./src/python:/app
 
   db:
     image: mysql:8.1

@@ -4,7 +4,11 @@
 
 @section('title', 'Daftar Hari Libur')
 @section('content_header')
-    <h1>Hari Libur</h1>
+    <div class="row justify-content-center">
+        <div class="col-11">
+            <h1 class="my-0 mx-1">Kalendar Akademik</h1>
+        </div>
+    </div>
 @endsection
 
 
@@ -93,12 +97,30 @@
                 
                 <div class="accordion" id="accordionExample">
                     <div class="card m-0" id="heading0">
-                    <div class="card-header no-after d-flex align-items-center">
-                        <h2 class="m-0">
-                            <button type="button" class="btn btn-block text-left pl-0 font-weight-bold"  data-toggle="collapse" data-target="#collapse0" aria-expanded="true" aria-controls="collapse0">
-                                Jadwal Harian
-                            </button>
-                        </h2>
+                    <div class="card-header d-flex align-items-center flex-column no-after">
+                        <div class="row w-100">
+                            <h2 class="m-0">
+                                <button type="button" class="btn btn-block text-left pl-0 font-weight-bold"  data-toggle="collapse" data-target="#collapse0" aria-expanded="true" aria-controls="collapse0">
+                                    Jadwal Harian
+                                </button>
+                            </h2>
+                        </div>
+
+                        <hr style="width: 250%;transform: translateX(-50%)">
+                        <div class="row w-100 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <input type="checkbox" class="form-check">
+                                <label for="" class="font-weight-normal m-0 btn">Select All</label>
+                            </div>
+                            <div>
+                                <select name="" id="" class="form-control form-control-sm">
+                                    <option value="">--Pilih Jenjang--</option>
+                                    <option value="1">Jenjang 1</option>
+                                    <option value="2">Jenjang 2</option>
+                                    <option value="3">Jenjang 3</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="collapse" id="collapse0" aria-labelledby="heading0" data-parent="#accordionExample">
                         <div class="card-body">
@@ -119,7 +141,6 @@
                             <div class="card-body">
                                 <label for="">Jadwal</label>
                                 <div class="form-row align-items-end">
-                                    
                                     <div class="col">
                                         <label for="" class="font-weight-normal">Start</label>
                                         <input type="text" name="" id="" class="form-control">
@@ -165,6 +186,56 @@
                         </button>
 
                     </div>
+                </li>
+                <li>
+                    <form action="" method="post">
+                        @csrf
+                        <div class="card">
+                            <div class="card-header px-0">
+                                <h2 class="h5 ml-3 font-weight-bold">Tambah hari libur</h2>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="form-group mb-0">
+                                    <textarea type="text" class="form-control form-control-lg rounded-0 border-0" placeholder="input keterangan" rows="5"></textarea>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="input-group d-flex justify-content-end">
+                                    <div class="input-group-prepend">
+                                        <div class="dropdown">
+                                            <button class="btn bg-white border border-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                                                Pilih Jenjang
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li class="dropdown-item">
+                                                    <input type="checkbox">
+                                                    <label for="" class="m-0 font-weight-normal ml-2">Semua Jenjang</label>
+                                                </li>
+                                                <li class="dropdown-item">
+                                                    <input type="checkbox">
+                                                    <label for="" class="m-0 font-weight-normal ml-2">Jenjang 1</label>
+                                                </li>
+                                                <li class="dropdown-item">
+                                                    <input type="checkbox">
+                                                    <label for="" class="m-0 font-weight-normal ml-2">Jenjang 2</label>
+                                                </li>
+                                                <li class="dropdown-item">
+                                                    <input type="checkbox">
+                                                    <label for="" class="m-0 font-weight-normal ml-2">Jenjang 3</label>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary">
+                                            <i class="fas fa-plus mr-2"></i> Tambah
+
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </li>
             </ul>
         </div>

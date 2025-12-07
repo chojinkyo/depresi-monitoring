@@ -5,9 +5,18 @@
             <td>{{ $row->nama_tahun}}</td>
             <td>{{ $row->tanggal_mulai }}</td>
             <td>{{ $row->tanggal_selesai }}</td>
-            <td>{{ 0 }}</td>
+            <td>
+                @if($row->current)
+                    <span class="badge badge-pill badge-success">current</span>
+                @elseif($row->status)
+                    <span class="badge badge-pill badge-info">opened</span>
+                @else
+                    <span class="badge badge-pill badge-danger">closed</span>
+                @endif
+                
+            </td>
             <td class="d-flex justify-content-around">
-                <a href="{{ route('hari-libur.edit', $row->id) }}" class="btn btn-warning btn-xs">
+                <a href="#" class="btn btn-warning btn-xs">
                     <i class="fas fa-eye"></i>
                 </a>
                 <a 

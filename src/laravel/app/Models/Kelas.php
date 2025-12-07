@@ -10,6 +10,7 @@ class Kelas extends Model
 {
     protected $table='kelas';
     protected $guarded = ['id'];
+    protected $primaryKey = 'id';
     public $timestamps = false;
     public function riwayat_kelas() : HasMany
     {

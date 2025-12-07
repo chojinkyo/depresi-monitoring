@@ -61,7 +61,7 @@ class LogHarianController extends Controller
             {
                 $filename="log_".now()->format('dmYHis')."_".$siswa->nisn.$file->getClientOriginalExtension();
                 $storage_path="/data/images/log_harian/$siswa->nisn/";
-                Storage::disk('public')->put(file_get_contents($file), $storage_path.$filename);
+                Storage::disk('private')->put(file_get_contents($file), $storage_path.$filename);
                 $data=[...$data,"swafoto_url"=>$storage_path.$filename];
             }
             $log->update($data);

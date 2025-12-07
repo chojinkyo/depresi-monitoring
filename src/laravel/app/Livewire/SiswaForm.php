@@ -61,7 +61,7 @@ class SiswaForm extends Component
             {
                 $filename=uniqid().'_'.now()->format('dmY').$file->getClientOriginalExtension();
                 $storage_path='/data/images/avatars/'.$filename;
-                Storage::disk('public')->put($storage_path, file_get_contents($file));
+                Storage::disk('private')->put($storage_path, file_get_contents($file));
             }
 
             // Create user

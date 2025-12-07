@@ -5,9 +5,8 @@
             <td>{{ $row->nama}}</td>
             <td>{{ $row->jenjang }}</td>
             <td>{{ $row->jurusan }}</td>
-            <td>{{ 0 }}</td>
             <td class="d-flex justify-content-around">
-                <a href="{{ route('hari-libur.edit', $row->id) }}" class="btn btn-warning btn-xs">
+                <a href="#" class="btn btn-warning btn-xs">
                     <i class="fas fa-eye"></i>
                 </a>
                 <a 

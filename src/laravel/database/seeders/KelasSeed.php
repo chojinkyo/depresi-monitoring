@@ -17,13 +17,23 @@ class KelasSeed extends Seeder
         $indexes=['A', 'B', 'C', 'D', 'F'];
         $data=[];
         $id=1;
+        $jurusan=
+        [
+            'A'=>'IPA',
+            'B'=>'IPA',
+            'C'=>'IPA',
+            'D'=>'IPS',
+            'E'=>'IPS',
+            'F'=>'IPS'
+        ];
         foreach($grades as $g)
         {
             foreach($indexes as $i)
             {
                 array_push($data, [
                     'nama'=>"$g-$i",
-                    'tingkat'=>$id,
+                    'jenjang'=>$id,
+                    'jurusan'=>$jurusan[$i]
                 ]);
             }
             $id++;

@@ -7,4 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Presensi extends Model
 {
     //
+    protected $guarded=['id'];
+    protected $table='presensi';
+
+    public $timestamps = false;
 }
