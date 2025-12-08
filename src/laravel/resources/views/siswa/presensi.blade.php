@@ -178,6 +178,25 @@
 
         // Create FormData
         const formData = new FormData(this);
+
+        // Manually append 'ket' and 'doc' based on status
+        if (status.value === 'I') {
+            const alasanIzin = document.getElementById('alasanIzin').value;
+            formData.append('ket', alasanIzin);
+            
+            const fileInput = document.getElementById('fileInputIzin');
+            if (fileInput.files.length > 0) {
+                formData.append('doc', fileInput.files[0]);
+            }
+        } else if (status.value === 'S') {
+            const jenisSakit = document.getElementById('jenisSakit').value;
+            formData.append('ket', jenisSakit);
+
+            const fileInput = document.getElementById('fileInputSakit');
+            if (fileInput.files.length > 0) {
+                formData.append('doc', fileInput.files[0]);
+            }
+        }
         
         // Add token if not present (usually handled by @csrf directive in form)
         // formData.append('_token', '{{ csrf_token() }}');

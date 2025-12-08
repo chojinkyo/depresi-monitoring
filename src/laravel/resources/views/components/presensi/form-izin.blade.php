@@ -12,8 +12,8 @@
     <div class="upload-area small" id="uploadAreaIzin">
         <i class="bi bi-file-earmark-arrow-up upload-icon"></i>
         <p class="upload-text">Klik untuk Upload Surat Izin</p>
-        <p class="upload-subtext">JPG, PNG maksimal 5MB</p>
-        <input type="file" id="fileInputIzin" class="file-input" accept="image/jpeg,image/png,image/jpg">
+        <p class="upload-subtext">JPG, PNG, PDF maksimal 10MB</p>
+        <input type="file" id="fileInputIzin" class="file-input" accept="image/jpeg,image/png,image/jpg,application/pdf">
     </div>
     <div class="preview-container" id="previewContainerIzin">
         <img id="previewImageIzin" class="preview-image" alt="Preview">

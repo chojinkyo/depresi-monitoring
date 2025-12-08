@@ -171,11 +171,21 @@ class PresensiController extends Controller
             $thak=$this->getCurThak();
             $id_sis=$siswa->id;
             $id_thak=$thak->id;
+            $doc_path = null;
+            if ($request->hasFile('doc')) {
+                $docFile = $request->file('doc');
+                $docDir = '/data/docs/'.$siswa->nisn.'/'.$thak->nama_tahun;
+                $docName = 'doc_'.$siswa->nisn.'_'.now()->format('dmYHi').'.'.$docFile->getClientOriginalExtension();
+                $doc_path = $docDir.'/'.$docName;
+                Storage::disk('public')->put($doc_path, file_get_contents($docFile));
+            }
+
             $data_pres=
             [
                 ...array_diff_key($data, array_flip(['swafoto', 'catatan', 'doc', 'emoji'])),
                 'id_thak'=>$id_thak,
                 'id_siswa'=>$id_sis,
+                'doc'=>$doc_path
             ];
             $presensi=Presensi::create($data_pres);
 

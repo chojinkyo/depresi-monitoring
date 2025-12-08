@@ -19,10 +19,10 @@
         <ul class="list-unstyled">
             <li class="nav-item">
                 @include('components.buttons.button-sidebar', [
-                    'href' => '/siswa',
+                    'href' => '/siswa/dashboard',
                     'icon' => 'bi-grid-fill',
                     'text' => 'Dashboard',
-                    'active' => request()->is('siswa')
+                    'active' => request()->is('siswa/dashboard')
                 ])
                                     </li>
                                     <li class="nav-item">

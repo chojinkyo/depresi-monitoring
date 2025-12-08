@@ -12,6 +12,7 @@ class Presensi extends Model
         'id_siswa',
         'id_thak',
         'status',
-        'ket'
+        'ket',
+        'doc'
     ];
 }
