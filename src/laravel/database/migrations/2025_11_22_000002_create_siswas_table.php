@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('nisn')->unique();
             $table->string('nama_lengkap');
             $table->string('tempat_lahir', 50);
-            $table->date('tanggal_lahir');
-            $table->mediumText('alamat');
             $table->boolean('gender');
             $table->boolean('status')->default(true);
+            $table->date('tanggal_lahir');
+            $table->mediumText('alamat');
             $table->foreignId('id_user')
             ->nullable()
             ->constrained('users')

@@ -39,9 +39,9 @@ class Siswa extends Model
     {
         return $this->belongsToMany(Kelas::class, 'riwayat_kelas', 'id_siswa', 'id_kelas')->wherePivot("active", true)->limit(1);
     }
-    public function getKelasByThak($id_thak)
+    public function getClassByAcademicYear($academiYearId)
     {
-        return $this->riwayat_kelas()->where('id_thak', $id_thak)?->first()?->kelas;
+        return $this->riwayat_kelas()->where('id_thak', $academiYearId)?->first()?->kelas;
     }
     public function getKelasAktif()
     {

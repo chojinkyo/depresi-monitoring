@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('kelas', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 5);
-            $table->string('jurusan', 50);
+            $table->enum('jurusan', ['IPA', 'IPS']);
             $table->unsignedTinyInteger('jenjang');
         });
     }

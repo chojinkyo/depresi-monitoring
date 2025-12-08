@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('nip')->unique();
             $table->string('nama_lengkap');
-            $table->date('tgl_lahir');
             $table->mediumText('alamat');
             $table->boolean('gender');
+            $table->date('tgl_lahir');
             $table->timestamps();
         });
     }

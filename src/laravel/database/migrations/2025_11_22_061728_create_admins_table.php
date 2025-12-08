@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('admin', function (Blueprint $table) {
             $table->id();
             $table->string('nama_lengkap',50);
-            $table->date('tgl_lahir');
+            $table->date('tanggal_lahir');
             $table->boolean('gender');
             $table->mediumText('alamat');
             $table->foreignId('id_user')

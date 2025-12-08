@@ -5,9 +5,9 @@
     'addRoute' => null,  // route untuk tombol “Tambah”
 ])
 
-<div class="row justify-content-center">
-    <div class="col-10">
-        <div class="card shadow-sm mb-4">
+<div class="row justify-content-center w-100">
+    <div class="col-12">
+        <div class="card shadow-sm mb-4 border-top border-3 border-primary">
             <div class="card-header no-after py-3 d-flex align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">{{ $title }}</h6>
                 <div class="d-flex align-items-center">
@@ -47,42 +47,40 @@
                         {{ $slot }}
                     </table>
 
-                    <div class="d-flex justify-content-left mt-4">
-                        <nav>
-                            <ul class="pagination">
-                                <li class="page-item">
-                                    <a href="#" class="page-link">
-                                        <span aria-hidden="true">&laquo;</span>
-                                        <span class="sr-only">Previous</span>
-                                    </a>
-
-                                    
-                                </li>
-                                <li class="page-item">
-                                    <a href="#" class="page-link">
-                                        1
-                                    </a>
-                                </li>
-                                <li class="page-item">
-                                    <a href="#" class="page-link">
-                                        <span aria-hidden="true">&raquo;</span>
-                                        <span class="sr-only">Next</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
-
-                        <div class="form-group ml-2">
-                            <select name="" id="" class="form-control">
-                                <option value="10">10</option>
-                                <option value="10">25</option>
-                                <option value="10">50</option>
-                                <option value="10">100</option>
-                                <option value="10">250</option>
-                            </select>
-                        </div>
-                    </div>
                     
+                    
+                </div>
+                
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-left">
+                    <nav>
+                        <ul class="pagination">
+                            <li class="page-item">
+                                <a href="#" class="page-link">
+                                    <span aria-hidden="true">&laquo;</span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+
+                                
+                            </li>
+                            <li class="page-item">
+                                <a href="#" class="page-link">
+                                    1
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a href="#" class="page-link">
+                                    <span aria-hidden="true">&raquo;</span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    @if(isset($paginator))
+                        {{ $paginator }}
+                    @endif
                 </div>
             </div>
         </div>

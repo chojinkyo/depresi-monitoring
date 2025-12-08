@@ -1,11 +1,17 @@
 <?php
 
+use App\Http\Controllers\Admin\DiaryController;
+use App\Http\Controllers\Admin\KelasController;
+use App\Http\Controllers\Admin\PresensiController as AdminPresensiController;
+use App\Http\Controllers\Admin\SiswaController;
+use App\Http\Controllers\Admin\TahunAkademikController;
 use App\Http\Controllers\App\Siswa\PresensiController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Dashboard\Admin\PresensiLiburController as HariLiburController;
+use App\Models\TahunAkademik;
 
 Route::view('/', 'welcome');
 Route::group(['middleware'=>['guest']], function() {
@@ -20,14 +26,18 @@ Route::group(['middleware'=>['auth']], function() {
     ->name('image.web.show');
     Route::post('/logout', [LoginController::class, 'postLogout'])->name('web.logout.post');
 });
-Route::group(['middleware'=>['auth', 'role:admin']], function() {
-    Route::get('/admin/dashboard', [DashboardController::class, 'adminDashboard'] );
-    Route::view('/admin/kelas', 'admin.kelas.index')->name('admin.kelas.index');
-    Route::view('/admin/siswa', 'admin.siswa.index')->name('admin.siswa.index');
-    Route::view('/admin/tahun-akademik', 'admin.tahun_akademik.index')->name('admin.thak.index');
-    Route::view('/admin/siswa/mental', 'admin.siswa.mental.index')->name('admin.siswa.mental.index');
-    Route::view('/admin/siswa/kehadiran', 'admin.siswa.kehadiran.index')->name('admin.siswa.kehadiran.index');
-    Route::get('/admin/hari-libur', [HariLiburController::class, 'index'])->name('admin.libur.index');
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function() {
+    Route::view('/siswa/mental', 'admin.siswa.mental.index')->name('admin.siswa.mental.index');
+    Route::resource('/siswa/kehadiran', AdminPresensiController::class)->except(['destroy', 'create', 'store', 'edit', 'update']);
+    Route::resource('/siswa/diary', DiaryController::class)->except(['destroy', 'create', 'store', 'edit', 'update']);
+    Route::resource('/siswa', SiswaController::class);
+    Route::resource('/kelas', KelasController::class);
+    Route::resource('/tahun-akademik', TahunAkademikController::class);
+    // Route::get('/dashboard', [DashboardController::class, 'adminDashboard'] );
+    // Route::view('/kelas', 'admin.kelas.index')->name('admin.kelas.index');
+    // Route::view('/tahun-akademik', 'admin.tahun_akademik.index')->name('admin.thak.index');
+    
+    // Route::get('/hari-libur', [HariLiburController::class, 'index'])->name('admin.libur.index');
 });
 Route::group(['middleware'=>['auth', 'role:guru']], function() {
     Route::get('/guru/dashboard', [DashboardController::class, 'guruDashboard'] );

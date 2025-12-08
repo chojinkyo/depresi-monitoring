@@ -338,19 +338,24 @@ return [
             'route' => 'admin.kelas.index',
             'icon' => 'fas fa-fw fa-school',
         ],
-        [
-            'text' => 'Kalender Akademik',
-            'route' => 'admin.libur.index',
-            'icon' => 'fas fa-fw fa-calendar',
-        ],
+        // [
+        //     'text' => 'Kalender Akademik',
+        //     'route' => 'admin.libur.index',
+        //     'icon' => 'fas fa-fw fa-calendar',
+        // ],
         [
             'text' => 'Tahun Akademik',
-            'route' => 'admin.thak.index',
+            'route' => 'admin.tahun-akademik.index',
             'icon' => 'fas fa-fw fa-book',
         ],
         [
             'text' => 'Kehadiran',
-            'route' => 'admin.thak.index',
+            'route' => 'admin.kehadiran.index',
+            'icon' => 'fas fa-fw fa-book',
+        ],
+        [
+            'text' => 'Diari Siswa',
+            'route' => 'admin.diary.index',
             'icon' => 'fas fa-fw fa-book',
         ],
         // [

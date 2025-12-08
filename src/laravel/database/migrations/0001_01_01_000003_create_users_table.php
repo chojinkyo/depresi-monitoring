@@ -18,12 +18,12 @@ return new class extends Migration
         // - Mengubah nama kolom "user_level" menjadi "role"
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('avatar_url')->nullable();
-            $table->string('password');
             $table->string('email')->unique();
             $table->string('username')->unique();
-            $table->boolean('status')->default(false);
+            $table->string('avatar_url')->nullable();
+            $table->string('password');
             $table->enum('role', ['siswa', 'admin', 'guru']);
+            $table->boolean('status')->default(false);
             $table->timestamps();
         });
 
