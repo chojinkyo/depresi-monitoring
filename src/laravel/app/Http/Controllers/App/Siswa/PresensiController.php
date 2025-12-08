@@ -152,7 +152,10 @@ class PresensiController extends Controller
             'status'=>'required|in:H,I,S,A',
             'emoji'=>'required|integer|between:1,5',
             'ket'=>'required_if:status,I,S|max:255',
-            'doc'=>'required_if:status,I,S|file|mimes:pdf,jpg,png,jpeg|max:10240'
+            'doc'=>'required_if:status,I,S|file|mimes:pdf,jpg,png,jpeg|max:10240',
+            'swafoto_pred'=>'nullable|string',
+            'catatan_pred'=>'nullable|string',
+            'catatan_ket'=>'nullable|string'
         ]);
         if($validator->fails())
         {
@@ -182,7 +185,7 @@ class PresensiController extends Controller
 
             $data_pres=
             [
-                ...array_diff_key($data, array_flip(['swafoto', 'catatan', 'doc', 'emoji'])),
+                ...array_diff_key($data, array_flip(['swafoto', 'catatan', 'doc', 'emoji', 'swafoto_pred', 'catatan_pred', 'catatan_ket'])),
                 'id_thak'=>$id_thak,
                 'id_siswa'=>$id_sis,
                 'doc'=>$doc_path
@@ -194,16 +197,15 @@ class PresensiController extends Controller
             $filename='pres_'.$siswa->nisn.'_'.now()->format('dmYHi').$file->getClientOriginalExtension();
             $strg_path=$dir_path.$filename;
             Storage::disk('public')->put($strg_path, file_get_contents($file));
-            // Call the ML model for daily monitoring here.
-
+            
             $data_diary=
             [
                 ...array_diff_key($data, array_flip(['swafoto', 'doc', 'ket', 'status'])),
                 'id_presensi'=>$presensi->id,
                 'swafoto'=>$strg_path,
-                'swafoto_pred'=>' ',
-                'catatan_pred'=>' ',
-                'catatan_ket'=>' ',
+                'swafoto_pred'=>$data['swafoto_pred'] ?? '-',
+                'catatan_pred'=>$data['catatan_pred'] ?? '-',
+                'catatan_ket'=>$data['catatan_ket'] ?? '-',
             ];
             Diary::create($data_diary);
 

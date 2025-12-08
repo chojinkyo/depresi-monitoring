@@ -58,6 +58,11 @@
             {{-- Mood Form Component --}}
             @include('components.presensi.mood-form')
 
+            {{-- Hidden Inputs for Prediction --}}
+            <input type="hidden" name="swafoto_pred" id="swafotoPred">
+            <input type="hidden" name="catatan_pred" id="catatanPred">
+            <input type="hidden" name="catatan_ket" id="catatanKet">
+
             <button type="submit" class="btn-submit">Kirim Absensi</button>
         </form>
     </div>
@@ -109,14 +114,61 @@
         }
     });
 
-    // Capture Photo
+    // API Config
+    const API_FACE_URL = "https://risetkami-risetkami.hf.space/predict_face";
+    const API_TEXT_URL = "https://risetkami-risetkami.hf.space/predict_text";
+
+    // Prediction Functions
+    async function predictFace(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch(API_FACE_URL, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            console.log('Face Prediction:', data);
+            document.getElementById('swafotoPred').value = JSON.stringify(data);
+            return data;
+        } catch (error) {
+            console.error('Face Prediction Error:', error);
+            document.getElementById('swafotoPred').value = JSON.stringify({ error: error.message });
+            return null;
+        }
+    }
+
+    async function predictText(text) {
+        try {
+            const response = await fetch(API_TEXT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: text })
+            });
+            const data = await response.json();
+            console.log('Text Prediction:', data);
+            document.getElementById('catatanPred').value = JSON.stringify(data);
+            // Assuming catatan_ket might be derived or just same response for now
+            document.getElementById('catatanKet').value = JSON.stringify(data); 
+            return data;
+        } catch (error) {
+            console.error('Text Prediction Error:', error);
+            document.getElementById('catatanPred').value = JSON.stringify({ error: error.message });
+            return null;
+        }
+    }
+
+    // Capture Photo with Prediction
     captureBtn.addEventListener('click', () => {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         canvas.getContext('2d').drawImage(video, 0, 0);
         
         // Convert to file
-        canvas.toBlob(blob => {
+        canvas.toBlob(async blob => {
             const file = new File([blob], "swafoto.jpg", { type: "image/jpeg" });
             
             // Create FileList hack for input file
@@ -132,27 +184,15 @@
             
             // Stop stream
             stream.getTracks().forEach(track => track.stop());
+
+            // Trigger Face Prediction immediately
+            await predictFace(file);
+
         }, 'image/jpeg');
     });
 
-    // Retake Photo
-    retakeBtn.addEventListener('click', async () => {
-        previewArea.style.display = 'none';
-        swafotoInput.value = ''; // Clear input
-        
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
-            video.style.display = 'block';
-            captureBtn.style.display = 'block';
-        } catch (err) {
-            alert('Gagal mengakses kamera: ' + err.message);
-            placeholder.style.display = 'block';
-        }
-    });
-
-    // Form Submit
-    document.getElementById('absensiForm').addEventListener('submit', function(e) {
+    // Form Submit with Text Prediction
+    document.getElementById('absensiForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const status = document.querySelector('input[name="status"]:checked');
@@ -178,62 +218,66 @@
             }
         }
 
-        // Create FormData
-        const formData = new FormData(this);
-
-        // Manually append 'ket' and 'doc' based on status
-        if (status.value === 'I') {
-            const alasanIzin = document.getElementById('alasanIzin').value;
-            formData.append('ket', alasanIzin);
-            
-            const fileInput = document.getElementById('fileInputIzin');
-            if (fileInput.files.length > 0) {
-                formData.append('doc', fileInput.files[0]);
-            }
-        } else if (status.value === 'S') {
-            const jenisSakit = document.getElementById('jenisSakit').value;
-            formData.append('ket', jenisSakit);
-
-            const fileInput = document.getElementById('fileInputSakit');
-            if (fileInput.files.length > 0) {
-                formData.append('doc', fileInput.files[0]);
-            }
-        }
-        
-        // Add token if not present (usually handled by @csrf directive in form)
-        // formData.append('_token', '{{ csrf_token() }}');
-
         // Show loading state
         const submitBtn = document.querySelector('.btn-submit');
         const originalBtnText = submitBtn.innerText;
-        submitBtn.innerText = 'Mengirim...';
+        submitBtn.innerText = 'Memproses...';
         submitBtn.disabled = true;
 
-        fetch('/siswa/presensi', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                'Accept': 'application/json'
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
+        try {
+            // Trigger Text Prediction
+            const catatan = document.querySelector('textarea[name="catatan"]').value;
+            if (catatan) {
+                await predictText(catatan);
+            }
+
+            // Create FormData
+            const formData = new FormData(this);
+
+            // Manually append 'ket' and 'doc' based on status
+            if (status.value === 'I') {
+                const alasanIzin = document.getElementById('alasanIzin').value;
+                formData.append('ket', alasanIzin);
+                
+                const fileInput = document.getElementById('fileInputIzin');
+                if (fileInput.files.length > 0) {
+                    formData.append('doc', fileInput.files[0]);
+                }
+            } else if (status.value === 'S') {
+                const jenisSakit = document.getElementById('jenisSakit').value;
+                formData.append('ket', jenisSakit);
+
+                const fileInput = document.getElementById('fileInputSakit');
+                if (fileInput.files.length > 0) {
+                    formData.append('doc', fileInput.files[0]);
+                }
+            }
+            
+            // Send to Laravel Backend
+            const response = await fetch('/siswa/presensi', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
             if (data.message) {
-                alert('Berhasil! ' + data.message);
                 window.location.href = '/siswa/dashboard';
             } else {
                 throw new Error(data.message || 'Terjadi kesalahan saat mengirim absensi.');
             }
-        })
-        .catch(error => {
+
+        } catch (error) {
             console.error('Error:', error);
             alert('Gagal: ' + error.message);
-        })
-        .finally(() => {
+        } finally {
             submitBtn.innerText = originalBtnText;
             submitBtn.disabled = false;
-        });
+        }
     });
 
     // Update date
