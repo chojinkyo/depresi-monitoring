@@ -238,5 +238,60 @@
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const today = new Date();
     document.getElementById('currentDate').textContent = today.toLocaleDateString('id-ID', options);
+
+    // File Upload Logic
+    function setupFileUpload(areaId, inputId, previewContainerId, previewImageId, removeBtnId) {
+        const area = document.getElementById(areaId);
+        const input = document.getElementById(inputId);
+        const container = document.getElementById(previewContainerId);
+        const img = document.getElementById(previewImageId);
+        const removeBtn = document.getElementById(removeBtnId);
+
+        // Trigger input click
+        area.addEventListener('click', () => input.click());
+
+        // Handle file selection
+        input.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                
+                // Validate size (10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Ukuran file terlalu besar! Maksimal 10MB.');
+                    this.value = '';
+                    return;
+                }
+
+                area.style.display = 'none';
+                container.style.display = 'block';
+
+                if (file.type === 'application/pdf') {
+                    // Show PDF placeholder
+                    img.src = 'https://cdn-icons-png.flaticon.com/512/337/337946.png'; // Generic PDF icon
+                    img.style.objectFit = 'contain';
+                } else {
+                    // Show Image preview
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        img.src = e.target.result;
+                        img.style.objectFit = 'cover';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        // Handle remove
+        removeBtn.addEventListener('click', function() {
+            input.value = '';
+            area.style.display = 'flex'; // Restore flex display
+            container.style.display = 'none';
+            img.src = '';
+        });
+    }
+
+    // Initialize file uploads
+    setupFileUpload('uploadAreaIzin', 'fileInputIzin', 'previewContainerIzin', 'previewImageIzin', 'removeImageIzin');
+    setupFileUpload('uploadAreaSakit', 'fileInputSakit', 'previewContainerSakit', 'previewImageSakit', 'removeImageSakit');
 </script>
 @endsection
