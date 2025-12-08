@@ -31,50 +31,118 @@
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
-                <div class="card-body text-center p-4">
-                    <div class="icon-box mb-3 mx-auto bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="bi bi-person-check-fill fs-3"></i>
+    {{-- Summary Card --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+                <div class="card-body p-4">
+                    <h5 class="card-title fw-bold mb-4">Ringkasan Absensi</h5>
+                    <div class="row g-3 text-center">
+                        <div class="col-3 border-end">
+                            <h3 class="fw-bold text-success mb-0">{{ $stats['H'] }}</h3>
+                            <small class="text-muted">Hadir</small>
+                        </div>
+                        <div class="col-3 border-end">
+                            <h3 class="fw-bold text-info mb-0">{{ $stats['I'] }}</h3>
+                            <small class="text-muted">Izin</small>
+                        </div>
+                        <div class="col-3 border-end">
+                            <h3 class="fw-bold text-warning mb-0">{{ $stats['S'] }}</h3>
+                            <small class="text-muted">Sakit</small>
+                        </div>
+                        <div class="col-3">
+                            <h3 class="fw-bold text-danger mb-0">{{ $stats['A'] }}</h3>
+                            <small class="text-muted">Alpha</small>
+                        </div>
                     </div>
-                    <h3 class="fw-bold mb-1">{{ $stats['H'] }}</h3>
-                    <p class="text-muted mb-0">Hadir</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
-                <div class="card-body text-center p-4">
-                    <div class="icon-box mb-3 mx-auto bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="bi bi-info-circle-fill fs-3"></i>
-                    </div>
-                    <h3 class="fw-bold mb-1">{{ $stats['I'] }}</h3>
-                    <p class="text-muted mb-0">Izin</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
-                <div class="card-body text-center p-4">
-                    <div class="icon-box mb-3 mx-auto bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="bi bi-bandaid-fill fs-3"></i>
-                    </div>
-                    <h3 class="fw-bold mb-1">{{ $stats['S'] }}</h3>
-                    <p class="text-muted mb-0">Sakit</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
-                <div class="card-body text-center p-4">
-                    <div class="icon-box mb-3 mx-auto bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="bi bi-x-octagon-fill fs-3"></i>
-                    </div>
-                    <h3 class="fw-bold mb-1">{{ $stats['A'] }}</h3>
-                    <p class="text-muted mb-0">Alpha</p>
                 </div>
             </div>
         </div>
     </div>
+
+    {{-- Mood Chart --}}
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+                <div class="card-body p-4">
+                    <h5 class="card-title fw-bold mb-4">Grafik Mood (14 Hari Terakhir)</h5>
+                    <canvas id="moodChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('moodChart').getContext('2d');
+        const moodData = @json($moodData);
+
+        const labels = moodData.map(d => d.date);
+        const dataPoints = moodData.map(d => d.emoji);
+
+        // Emoji labels for Y-axis
+        const emojiLabels = {
+            1: '😢 Sangat Sedih',
+            2: '😟 Sedih',
+            3: '😐 Netral',
+            4: '🙂 Senang',
+            5: '😁 Sangat Senang'
+        };
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Mood Level',
+                    data: dataPoints,
+                    borderColor: '#8B5CF6', // Purple
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4, // Smooth curve
+                    fill: true,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#8B5CF6',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                return emojiLabels[value] || 'Tidak ada data';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 6,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                return emojiLabels[value] || '';
+                            }
+                        },
+                        grid: {
+                            borderDash: [5, 5]
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 @endsection

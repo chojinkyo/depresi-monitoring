@@ -17,4 +17,8 @@ class Diary extends Model
         'catatan_pred',
         'catatan_ket'
     ];
+    public function presensi()
+    {
+        return $this->belongsTo(Presensi::class, 'id_presensi');
+    }
 }

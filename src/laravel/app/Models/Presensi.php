@@ -15,4 +15,13 @@ class Presensi extends Model
         'ket',
         'doc'
     ];
+    public function siswa()
+    {
+        return $this->belongsTo(Siswa::class, 'id_siswa');
+    }
+
+    public function diary()
+    {
+        return $this->hasOne(Diary::class, 'id_presensi');
+    }
 }

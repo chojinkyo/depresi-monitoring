@@ -35,6 +35,26 @@ class StatistikController extends Controller
             'A' => $history['A'] ?? 0,
         ];
 
-        return view('siswa.statistik', compact('isTodayPresent', 'stats'));
+        // Mood Chart Data (Last 14 Days)
+        $endDate = now();
+        $startDate = now()->subDays(13); // 14 days including today
+
+        $moodData = Presensi::where('id_siswa', $id_siswa)
+            ->whereDate('created_at', '>=', $startDate)
+            ->whereDate('created_at', '<=', $endDate)
+            ->with('diary')
+            ->orderBy('created_at')
+            ->get()
+            ->map(function ($presensi) {
+                return [
+                    'date' => $presensi->created_at->format('d M'),
+                    'emoji' => $presensi->diary ? $presensi->diary->emoji : null,
+                ];
+            });
+
+        // Fill missing dates with null or previous value if needed (optional, but good for chart)
+        // For now, let's just pass the data we have. Chart.js can handle gaps or we can fill them in JS.
+
+        return view('siswa.statistik', compact('isTodayPresent', 'stats', 'moodData'));
     }
 }

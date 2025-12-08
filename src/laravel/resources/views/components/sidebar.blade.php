@@ -56,6 +56,13 @@
                     'text' => 'Statistik',
                     'active' => request()->is('siswa/statistik')
                 ])
+            <li class="nav-item">
+                @include('components.buttons.button-sidebar', [
+                    'href' => '/siswa/diaryku',
+                    'icon' => 'bi-journal-medical',
+                    'text' => 'Dashboard Diaryku',
+                    'active' => request()->is('siswa/diaryku')
+                ])
             </li>
         </ul>
     </nav>
@@ -64,9 +71,9 @@
     <div class="logout-section">
         <form action="{{ route('logout') }}" method="POST" style="display: inline;">
             @csrf
-            <button type="submit" class="btn-logout" style="background: none; border: none; width: 100%; text-align: left; display: flex; align-items: center; cursor: pointer;">
+            <button type="submit" class="btn-logout" style="background: #dc3545; color: white; border: none; width: 100%; text-align: left; display: flex; align-items: center; cursor: pointer; padding: 10px 15px; border-radius: 10px; transition: background 0.3s;">
                 <i class="bi bi-box-arrow-right"></i>
-                <span style="margin-left: 10px;">Keluar</span>
+                <span style="margin-left: 10px; font-weight: 500;">Keluar</span>
             </button>
         </form>
     </div>
