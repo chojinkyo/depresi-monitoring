@@ -47,7 +47,7 @@ class LoginController extends Controller implements HasMiddleware
         {
             $request->session()->regenerate();
             $role=auth('web')->user()->role;
-            return redirect()->intended("/$role/dashboard");
+            return redirect("/$role/dashboard");
         }
         $response=['credential'=>'username/password salah'];
         return back()->withErrors($response);

@@ -2,8 +2,10 @@
 
 @section('title', 'Absensi - Sistem Manajemen Siswa')
 
-@section('page-title', 'Absensi')
-@section('page-subtitle', 'Catat kehadiran dan kelola riwayat absensi Anda')
+@php
+    $pageTitle = 'Presensi Siswa';
+    $pageSubtitle = 'Catat kehadiran dan kelola riwayat absensi Anda';
+@endphp
 
 @section('styles')
     <link rel="stylesheet" href="{{ asset('css/siswa/presensi.css') }}">
@@ -40,7 +42,7 @@
                     </div>
                     
                     <div id="previewArea" style="display: none;" class="mb-3 position-relative">
-                        <img id="photoPreview" src="" class="img-fluid rounded" style="max-width: 400px;">
+                        <img id="photoPreview" src="" class="img-fluid rounded" style="width: 100%; max-width: 400px;">
                         <button type="button" id="retakeBtn" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2">
                             <i class="bi bi-arrow-counterclockwise"></i> Foto Ulang
                         </button>

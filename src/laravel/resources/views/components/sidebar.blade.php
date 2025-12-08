@@ -43,18 +43,18 @@
             </li>
             <li class="nav-item">
                 @include('components.buttons.button-sidebar', [
-                    'href' => '#',
+                    'href' => '/siswa/laporan-nilai',
                     'icon' => 'bi-file-earmark-text',
                     'text' => 'Laporan Nilai',
-                    'active' => false
+                    'active' => request()->is('siswa/laporan-nilai')
                 ])
             </li>
             <li class="nav-item">
                 @include('components.buttons.button-sidebar', [
-                    'href' => '#',
+                    'href' => '/siswa/statistik',
                     'icon' => 'bi-bar-chart-fill',
                     'text' => 'Statistik',
-                    'active' => false
+                    'active' => request()->is('siswa/statistik')
                 ])
             </li>
         </ul>

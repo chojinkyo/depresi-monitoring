@@ -63,4 +63,6 @@ Route::group(['middleware'=>['auth', 'role:siswa']], function() {
     Route::view('/siswa/presensi', 'siswa.presensi')->name('siswa.presensi');
     Route::post('/siswa/presensi', [PresensiController::class, 'store'])->name('siswa.presensi.store');
     Route::view('/siswa/jadwal', 'siswa.jadwal')->name('siswa.jadwal');
+    Route::view('/siswa/laporan-nilai', 'siswa.laporan-nilai')->name('siswa.laporan-nilai');
+    Route::get('/siswa/statistik', [App\Http\Controllers\App\Siswa\StatistikController::class, 'index'])->name('siswa.statistik');
 });
