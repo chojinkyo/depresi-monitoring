@@ -45,7 +45,7 @@
             <div class="stat-header">
                 <div class="stat-info">
                     <p class="stat-label">Mood Overall</p>
-                    <h3 class="stat-value">Sangat Baik 😊</h3>
+                    <h3 class="stat-value">{{ $moodLabel }}</h3>
                 </div>
                 <div class="stat-icon mood">
                     <i class="bi bi-emoji-smile-fill"></i>
@@ -73,12 +73,10 @@
             <div class="chart-card">
                 <div class="chart-header">
                     <h3 class="chart-title">Mood Overall 14 Hari</h3>
-                    <p class="chart-subtitle">Rata-rata mood 14 hari terakhir: 😊 8.2/10</p>
+                    <p class="chart-subtitle">Rata-rata mood 14 hari terakhir: {{ $averageMood > 0 ? $averageMood.'/5' : '-' }}</p>
                 </div>
                 <div class="chart-content">
-                    <div class="mood-chart">
-                        <p style="color: #9CA3AF;">Chart akan ditampilkan di sini</p>
-                    </div>
+                    <canvas id="moodChart" height="200"></canvas>
                 </div>
             </div>
         </div>
@@ -117,4 +115,83 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('moodChart').getContext('2d');
+            const moodData = @json($moodData);
+
+            const labels = moodData.map(d => d.date);
+            const dataPoints = moodData.map(d => d.emoji);
+
+            // Emoji labels for Y-axis
+            const emojiLabels = {
+                1: '😢 Sangat Sedih',
+                2: '😟 Sedih',
+                3: '😐 Netral',
+                4: '🙂 Senang',
+                5: '😁 Sangat Senang'
+            };
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Mood Level',
+                        data: dataPoints,
+                        borderColor: '#8B5CF6', // Purple
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4, // Smooth curve
+                        fill: true,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#8B5CF6',
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    return emojiLabels[value] || 'Tidak ada data';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 6,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return emojiLabels[value] || '';
+                                }
+                            },
+                            grid: {
+                                borderDash: [5, 5]
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 @endsection

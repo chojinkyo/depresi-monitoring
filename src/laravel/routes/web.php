@@ -57,7 +57,7 @@ Route::group(['middleware'=>['auth', 'role:guru']], function() {
 // 6. Siswa Routes (Akses: Auth + Role Siswa)
 Route::group(['middleware'=>['auth', 'role:siswa']], function() {
     // Dashboard Siswa
-    Route::view('/siswa/dashboard', 'dashboard.siswa')->name('siswa.dashboard');
+    Route::get('/siswa/dashboard', [DashboardController::class, 'siswaDashboard'])->name('siswa.dashboard');
     
     // Route Siswa Lainnya
     Route::view('/siswa/presensi', 'siswa.presensi')->name('siswa.presensi');
@@ -65,5 +65,7 @@ Route::group(['middleware'=>['auth', 'role:siswa']], function() {
     Route::view('/siswa/jadwal', 'siswa.jadwal')->name('siswa.jadwal');
     Route::view('/siswa/laporan-nilai', 'siswa.laporan-nilai')->name('siswa.laporan-nilai');
     Route::get('/siswa/statistik', [App\Http\Controllers\App\Siswa\StatistikController::class, 'index'])->name('siswa.statistik');
-    Route::view('/siswa/diaryku', 'siswa.diaryku')->name('siswa.diaryku');
+    Route::get('/siswa/diaryku', [App\Http\Controllers\App\Siswa\Dass21Controller::class, 'diarykuDashboard'])->name('siswa.diaryku');
+    Route::view('/form-input-dass21', 'dass21.form-input')->name('dass21.form');
+    Route::post('/siswa/dass21', [App\Http\Controllers\App\Siswa\Dass21Controller::class, 'store'])->name('dass21.store');
 });

@@ -24,4 +24,9 @@ class Siswa extends Model
     {
         return $this->hasMany(Presensi::class, 'id_siswa');
     }
+
+    public function kuesionerResults()
+    {
+        return $this->hasMany(Dass21Hasil::class, 'id_siswa');
+    }
 }

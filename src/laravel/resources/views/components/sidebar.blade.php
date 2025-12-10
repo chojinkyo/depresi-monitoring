@@ -56,13 +56,20 @@
                     'text' => 'Statistik',
                     'active' => request()->is('siswa/statistik')
                 ])
+            @php
+                $siswa = Illuminate\Support\Facades\Auth::user()->siswa;
+                $hasFilledDass = $siswa && $siswa->kuesionerResults()->exists();
+            @endphp
+
             <li class="nav-item">
-                @include('components.buttons.button-sidebar', [
-                    'href' => '/siswa/diaryku',
-                    'icon' => 'bi-journal-medical',
-                    'text' => 'Dashboard Diaryku',
-                    'active' => request()->is('siswa/diaryku')
-                ])
+                @if($hasFilledDass)
+                    @include('components.buttons.button-sidebar', [
+                        'href' => '/siswa/diaryku',
+                        'icon' => 'bi-journal-medical',
+                        'text' => 'Self Care',
+                        'active' => request()->is('siswa/diaryku')
+                    ])
+                @endif
             </li>
         </ul>
     </nav>
