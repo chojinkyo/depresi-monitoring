@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DiaryController;
 use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\PresensiController as AdminPresensiController;
+use App\Http\Controllers\Admin\PresensiLiburDataController;
 use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Admin\TahunAkademikController;
 use App\Http\Controllers\App\Siswa\PresensiController;
@@ -27,12 +28,16 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/logout', [LoginController::class, 'postLogout'])->name('web.logout.post');
 });
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function() {
+    Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
     Route::view('/siswa/mental', 'admin.siswa.mental.index')->name('admin.siswa.mental.index');
-    Route::resource('/siswa/kehadiran', AdminPresensiController::class)->except(['destroy', 'create', 'store', 'edit', 'update']);
+    Route::resource('/siswa/kehadiran', AdminPresensiController::class)->except(['destroy', 'create', 'store', 'edit', 'update', 'show']);
     Route::resource('/siswa/diary', DiaryController::class)->except(['destroy', 'create', 'store', 'edit', 'update']);
     Route::resource('/siswa', SiswaController::class);
-    Route::resource('/kelas', KelasController::class);
+    Route::resource('/kelas', KelasController::class)->except(['edit'])->parameter("kelas", "kelas");
     Route::resource('/tahun-akademik', TahunAkademikController::class);
+    Route::get('/siswa/kehadiran/{student}/{year}', [AdminPresensiController::class, 'show'])->name('siswa.kehadiran.show');
+
+    
     // Route::get('/dashboard', [DashboardController::class, 'adminDashboard'] );
     // Route::view('/kelas', 'admin.kelas.index')->name('admin.kelas.index');
     // Route::view('/tahun-akademik', 'admin.tahun_akademik.index')->name('admin.thak.index');

@@ -20,16 +20,53 @@ class SiswaController extends Controller
     private function generateProfileName($file)
     {
         $now=now()->format('dmYHis');
-        return uniqid().$now.$file->getClientOriginalExtension();
+        return uniqid().$now.'.'.$file->getClientOriginalExtension();
     }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
+        
         $classes=Kelas::all();
-        $students=Siswa::all();
+        $students = Siswa::query()
+        ->select(
+            'siswa.*',
+            'siswa.id as siswa.id_siswa',
+            'users.email',
+            'users.avatar_url',
+            'rk.id_kelas',
+            'rk.status as riwayat_status'
+        )
+
+        // Join users
+        ->leftJoin('users', 'users.id', '=', 'siswa.id_user')
+
+        // Join riwayat kelas terlama per siswa
+        ->leftJoin(DB::raw('(
+            SELECT id_siswa, id_kelas, status
+            FROM (
+                SELECT 
+                    id_siswa,
+                    id_kelas,
+                    status,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY id_siswa 
+                        ORDER BY waktu ASC
+                    ) AS rn
+                FROM riwayat_kelas
+                WHERE status IN ("NW","MM")
+            ) x
+            WHERE rn = 1
+        ) AS rk'), 'rk.id_siswa', '=', 'siswa.id')
+
+        ->paginate(10);
+        // dd($students);
+
+        
         $academicYears=TahunAkademik::where('status', true)->get()->sortBy(fn($item) => [1-$item->current, $item->nama_tahun]);
+        
+        
         return view('admin.siswa.index', compact('students', 'classes', 'academicYears'));
     }
 
@@ -49,7 +86,7 @@ class SiswaController extends Controller
     public function store(SiswaStoreRequest $request)
     {
         $validated=$request->validated();
-
+        
         DB::beginTransaction();
         try 
         {
@@ -83,24 +120,33 @@ class SiswaController extends Controller
                 'id_kelas'=>$validated['id_kelas'],
                 'id_thak'=>$validated['id_thak_masuk'],
                 'status'=>$validated['status'],
+                'active'=>true
             ];
-            $classHistory=RiwayatKelas::create($classHistoryData);
+            RiwayatKelas::create($classHistoryData);
 
             // Store Avatar To Private Storage
             if($file)
             {
-                $path="app/data/images/avatars/";
+                $path="app/data/images/users/$user->id";
                 $file->storeAs($path, $fileName, "private");
             }
             DB::commit();
             return redirect()->route('admin.siswa.index')
-            ->with('status', 'Siswa berhasil dibuat!');
+            ->with('success', [
+                'icon'=>'success',
+                'title'=>'Berhasil!',
+                'text'=>'Siswa berhasil dibuat!'
+            ]);
         }
         catch(\Exception $e)
         {
             DB::rollBack();
-            return redirect()->route('admin.siswa.create')
-            ->with('status', 'Siswa gagal dibuat!');
+            return redirect()->route('admin.siswa.index')
+            ->with('success', [
+                'icon'=>'error',
+                'title'=>'Galat '.$e->getCode().'!',
+                'text'=>$e->getMessage()
+            ]);
         }
     }
 
@@ -130,10 +176,18 @@ class SiswaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(SiswaUpdateRequest $request, Siswa $student)
+    public function update(SiswaUpdateRequest $request, Siswa $siswa)
     {
-        if(!$student)
-            return back()->with('status', 'Siswa tidak ditemukan!');
+        $student=$siswa;
+        if($student==null)
+        {
+            return redirect()->route('admin.siswa.index')
+            ->with('error', [
+                'icon'=>'error',
+                'title'=>'Galat 404!',
+                'text'=>'Siswa tidak ditemukan'
+            ]);
+        }
 
         $validated=$request->validated();
 
@@ -144,6 +198,7 @@ class SiswaController extends Controller
             $relatedUser=$student->user;
             $activeClass=$student->getActiveClass();
             $enrollYear=$student->enrollYear;
+            
 
             // Set File Name
             $file=$request->file('avatar');
@@ -165,16 +220,19 @@ class SiswaController extends Controller
             $studentData=array_diff_key($validated, array_flip(['email', 'avatar', 'id_kelas', 'status']));
             $student->update($studentData);
 
+            
             // Create Data Riwayat Kelas
-            $isHistoryChanged=($validated['id_kelas']==$activeClass->id) || ($validated['id_thak']==$enrollYear->id);
+            $isHistoryChanged=($validated['id_kelas']!=$activeClass->id) || ($validated['id_thak_masuk']!=$enrollYear->id);
             if($isHistoryChanged)
             {
-                $firstClassHistory=$student->classHistory()->whereIn('status', ['NW', 'MM'])->first();
+                $firstClassHistory=$student->firstClassHistory;
+                
                 $classHistoryData=[
                     'id_siswa'=>$student->id,
                     'id_kelas'=>$validated['id_kelas'],
                     'id_thak'=>$validated['id_thak_masuk'],
                     'status'=>$validated['status'],
+                    'active'=>true
                 ];
                 $classHistory=RiwayatKelas::create($classHistoryData);
                 $firstClassHistory->update(['status'=>'CL', 'active'=>false]);
@@ -183,7 +241,7 @@ class SiswaController extends Controller
             // Store Avatar To Private Storage
             if($file)
             {
-                $path="app/data/images/avatars/";
+                $path="app/data/images/users/$relatedUser->id";
                 $file->storeAs($path, $fileName, "private");
                 
                 $oldProfilePath=$path.$relatedUser->avatar_url;
@@ -193,26 +251,45 @@ class SiswaController extends Controller
             }
             DB::commit();
             return redirect()->route('admin.siswa.index')
-            ->with('status', 'Siswa berhasil dibuat!');
+            ->with('success', [
+                'icon'=>'success',
+                'title'=>'Berhasil!',
+                'text'=>'Siswa berhasil diupdate'
+            ]);
         }
         catch(\Exception $e)
         {
             DB::rollBack();
-            return redirect()->route('admin.siswa.edit', ['id'=>$student->id])
-            ->with('status', 'Siswa gagal dibuat!');
+            return redirect()->route('admin.siswa.index')
+            ->with('success', [
+                'icon'=>'error',
+                'title'=>'Galat '.$e->getCode().'!',
+                'text'=>$e->getMessage()
+            ]);
         }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Siswa $student)
+    public function destroy(Siswa $siswa)
     {
-        if(!$student)
-            return back()->with('status', 'Siswa tidak ditemukan!');
+        if($siswa==null)
+        {
+            return redirect()->route('admin.siswa.index')
+            ->with('error', [
+                'icon'=>'error',
+                'title'=>'Galat 404!',
+                'text'=>'Siswa tidak ditemukan'
+            ]);
+        }
 
-        $student->delete();
+        $siswa->delete();
         return redirect()->route('admin.siswa.index')
-        ->with('status', 'Siswa berhasil dihapus!');
+        ->with('success', [
+            'icon'=>'success',
+            'title'=>'Berhasil!',
+            'text'=>'Siswa berhasil dihapus'
+        ]);
     }
 }

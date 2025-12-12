@@ -11,6 +11,7 @@
     </div>
 @endsection
 
+
 @section('content')
 <div class="row justify-content-center">
     <div class="col-7">
@@ -59,11 +60,13 @@
                                 $persenHadir=0;
                                 $persenAlpha=0;
                                 $persenIjinSakit=0;
+                                $details=$studentAttendance->presensi->get('details');
                                 if($studentAttendance->presensi)
                                 {
-                                    $persenHadir=$studentAttendance->presensi->persen_hadir;
-                                    $persenAlpha=$studentAttendance->presensi->persen_alpha;
-                                    $persenIjinSakit=$studentAttendance->presensi->persen_ijin_sakit;
+                                    $result=$studentAttendance->presensi->get('result');
+                                    $persenHadir=$result->persen_hadir;
+                                    $persenAlpha=$result->persen_alpha;
+                                    $persenIjinSakit=$result->persen_ijin_sakit;
                                 }
                             @endphp
                         
@@ -74,30 +77,36 @@
                                     <div class="text-secondary">{{$studentAttendance->nisn }}</div>
                                 </td>
                                 <td>
-                                    {{ $studentAttendance->getClassByAcademicYear($currentAcademicYear->id)?->nama ?? "-" }}
+                                    {{ $studentAttendance->classes->first()?->nama ?? "-" }}
                                 </td>
                                 <td class="alignment-end">
                                     <div class="progress rounded-pill w-75" style="height: 10px;">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $persenHadir }}%;" aria-valuenow="{{ $persenHadir }}" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $persenHadir }}%;" aria-valuenow="{{ $persenHadir }}" aria-valuemin="0" aria-valuemax="100">
                                         
                                         </div>
                                         <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $persenAlpha }}%;" aria-valuenow="{{ $persenAlpha }}" aria-valuemin="0" aria-valuemax="100">
 
                                         </div>
-                                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ $persenIjinSakit }}%;" aria-valuenow="{{ $persenIjinSakit }}" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $persenIjinSakit }}%;" aria-valuenow="{{ $persenIjinSakit }}" aria-valuemin="0" aria-valuemax="100">
 
                                         </div>
                                     </div>
                                     <div class="w-75 d-flex flex-wrap text-xs">
-                                        <div style="width: {{ $persenHadir }}%;">
-                                            {{ $persenHadir }}%
-                                        </div>
-                                        <div style="width: {{ $persenAlpha }}%;">
-                                            {{ $persenAlpha }}%
-                                        </div>
-                                        <div style="width: {{ $persenIjinSakit }}%;">
-                                            {{ $persenIjinSakit }}%
-                                        </div>
+                                        @if(($persenHadir+$persenAlpha+$persenIjinSakit))
+                                            <div style="width: {{ $persenHadir }}%;min-width: fit-content">
+                                                {{ $persenHadir }}%
+                                            </div>
+                                            <div style="width: {{ $persenAlpha }}%;min-width: fit-content">
+                                                {{ $persenAlpha }}%
+                                            </div>
+                                            <div style="width: {{ $persenIjinSakit }}%;min-width: fit-content">
+                                                {{ $persenIjinSakit }}%
+                                            </div>
+                                        @else
+                                            <div class="w-100">
+                                                0%
+                                            </div>
+                                        @endif
                                     </div>
                                 </td>
                                 <td>
@@ -105,9 +114,8 @@
                                     href="#" 
                                     class="btn btn-sm btn-primary"
                                     x-on:click="event.preventDefault();"
-                                    onclick="Livewire.dispatch('siswa_kehadiran:view', {id:{{ $studentAttendance->id }}})"
-                                    data-toggle="modal"
-                                    data-target="#view-modal">
+                                    onclick="loadAttendancesHistory(`{{ route('admin.siswa.kehadiran.show', ['student'=>$studentAttendance->id, 'year'=>(request()->query('year'))]) }}`)"
+                                    >
                                         <i class="fas fa-eye mr-2"></i> Details
                                     </a>
 
@@ -179,51 +187,110 @@
     </div>
     <div class="col-4">
         <div class="card shadow-sm border-4 border-top border-info">
-            <div class="card-body">
-                <h3 class="font-weight-sbold">Harun Manunggal</h3>
-                <h4 class="h5 text-secondary">1234567890</h4>
+            <div class="card-body d-flex align-items-center">
+                <div class="img-container col-2">
+                    <img src="http://localhost:8000/files/images/users/default" alt="" class="img-fluid">
+                </div>
+                <div class="text-container col-8">
+                    <h3 class="font-weight-bold h4 text-info">
+                        <i>Profile Name</i>
+                    </h3>
+                    <h4 class="h6 text-secondary">
+                        <i>NISN</i>
+                    </h4>
+                </div>
             </div>
         </div>
-        <div class="card shadow-sm">
-            <div class="card-body p-0">
+        <div class="card shadow-sm border-4 border-top border-info">
+            <div class="card-body d-flex align-items-center">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title h5">Diagram Mental</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="chart">
+                                <canvas id="myChart" style="height: 250px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <div class="card shadow-sm border-top border-top border-4 border-info">
+            <div class="card-header no-after py-3 d-flex justify-content-between align-items-center">
+                <h2 class="h5 font-weight-bold text-info">Riwayat Mental</h2>
+            </div>
+            <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
+                                <th class="col-2">
+                                    No
+                                </th>
+                                <th class="col-4">
+                                    Date
+                                </th>
+                                <th class="col-3">
+                                    Result
+                                </th>
+                                <th class="col-2">
+
+                                </th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {{-- @if ($presensi && $presensi->count())
-                                @foreach ($presensi as $key=>$pr)
+                        <tbody x-data="{attendances_hist : [], index: 0}" x-ref="attendances_container">
+                            <template x-if="attendances_hist.length > 0">
+                                <template x-for="item in attendances_hist" :key="index++">
                                     <tr>
-                                        <td>{{ $key }}</td>
-                                        <td>{{ $pr->waktu }}</td>
-                                        <td>{{ $pr->status }}</td>
+                                        <td class="">1</td>
                                         <td>
-                                            <a 
-                                            href="#" 
-                                            class="btn btn-primary d-block d-flex align-items-center"
-                                            x-on:click="event.preventDefault();"
-                                            data-toggle="modal"
-                                            data-target="#create-modal">
-                                                <i class="fas fa-plus mr-2"></i> Lihat
-                                            </a>
+                                            <div class="font-weight-bold" x-text="item.waktu"></div>
+                                            
+                                        </td>
+                                        <td>
+                                            <div x-text="item.ket"></div>
                                         </td>
                                     </tr>
-                                    
-                                @endforeach
-                            @endif --}}
+                                </template>
+                                <tr class="table-active">
+                                    <td col="3">
+                                        <i>Choose siswa first</i>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template x-if="attendances_hist.length === 0">
+                                <tr class="table-active">
+                                    <td colspan="4" class="text-center">
+                                        <i>Choose siswa first</i>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
                 </div>
             </div>
-            <div class="card-footer"></div>
         </div>
     </div>
     
 </div>
+<script>
+
+
+    async function loadAttendancesHistory(route)
+    {
+        const data=Alpine.$data(document.querySelector('[x-ref="attendances_container"]'))
+        
+
+
+        const response=await fetch(route+'?page=1');
+        const json=await response.json();
+
+        console.log(json);
+        const attendances=json['response']['data']
+        data.attendances_hist=attendances;
+    }
+</script>
 @endsection
+
+
+

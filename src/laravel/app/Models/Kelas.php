@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
@@ -20,4 +21,5 @@ class Kelas extends Model
     {
         return $this->hasManyThrough(Siswa::class, RiwayatKelas::class, 'id_kelas', 'id_siswa');
     }
+    
 }

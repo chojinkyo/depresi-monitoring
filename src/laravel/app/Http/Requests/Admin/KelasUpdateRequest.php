@@ -4,7 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class KelasStoreRequest extends FormRequest
+class KelasUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,9 +21,9 @@ class KelasStoreRequest extends FormRequest
      */
     public function rules(): array
     {
-        return 
-        [
-            "nama"=>"required|unique:kelas",
+        $id=$this->route('kelas')?->id;
+        return [
+            "nama"=>"required|max:5|unique:kelas,nama,".$id.",id",
             "jenjang"=>"required|integer|between:1,3",
             "jurusan"=>"required|in:IPA,IPS"
         ];

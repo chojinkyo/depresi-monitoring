@@ -54,29 +54,7 @@
             </div>
             <div class="card-footer">
                 <div class="d-flex justify-content-left">
-                    <nav>
-                        <ul class="pagination">
-                            <li class="page-item">
-                                <a href="#" class="page-link">
-                                    <span aria-hidden="true">&laquo;</span>
-                                    <span class="sr-only">Previous</span>
-                                </a>
-
-                                
-                            </li>
-                            <li class="page-item">
-                                <a href="#" class="page-link">
-                                    1
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a href="#" class="page-link">
-                                    <span aria-hidden="true">&raquo;</span>
-                                    <span class="sr-only">Next</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
+                    
 
                     @if(isset($paginator))
                         {{ $paginator }}

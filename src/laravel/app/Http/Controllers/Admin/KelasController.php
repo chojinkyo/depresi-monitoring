@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\KelasStoreRequest;
+use App\Http\Requests\Admin\KelasUpdateRequest;
 use App\Models\Kelas;
 use Illuminate\Http\Request;
 
@@ -34,13 +35,17 @@ class KelasController extends Controller
         $classData=$request->validated();
         Kelas::create($classData);
         return redirect()->route('admin.kelas.index')
-        ->with('status', 'Kelas berhasil dibuat!');
+        ->with('success', [
+            'icon'=>'success',
+            'title'=>'Berhasil!',
+            'text'=>'Kelas berhasil dibuat!'
+        ]);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Kelas $class_)
+    public function show(Kelas $kelas)
     {
         //
     }
@@ -48,9 +53,9 @@ class KelasController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Kelas $class_)
+    public function edit(Kelas $kelas)
     {
-        if($class_==null)
+        if($kelas==null)
             return back()->with('status', 'Kelas tidak ditemukan!');
         return view('', compact('class_'));
     }
@@ -58,25 +63,33 @@ class KelasController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Kelas $class_)
+    public function update(KelasUpdateRequest $request, Kelas $kelas)
     {
-        if($class_==null)
-            return back()->with('status', 'Kelas tidak ditemukan!');
+        if($kelas==null)
+            return back()->with('error', 'Kelas tidak ditemukan!');
         $classData=$request->validated();
-        $class_->update($classData);
+        $kelas->update($classData);
         return redirect()->route('admin.kelas.index')
-        ->with('status', 'Kelas berhasil diupdate!');
+        ->with('success', [
+            'icon'=>'success',
+            'title'=>'Berhasil!',
+            'text'=>'Kelas berhasil diupdate!'
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Kelas $class_)
+    public function destroy(Kelas $kelas)
     {
-        if($class_==null)
-            return back()->with('status', 'Kelas tidak ditemukan!');
-        $class_->delete();
+        if($kelas==null)
+            return back()->with('error', 'Kelas tidak ditemukan!');
+        $kelas->delete();
         return redirect()->route('admin.kelas.index')
-        ->with('status', 'Kelas berhasil dihapus!');
+        ->with('success', [
+            'icon'=>'success',
+            'title'=>'Berhasil!',
+            'text'=>'Kelas berhasil dihapus!'
+        ]);
     }
 }

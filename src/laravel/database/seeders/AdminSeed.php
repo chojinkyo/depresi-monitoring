@@ -26,7 +26,7 @@ class AdminSeed extends Seeder
         [
             'nama_lengkap'=>'Fariz Jawa',
             'gender'=>1,
-            'tgl_lahir'=>'2004-03-22',
+            'tanggal_lahir'=>'2004-03-22',
             'alamat'=>'Ngaliyan',
             'id_user'=>$user->id
         ];

@@ -39,21 +39,33 @@ class PresensiLiburController extends Controller
         }
         return $calendar;
     }
+
+    public function getData()
+    {
+        $days=$this->getHrBlnIni();
+        $vacations=PresensiLibur::all()->sortBy('tanggal_mulai');
+
+        return response()->json(compact('days', 'vacations'), 200);
+    }
+
+
+
     public function index()
     {
         $days=$this->getHrBlnIni();
         $lbr=PresensiLibur::all()->sortBy('tgl_mulai');
         return view('admin.hari_libur.index', compact('lbr', 'days'));
     }
-    public function show(PresensiLibur $lbr)
-    {
-        if($lbr==null)
-        {
-            return;
-        }
+    
+    // public function show(PresensiLibur $lbr)
+    // {
+    //     if($lbr==null)
+    //     {
+    //         return;
+    //     }
 
-        return;
-    }
+    //     return;
+    // }
     public function store(Request $request)
     {
         $validator=Validator::make($request->all(), [
@@ -63,10 +75,9 @@ class PresensiLiburController extends Controller
             'jenjang'=>'required|array',
             'jenjang.*'=>'required|between:1,3|distinct'
         ]);
-        if($validator->fails())
-        {
-            return;
-        }
+        if($validator->fails()) return;
+
+
         $user=auth('web')->user();
         $data=$validator->validated();
         $data_lbr=

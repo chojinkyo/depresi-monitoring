@@ -9,8 +9,10 @@
     </div>
 @endsection
 
+
 @section('content')
-<div class="row justify-content-center">
+
+<div class="row justify-content-center"  x-data="{selected_id : `{{ old('id') }}`}">
     <div class="col-7">
         <x-table
             title="Daftar Kelas"
@@ -18,7 +20,7 @@
             addRoute="kelas.create"
         >
             @forelse($classes as $i => $row)
-                <tr>
+                <tr :class="{'table-active' : (selected_id=={{ $row->id }})}">
                     <td>{{ $i + 1 }}</td>
                     <td>{{ $row->nama}}</td>
                     <td>{{ $row->jenjang }}</td>
@@ -31,9 +33,8 @@
                         href="#" 
                         role="button"
                         class="btn btn-info btn-xs"
-                        onclick="event.preventDefault();Livewire.dispatch('kelas-edit', {id : {{ $row->id }}})"
-                        data-toggle="modal"
-                        data-target="#edit-modal">
+                        onclick="event.preventDefault();editForm('{{ $row->id }}', `{{ route('admin.kelas.update', ['kelas'=>$row->id]) }}`)"
+                        x-on:click="selected_id={{ $row->id }};">
                             <i class="fas fa-edit"></i>
                         </a>
 
@@ -41,11 +42,14 @@
                         href="#"
                         role="button"
                         class="btn btn-xs btn-danger"
-                        onclick="Livewire.dispatch('swal:confirm', {
+                        onclick="
+                        event.preventDefault();
+                        setDeleteForm(`{{ route('admin.kelas.destroy', ['kelas'=>$row->id]) }}`);
+                        Livewire.dispatch('swal:confirm', {
                             title  : 'Konfirmasi hapus data',
                             text   : 'Apakah anda yakin ingin menghapus kelas ini?',
                             icon   : 'warning',
-                            method : 'kelas:delete',
+                            method : submitDeleteForm,
                             params : {id : {{ $row->id }}}
                         })">
                             <i class="fas fa-trash-alt"></i>
@@ -63,41 +67,91 @@
     </div>
     <div class="col-3">
         <div class="card shadow-sm border-top border-top border-4 border-info">
-            <div class="card-header py-3">
-                <h2 class="h6 font-weight-bold text-info">Tambah Kelas Baru</h2>
+            <div class="card-header no-after py-3 d-flex justify-content-between align-items-center">
+                <h2 class="h5 font-weight-bold text-info">Form Kelas</h2>
+                <a 
+                href="#"
+                role="button"
+                onclick="event.preventDefault();resetForm(`{{ route('admin.kelas.store') }}`)">
+                    Clear
+                </a>
             </div>
             <div class="card-body">
-                <form action="{{ route('admin.kelas.store') }}" method="POST" class="col-12">
+                <form method="post" class="d-none" id="form-delete">
                     @csrf
+                    @method('DELETE')
+                </form>
+                <form 
+                @if(old('id')==null)
+                action="{{ route('admin.kelas.store') }}" 
+                @else
+                action="{{ route('admin.kelas.update', ['kelas'=>old('id')]) }}" 
+                @endif
+                method="POST" id="form-kelas" class="col-12">
+                    @csrf
+                    <input type="hidden" name="id" id="id_field" x-model="selected_id">
+                    <input type="hidden" name="_method" id="_method_field" value="{{ old('id') ? 'PUT' : 'POST' }}">
                     <div class="form-group">
                         <label for="nama_field">Nama</label>
-                        <input type="text" id="nama_field" class="form-control" wire:model="form.nama">
+                        <input type="text" id="nama_field" class="form-control" name="nama" value="{{ old('nama') }}">
                         <x-form-error-text :field="'nama'" />
                     </div>
                     
                     <div class="form-group">
                         <label for="jenjang_field">Jenjang</label>
-                        <select class="form-control" id="jenjang_field" wire:model="form.jenjang">
-                            <option value="1" selected="true">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
+                        <select class="form-control" id="jenjang_field" name="jenjang">
+                            @for ($i=1;$i<=3;$i++)
+                                <option value="{{ $i }}" @selected(old('jenjang')==$i)>{{ $i }}</option>
+                            @endfor
                         </select>
                         <x-form-error-text :field="'jenjang'" />
                     </div>
                     
                     <div class="form-group">
                         <label for="">Jurusan</label>
-                        <select id="jurusan_field" class="form-control" wire:model="form.jurusan">
-                            <option value="IPA">IPA</option>
-                            <option value="IPS">IPS</option>
+                        <select id="jurusan_field" class="form-control" name="jurusan">
+                            <option value="IPA" @selected(old('jurusan')=='IPA')>IPA</option>
+                            <option value="IPS" @selected(old('jurusan')=='IPS')>IPS</option>
                         </select>
                         <x-form-error-text :field="'jurusan'" />
                     </div>
-                    <button type="submit" class="btn btn-lg btn-info w-100">Submit</button>
+                    <button type="submit" class="btn btn-lg btn-info w-100">Simpan</button>
                 </form>
             </div>
             <div class="card-footer"></div>
         </div>
     </div>
 </div>
+<script>
+    const deleteForm=document.getElementById('form-delete');
+    const formKelas=document.getElementById('form-kelas');
+    const namaField=document.getElementById('nama_field');
+    const methodField=document.getElementById('_method_field');
+    const jenjangField=document.getElementById('jenjang_field');
+    const jurusanField=document.getElementById('jurusan_field');
+
+    const classes=@json($classes->items())
+
+    const submitDeleteForm=()=>deleteForm.submit()
+    const setDeleteForm=route=>deleteForm.action=route;
+    function editForm(id, route) {
+        const _class=classes.filter(c => c.id==id)
+        const form=_class[0]
+
+        formKelas.action=route;
+        methodField.value='PUT';
+        namaField.value=form.nama;
+        jenjangField.value=form.jenjang;
+        jurusanField.value=form.jurusan;
+    }
+
+    function resetForm(route)
+    {
+        namaField.value='';
+        jenjangField.value='1';
+        jurusanField.value='IPA';
+        formKelas.action=route;
+        methodField.value='POST'
+    }
+</script>
 @endsection

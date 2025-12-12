@@ -29,7 +29,8 @@ class DatabaseSeeder extends Seeder
             SiswaSeed::class,
             RiwayatKelasSeed::class,
             PresensiSeed::class,
-            DiarySeed::class
+            DiarySeed::class,
+            PresensiLiburSeed::class
             
         ]);
 

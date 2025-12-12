@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('presensi_libur', function (Blueprint $table) {
             $table->id();
             $table->string('ket');
-            $table->date('tanggal_mulai')->date_format('d-m');
-            $table->date('tanggal_selesai')->date_format('d-m');
+            $table->unsignedTinyInteger('tanggal_mulai');
+            $table->unsignedTinyInteger('tanggal_selesai');
+            $table->unsignedTinyInteger('bulan_mulai');
+            $table->unsignedTinyInteger('bulan_selesai');
             $table->json("jenjang");
             $table->foreignId('id_author')
             ->nullable()

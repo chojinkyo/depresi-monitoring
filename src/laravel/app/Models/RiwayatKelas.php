@@ -20,4 +20,8 @@ class RiwayatKelas extends Model
     {
         return $this->belongsTo(Siswa::class, 'id_siswa');
     }
+    public function class_() : BelongsTo
+    {
+        return $this->belongsTo(Kelas::class, 'id_kelas', 'id');
+    }
 }
