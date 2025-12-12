@@ -88,9 +88,9 @@
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-3">
                         <div class="icon-box bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                            <i class="bi bi-brain fs-4"></i>
+                            <i class="bi bi-lightbulb fs-4"></i>
                         </div>
-                        <h4 class="fw-bold mb-0">1. Mengelola Pikiran</h4>
+                        <h4 class="fw-bold mb-0">Mengelola Pikiran</h4>
                     </div>
                     <ul class="text-muted ps-3 mb-0" style="line-height: 1.6;">
                         <li class="mb-2"><strong>Percaya Diri:</strong> Belajar percaya pada kemampuan diri sendiri agar tidak terjebak pikiran negatif.</li>
@@ -109,7 +109,7 @@
                         <div class="icon-box bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
                             <i class="bi bi-heart fs-4"></i>
                         </div>
-                        <h4 class="fw-bold mb-0">2. Meningkatkan Kesejahteraan</h4>
+                        <h4 class="fw-bold mb-0">Meningkatkan Kesejahteraan</h4>
                     </div>
                     <ul class="text-muted ps-3 mb-0" style="line-height: 1.6;">
                         <li class="mb-2"><strong>Terima Keadaan:</strong> Sadari bahwa wajar jika tidak semua hal sesuai ekspektasi.</li>
@@ -128,7 +128,7 @@
                         <div class="icon-box bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
                             <i class="bi bi-people fs-4"></i>
                         </div>
-                        <h4 class="fw-bold mb-0">3. Perilaku Proaktif</h4>
+                        <h4 class="fw-bold mb-0">Perilaku Proaktif</h4>
                     </div>
                     <ul class="text-muted ps-3 mb-0" style="line-height: 1.6;">
                         <li class="mb-2"><strong>Berani Terbuka:</strong> Ceritakan perasaanmu pada orang terpercaya (orang tua, guru BK, sahabat).</li>
@@ -146,7 +146,7 @@
                         <div class="icon-box bg-purple bg-opacity-10 text-purple rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; color: #6f42c1;">
                             <i class="bi bi-wind fs-4"></i>
                         </div>
-                        <h4 class="fw-bold mb-0">4. Aktivitas Relaksasi</h4>
+                        <h4 class="fw-bold mb-0">Aktivitas Relaksasi</h4>
                     </div>
                     
                     <div class="accordion" id="accordionRelaksasi">

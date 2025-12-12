@@ -7,9 +7,7 @@
             <td>{{ $row->tanggal_selesai }}</td>
             <td>{{ 0 }}</td>
             <td class="d-flex justify-content-around">
-                <a href="{{ route('hari-libur.edit', $row->id) }}" class="btn btn-warning btn-xs">
-                    <i class="fas fa-eye"></i>
-                </a>
+                {{-- View button removed as route does not exist --}}
                 <a 
                 href="#" 
                 role="button"

@@ -1,9 +1,11 @@
-@extends('adminlte::page')
+@extends('layouts.admin')
 
 @section('title', 'Index Tahun Akademik')
-@section('content_header')
-    <h1>Tahun Akademik</h1>
-@endsection
+
+@php
+    $pageTitle = 'Tahun Akademik';
+    $pageSubtitle = 'Manajemen Tahun Akademik';
+@endphp
 
 @section('content')
 <x-table

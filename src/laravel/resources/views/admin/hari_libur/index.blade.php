@@ -1,11 +1,13 @@
 
 
-@extends('adminlte::page')
+@extends('layouts.admin')
 
 @section('title', 'Daftar Hari Libur')
-@section('content_header')
-    <h1>Hari Libur</h1>
-@endsection
+
+@php
+    $pageTitle = 'Hari Libur';
+    $pageSubtitle = 'Manajemen Hari Libur & Kalender';
+@endphp
 
 
 @section('content')

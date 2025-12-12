@@ -1,9 +1,11 @@
-@extends('adminlte::page')
+@extends('layouts.admin')
 
 @section('title', 'Index Siswa')
-@section('content_header')
-    <h1>Kelas</h1>
-@endsection
+
+@php
+    $pageTitle = 'Data Kelas';
+    $pageSubtitle = 'Manajemen Data Kelas';
+@endphp
 
 @section('content')
 <x-table

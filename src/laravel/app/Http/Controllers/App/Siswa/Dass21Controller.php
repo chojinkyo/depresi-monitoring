@@ -92,6 +92,6 @@ class Dass21Controller extends Controller
             }
         }
 
-        return view('siswa.diaryku', compact('latestResult', 'scores'));
+        return view('siswa.selfcare', compact('latestResult', 'scores'));
     }
 }
