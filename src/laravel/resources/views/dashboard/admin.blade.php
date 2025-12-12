@@ -1,10 +1,11 @@
-@extends('adminlte::page')
+@extends('layouts.admin')
 
 @section('title', 'Admin Dashboard')
 
-@section('content_header')
-    <h1>Dashboard</h1>
-@endsection
+@php
+    $pageTitle = 'Dashboard';
+    $pageSubtitle = 'Panel Administrasi';
+@endphp
 
 @section('content')
     <p>lorem ipsum dolor sit amet conseptectur adipiscing elit</p>

@@ -100,4 +100,13 @@ class Siswa extends Model
             $query->whereIn('kelas.id', $classes)->where('status', '!=', 'CL');
         }]);
     }
+    public function presensi()
+    {
+        return $this->hasMany(Presensi::class, 'id_siswa');
+    }
+
+    public function kuesionerResults()
+    {
+        return $this->hasMany(Dass21Hasil::class, 'id_siswa');
+    }
 }

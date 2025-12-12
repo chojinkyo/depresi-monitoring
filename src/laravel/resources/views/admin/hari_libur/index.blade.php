@@ -1,15 +1,13 @@
 
 
-@extends('adminlte::page')
+@extends('layouts.admin')
 
 @section('title', 'Daftar Hari Libur')
-@section('content_header')
-    <div class="row justify-content-center">
-        <div class="col-11">
-            <h1 class="my-0 mx-1">Kalendar Akademik</h1>
-        </div>
-    </div>
-@endsection
+
+@php
+    $pageTitle = 'Hari Libur';
+    $pageSubtitle = 'Manajemen Hari Libur & Kalender';
+@endphp
 
 
 @section('content')

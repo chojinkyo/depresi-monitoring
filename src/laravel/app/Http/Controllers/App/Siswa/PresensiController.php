@@ -23,29 +23,31 @@ use Illuminate\Validation\Validator as ValidationValidator;
 class PresensiController extends Controller
 {
     protected $storage_path;
-    public static function middleware()
-    {
-        return ['auth:sanctum', 'role:siswa'];
-    }
+    // Middleware removed to allow route-level definition
+    // public static function middleware()
+    // {
+    //     return ['auth:sanctum', 'role:siswa'];
+    // }
+
     public function __construct()
     {
-        $this->storage_path="/data/config/konfigurasi_jadwal_harian.json";
+        $this->storage_path="data/config/konfigurasi_jadwal_harian.json";
     }
     private function getSisJjg()
     {
-        $id_sis=auth('sanctum')->user()->siswa?->id;
-        $kls=RiwayatKelas::select('id')
-        ->where('id_siswa', $id_sis)
-        ->where('active', true)
-        ->first()
-        ?->kelas()
-        ->pluck('kelas.jenjang');
-        if($kls==null) return null;
-        return $kls->jenjang;
+        $id_sis=auth()->user()->siswa?->id;
+        $riwayat = RiwayatKelas::where('id_siswa', $id_sis)
+            ->where('active', true)
+            ->with('kelas')
+            ->first();
+            
+        return $riwayat?->kelas?->jenjang;
     }
     private function cekLibur($tgl)
     {
-        $jjg_kls=$this->getSisJjg(); // perbaiki pengecekan tingkat kelas
+        $jjg_kls=$this->getSisJjg();
+        if (!$jjg_kls) return; // Skip if no class found
+
         $cur=Carbon::parse($tgl)->format('d-m');
         $lbr=PresensiLibur::select(['ket'])
             ->where('tgl_mulai', '<=', $cur)
@@ -63,9 +65,10 @@ class PresensiController extends Controller
         });
         if(count($jadwal)==0)
         {
-            throw new \Exception('Jadwal untuk hari ini tidak ditemukan');
-            return true;
+            // throw new \Exception('Jadwal untuk hari ini tidak ditemukan');
+            return false; // Changed to false to allow validation message
         }
+        $jadwal = array_values($jadwal)[0]; // Reset keys
         $str=Carbon::createFromTimeString($jadwal[1]);
         $end=Carbon::createFromTimeString($jadwal[2]);
         return now()->between($str, $end, true);
@@ -74,9 +77,23 @@ class PresensiController extends Controller
     {
         $hr_id=(int)Carbon::parse($tgl)->format("w");
 
-        $conf=Storage::json($this->storage_path);
-        $hr_lbr=$conf['hari_libur'];
-        $ls_jwl=$conf['jadwal'];
+        if (!Storage::exists($this->storage_path)) {
+            throw new \Exception('File konfigurasi jadwal tidak ditemukan di: ' . $this->storage_path);
+        }
+
+        $jsonContent = Storage::get($this->storage_path);
+        $conf = json_decode($jsonContent, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+             throw new \Exception('Format konfigurasi jadwal tidak valid: ' . json_last_error_msg());
+        }
+
+        if (!$conf) {
+             throw new \Exception('Gagal membaca konfigurasi jadwal (Empty)');
+        }
+
+        $hr_lbr=$conf['hari_libur'] ?? [];
+        $ls_jwl=$conf['jadwal'] ?? [];
         
         $is_lbr=in_array($hr_id,$hr_lbr);
         if($is_lbr)
@@ -146,17 +163,19 @@ class PresensiController extends Controller
             'status'=>'required|in:H,I,S,A',
             // 'emoji'=>'required|integer|between:1,5',
             'ket'=>'required_if:status,I,S|max:255',
-            'doc'=>'required_if:status,I,S|file|mimes:pdf,jpg,png,jpeg|max:10240'
+            'doc'=>'required_if:status,I,S|file|mimes:pdf,jpg,png,jpeg|max:10240',
+            'swafoto_pred'=>'nullable|string',
+            'catatan_pred'=>'nullable|string',
+            'catatan_ket'=>'nullable|string'
         ]);
         if($validator->fails())
         {
-            $response=["errors"=>$validator->errors()];
-            return response()->json($response, 422);
+            return response()->json(['message' => $validator->errors()->first()], 422);
         }
 
         DB::beginTransaction();
         $data=$validator->validated();
-        $siswa=auth('sanctum')->user()->siswa;
+        $siswa=auth()->user()->siswa;
         try
         {
             
@@ -167,11 +186,21 @@ class PresensiController extends Controller
             $thak=$this->getCurThak();
             $id_sis=$siswa->id;
             $id_thak=$thak->id;
+            $doc_path = null;
+            if ($request->hasFile('doc')) {
+                $docFile = $request->file('doc');
+                $docDir = '/data/docs/'.$siswa->nisn.'/'.$thak->nama_tahun;
+                $docName = 'doc_'.$siswa->nisn.'_'.now()->format('dmYHi').'.'.$docFile->getClientOriginalExtension();
+                $doc_path = $docDir.'/'.$docName;
+                Storage::disk('public')->put($doc_path, file_get_contents($docFile));
+            }
+
             $data_pres=
             [
-                ...array_diff_key($data, array_flip(['swafoto', 'catatan', 'doc', 'emoji'])),
+                ...array_diff_key($data, array_flip(['swafoto', 'catatan', 'doc', 'emoji', 'swafoto_pred', 'catatan_pred', 'catatan_ket'])),
                 'id_thak'=>$id_thak,
                 'id_siswa'=>$id_sis,
+                'doc'=>$doc_path
             ];
             $presensi=Presensi::create($data_pres);
 
@@ -179,34 +208,16 @@ class PresensiController extends Controller
             $dir_path='app/data/images/diaries/'.$siswa->nisn.'/'.$thak->nama_tahun.'/';
             $filename='pres_'.$siswa->nisn.'_'.now()->format('dmYHi').'.'.$file->getClientOriginalExtension();
             $strg_path=$dir_path.$filename;
-            Storage::disk('private')->put($strg_path, file_get_contents($file));
-            // Call the ML model for daily monitoring here.
-
-            $text='-';
-            $image='-';
-            $text_res=Http::post('http://model:8000/text', ['text'=>$data['catatan']]);
-            $image_res=Http::attach('file', file_get_contents($file), 'swafoto.jpg')->post('http://model:8000/image');
-            if($text_res->successful() && $image_res->successful())
-            {
-                $text=$text_res->json();
-                $image=$image_res->json();
-
-                $text=$text['response']['predicted'];
-                $image=$image['response']['predicted'];
-            }
-            else if($text_res->failed() || $image_res->failed())
-            {
-                return response()->json(['message'=>[json_decode($image_res->body(), true)]], 500);
-            }
-
+            Storage::disk('public')->put($strg_path, file_get_contents($file));
+            
             $data_diary=
             [
                 ...array_diff_key($data, array_flip(['swafoto', 'doc', 'ket', 'status'])),
                 'id_presensi'=>$presensi->id,
                 'swafoto'=>$strg_path,
-                'swafoto_pred'=>$image,
-                'catatan_pred'=>$text,
-                'catatan_ket'=>'-',
+                'swafoto_pred'=>$data['swafoto_pred'] ?? '-',
+                'catatan_pred'=>$data['catatan_pred'] ?? '-',
+                'catatan_ket'=>$data['catatan_ket'] ?? '-',
             ];
             Diary::create($data_diary);
 
@@ -219,7 +230,7 @@ class PresensiController extends Controller
                 [
                     'tgl'=>now()->format('Y-m-d'),
                     'hasil'=>true,
-                    'id_sis'=>$id_sis,
+                    'id_siswa'=>$id_sis,
                     'rekap_emoji'=>5,
                 ];
                 RekapEmosi::create($new_rkp_data);
@@ -240,10 +251,10 @@ class PresensiController extends Controller
             $code=500;
             $response=
             [
-                'errors'=>$e->getMessage()
+                'message'=>'Gagal presensi: ' . $e->getMessage(),
+                'data'=>[]
             ];
             return response()->json($response, $code);
-
         }
     }
 }

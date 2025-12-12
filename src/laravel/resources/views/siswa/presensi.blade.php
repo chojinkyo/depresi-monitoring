@@ -2,8 +2,10 @@
 
 @section('title', 'Absensi - Sistem Manajemen Siswa')
 
-@section('page-title', 'Absensi')
-@section('page-subtitle', 'Catat kehadiran dan kelola riwayat absensi Anda')
+@php
+    $pageTitle = 'Presensi Siswa';
+    $pageSubtitle = 'Catat kehadiran dan kelola riwayat absensi Anda';
+@endphp
 
 @section('styles')
     <link rel="stylesheet" href="{{ asset('css/siswa/presensi.css') }}">
@@ -26,40 +28,40 @@
             {{-- Form Sakit Component --}}
             @include('components.presensi.form-sakit')
 
-            {{-- Upload Photo (TIDAK PAKAI COMPONENT) --}}
+            {{-- Webcam Section --}}
             <div class="upload-section">
-                <label class="form-label">Upload Foto</label>
-                <div class="upload-area" id="uploadArea">
-                    <div class="camera-view-container w-100 h-100 position-relative">
-                        <video id="camera-view" autoplay playsinline class="w-100 h-100">
-                        </video>
-
-                        <button 
-                        type="button"
-                        id="open-cam-btn" 
-                        class="position-absolute btn btn-primary" 
-                        style="left: 50%;top: 50%;transform: translate(-50%, -50%)">Open Camera</button>
+                <label class="form-label">Ambil Foto Selfie</label>
+                <div class="webcam-container text-center">
+                    <div id="cameraArea" class="mb-3">
+                        <video id="webcam" autoplay playsinline style="width: 100%; max-width: 400px; border-radius: 10px; display: none;"></video>
+                        <canvas id="canvas" style="display: none;"></canvas>
+                        <div id="placeholder" class="p-5 bg-light rounded border" style="cursor: pointer;">
+                            <i class="bi bi-camera-fill fs-1 text-muted"></i>
+                            <p class="mt-2 text-muted">Klik untuk aktifkan kamera</p>
+                        </div>
                     </div>
-                    <i class="bi bi-camera-fill upload-icon"></i>
-                    {{-- <p class="upload-text">Klik untuk Upload Foto</p> --}}
-                    <br>
-                    {{-- <p class="upload-subtext">JPG, PNG maksimal 5MB</p>
-                    <button type="button" class="file-input"></button> --}}
-                    <button type="button" id="snap-btn" class="btn btn-success">Take Photo</button>
-                    <canvas id="cam-capturer" class="d-none"></canvas>
-                    {{-- <input type="file" id="fileInput" class="file-input" accept="image/jpeg,image/png,image/jpg"> --}}
-                </div>
+                    
+                    <div id="previewArea" style="display: none;" class="mb-3 position-relative">
+                        <img id="photoPreview" src="" class="img-fluid rounded" style="width: 100%; max-width: 400px;">
+                        <button type="button" id="retakeBtn" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2">
+                            <i class="bi bi-arrow-counterclockwise"></i> Foto Ulang
+                        </button>
+                    </div>
 
-                <div class="preview-container" id="previewContainer">
-                    <img id="previewImage" class="preview-image" alt="Preview">
-                    <button type="button" class="remove-image" id="removeImage">
-                        <i class="bi bi-x-circle"></i> Hapus
+                    <button type="button" id="captureBtn" class="btn btn-primary w-100" style="display: none;">
+                        <i class="bi bi-camera"></i> Ambil Foto
                     </button>
                 </div>
+                <input type="file" id="swafotoInput" name="swafoto" class="d-none" accept="image/*">
             </div>
 
             {{-- Mood Form Component --}}
             @include('components.presensi.mood-form')
+
+            {{-- Hidden Inputs for Prediction --}}
+            <input type="hidden" name="swafoto_pred" id="swafotoPred">
+            <input type="hidden" name="catatan_pred" id="catatanPred">
+            <input type="hidden" name="catatan_ket" id="catatanKet">
 
             <button type="submit" class="btn-submit">Kirim Absensi</button>
         </form>
@@ -156,78 +158,119 @@
             formIzin.classList.remove('show');
             formSakit.classList.remove('show');
 
-            if (this.value === 'izin') {
+            if (this.value === 'I') {
                 formIzin.classList.add('show');
-            } else if (this.value === 'sakit') {
+            } else if (this.value === 'S') {
                 formSakit.classList.add('show');
             }
         });
     });
 
-    // File Upload Handlers
-    setupFileUpload('uploadArea', 'fileInput', 'previewContainer', 'previewImage', 'removeImage');
-    setupFileUpload('uploadAreaIzin', 'fileInputIzin', 'previewContainerIzin', 'previewImageIzin', 'removeImageIzin');
-    setupFileUpload('uploadAreaSakit', 'fileInputSakit', 'previewContainerSakit', 'previewImageSakit', 'removeImageSakit');
+    // Webcam Elements
+    const video = document.getElementById('webcam');
+    const canvas = document.getElementById('canvas');
+    const placeholder = document.getElementById('placeholder');
+    const captureBtn = document.getElementById('captureBtn');
+    const previewArea = document.getElementById('previewArea');
+    const photoPreview = document.getElementById('photoPreview');
+    const retakeBtn = document.getElementById('retakeBtn');
+    const swafotoInput = document.getElementById('swafotoInput');
+    const cameraArea = document.getElementById('cameraArea');
 
-    function setupFileUpload(uploadAreaId, fileInputId, previewContainerId, previewImageId, removeButtonId) {
-        const uploadArea = document.getElementById(uploadAreaId);
-        const fileInput = document.getElementById(fileInputId);
-        const previewContainer = document.getElementById(previewContainerId);
-        const previewImage = document.getElementById(previewImageId);
-        const removeButton = document.getElementById(removeButtonId);
+    let stream = null;
 
-        uploadArea.addEventListener('click', () => fileInput?.click());
+    // Initialize Camera
+    placeholder.addEventListener('click', async () => {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            video.style.display = 'block';
+            placeholder.style.display = 'none';
+            captureBtn.style.display = 'block';
+        } catch (err) {
+            alert('Gagal mengakses kamera: ' + err.message);
+        }
+    });
 
-        fileInput?.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) handleFile(file, uploadArea, previewContainer, previewImage);
-        });
+    // API Config
+    const API_FACE_URL = "https://risetkami-risetkami.hf.space/predict_face";
+    const API_TEXT_URL = "https://risetkami-risetkami.hf.space/predict_text";
 
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
+    // Prediction Functions
+    async function predictFace(file) {
+        const formData = new FormData();
+        formData.append('file', file);
 
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) handleFile(files[0], uploadArea, previewContainer, previewImage);
-        });
-
-        removeButton.addEventListener('click', () => {
-            fileInput.value = '';
-            previewContainer.style.display = 'none';
-            uploadArea.style.display = 'block';
-        });
+        try {
+            const response = await fetch(API_FACE_URL, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            console.log('Face Prediction:', data);
+            document.getElementById('swafotoPred').value = JSON.stringify(data);
+            return data;
+        } catch (error) {
+            console.error('Face Prediction Error:', error);
+            document.getElementById('swafotoPred').value = JSON.stringify({ error: error.message });
+            return null;
+        }
     }
 
-    function handleFile(file, uploadArea, previewContainer, previewImage) {
-        if (!file.type.match('image.*')) {
-            alert('Hanya file gambar yang diperbolehkan!');
-            return;
+    async function predictText(text) {
+        try {
+            const response = await fetch(API_TEXT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: text })
+            });
+            const data = await response.json();
+            console.log('Text Prediction:', data);
+            document.getElementById('catatanPred').value = JSON.stringify(data);
+            // Assuming catatan_ket might be derived or just same response for now
+            document.getElementById('catatanKet').value = JSON.stringify(data); 
+            return data;
+        } catch (error) {
+            console.error('Text Prediction Error:', error);
+            document.getElementById('catatanPred').value = JSON.stringify({ error: error.message });
+            return null;
         }
-
-        if (file.size > 5 * 1024 * 1024) {
-            alert('Ukuran file maksimal 5MB!');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            previewImage.src = e.target.result;
-            previewContainer.style.display = 'block';
-            uploadArea.style.display = 'none';
-        };
-        reader.readAsDataURL(file);
     }
 
-    // Form Submit
-    document.getElementById('absensiForm').addEventListener('submit', function(e) {
+    // Capture Photo with Prediction
+    captureBtn.addEventListener('click', () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        
+        // Convert to file
+        canvas.toBlob(async blob => {
+            const file = new File([blob], "swafoto.jpg", { type: "image/jpeg" });
+            
+            // Create FileList hack for input file
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            swafotoInput.files = dataTransfer.files;
+
+            // Show preview
+            photoPreview.src = URL.createObjectURL(blob);
+            previewArea.style.display = 'block';
+            video.style.display = 'none';
+            captureBtn.style.display = 'none';
+            
+            // Stop stream
+            stream.getTracks().forEach(track => track.stop());
+
+            // Trigger Face Prediction immediately
+            await predictFace(file);
+
+        }, 'image/jpeg');
+    });
+
+    // Form Submit with Text Prediction
+    document.getElementById('absensiForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const status = document.querySelector('input[name="status"]:checked');
@@ -237,7 +280,7 @@
             return;
         }
 
-        if (status.value === 'izin') {
+        if (status.value === 'I') {
             const alasanIzin = document.getElementById('alasanIzin').value;
             if (!alasanIzin) {
                 alert('Mohon isi alasan izin!');
@@ -245,7 +288,7 @@
             }
         }
 
-        if (status.value === 'sakit') {
+        if (status.value === 'S') {
             const jenisSakit = document.getElementById('jenisSakit').value;
             if (!jenisSakit) {
                 alert('Mohon isi jenis sakit!');
@@ -253,12 +296,126 @@
             }
         }
 
-        alert('Absensi berhasil dikirim!');
+        // Show loading state
+        const submitBtn = document.querySelector('.btn-submit');
+        const originalBtnText = submitBtn.innerText;
+        submitBtn.innerText = 'Memproses...';
+        submitBtn.disabled = true;
+
+        try {
+            // Trigger Text Prediction
+            const catatan = document.querySelector('textarea[name="catatan"]').value;
+            if (catatan) {
+                await predictText(catatan);
+            }
+
+            // Create FormData
+            const formData = new FormData(this);
+
+            // Manually append 'ket' and 'doc' based on status
+            if (status.value === 'I') {
+                const alasanIzin = document.getElementById('alasanIzin').value;
+                formData.append('ket', alasanIzin);
+                
+                const fileInput = document.getElementById('fileInputIzin');
+                if (fileInput.files.length > 0) {
+                    formData.append('doc', fileInput.files[0]);
+                }
+            } else if (status.value === 'S') {
+                const jenisSakit = document.getElementById('jenisSakit').value;
+                formData.append('ket', jenisSakit);
+
+                const fileInput = document.getElementById('fileInputSakit');
+                if (fileInput.files.length > 0) {
+                    formData.append('doc', fileInput.files[0]);
+                }
+            }
+            
+            // Send to Laravel Backend
+            const response = await fetch('/siswa/presensi', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.message) {
+                window.location.href = '/siswa/dashboard';
+            } else {
+                throw new Error(data.message || 'Terjadi kesalahan saat mengirim absensi.');
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Gagal: ' + error.message);
+        } finally {
+            submitBtn.innerText = originalBtnText;
+            submitBtn.disabled = false;
+        }
     });
 
     // Update date
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const today = new Date();
     document.getElementById('currentDate').textContent = today.toLocaleDateString('id-ID', options);
+
+    // File Upload Logic
+    function setupFileUpload(areaId, inputId, previewContainerId, previewImageId, removeBtnId) {
+        const area = document.getElementById(areaId);
+        const input = document.getElementById(inputId);
+        const container = document.getElementById(previewContainerId);
+        const img = document.getElementById(previewImageId);
+        const removeBtn = document.getElementById(removeBtnId);
+
+        // Trigger input click
+        area.addEventListener('click', () => input.click());
+
+        // Handle file selection
+        input.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                
+                // Validate size (10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Ukuran file terlalu besar! Maksimal 10MB.');
+                    this.value = '';
+                    return;
+                }
+
+                area.style.display = 'none';
+                container.style.display = 'block';
+
+                if (file.type === 'application/pdf') {
+                    // Show PDF placeholder
+                    img.src = 'https://cdn-icons-png.flaticon.com/512/337/337946.png'; // Generic PDF icon
+                    img.style.objectFit = 'contain';
+                } else {
+                    // Show Image preview
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        img.src = e.target.result;
+                        img.style.objectFit = 'cover';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        // Handle remove
+        removeBtn.addEventListener('click', function() {
+            input.value = '';
+            area.style.display = 'flex'; // Restore flex display
+            container.style.display = 'none';
+            img.src = '';
+        });
+    }
+
+    // Initialize file uploads
+    setupFileUpload('uploadAreaIzin', 'fileInputIzin', 'previewContainerIzin', 'previewImageIzin', 'removeImageIzin');
+    setupFileUpload('uploadAreaSakit', 'fileInputSakit', 'previewContainerSakit', 'previewImageSakit', 'removeImageSakit');
 </script>
 @endsection

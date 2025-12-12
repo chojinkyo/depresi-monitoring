@@ -19,10 +19,10 @@
         <ul class="list-unstyled">
             <li class="nav-item">
                 @include('components.buttons.button-sidebar', [
-                    'href' => '/siswa',
+                    'href' => '/siswa/dashboard',
                     'icon' => 'bi-grid-fill',
                     'text' => 'Dashboard',
-                    'active' => request()->is('siswa')
+                    'active' => request()->is('siswa/dashboard')
                 ])
                                     </li>
                                     <li class="nav-item">
@@ -43,28 +43,45 @@
             </li>
             <li class="nav-item">
                 @include('components.buttons.button-sidebar', [
-                    'href' => '#',
+                    'href' => '/siswa/laporan-nilai',
                     'icon' => 'bi-file-earmark-text',
                     'text' => 'Laporan Nilai',
-                    'active' => false
+                    'active' => request()->is('siswa/laporan-nilai')
                 ])
             </li>
             <li class="nav-item">
                 @include('components.buttons.button-sidebar', [
-                    'href' => '#',
+                    'href' => '/siswa/statistik',
                     'icon' => 'bi-bar-chart-fill',
                     'text' => 'Statistik',
-                    'active' => false
+                    'active' => request()->is('siswa/statistik')
                 ])
+            @php
+                $siswa = Illuminate\Support\Facades\Auth::user()->siswa;
+                $hasFilledDass = $siswa && $siswa->kuesionerResults()->exists();
+            @endphp
+
+            <li class="nav-item">
+                @if($hasFilledDass)
+                    @include('components.buttons.button-sidebar', [
+                        'href' => '/siswa/diaryku',
+                        'icon' => 'bi-journal-medical',
+                        'text' => 'Self Care',
+                        'active' => request()->is('siswa/diaryku')
+                    ])
+                @endif
             </li>
         </ul>
     </nav>
 
     <!-- Logout Section -->
     <div class="logout-section">
-        <a href="/login" class="btn-logout">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Keluar</span>
-        </a>
+        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+            @csrf
+            <button type="submit" class="btn-logout" style="background: #dc3545; color: white; border: none; width: 100%; text-align: left; display: flex; align-items: center; cursor: pointer; padding: 10px 15px; border-radius: 10px; transition: background 0.3s;">
+                <i class="bi bi-box-arrow-right"></i>
+                <span style="margin-left: 10px; font-weight: 500;">Keluar</span>
+            </button>
+        </form>
     </div>
 </aside>

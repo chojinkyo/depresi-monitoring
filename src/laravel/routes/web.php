@@ -13,13 +13,31 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Dashboard\Admin\PresensiLiburController as HariLiburController;
 use App\Models\TahunAkademik;
+use Illuminate\Support\Facades\Auth;
 
-Route::view('/', 'welcome');
+
+
+// 1. Root/Default Page
+// Mengarahkan pengguna berdasarkan status login. Jika sudah login, ke dashboard, jika belum, ke login.
+Route::get('/', function () {
+    if (Auth::check()) {
+        $role = Auth::user()->role;
+        return redirect()->intended("/$role/dashboard");
+    }
+    return redirect()->route('login');
+})->name('root');
+
+// 2. Guest Routes (Hanya diakses jika BELUM login)
 Route::group(['middleware'=>['guest']], function() {
+    // Login
     Route::get('/login', [LoginController::class, 'index'])->name('login');
     Route::post('/login', [LoginController::class, 'postLogin'])->name('web.login.post');
+
+    // Forgot Password
+    Route::view('/forgot-password', 'auth.forgot-password')->name('password.request');
 });
 
+// 3. Authenticated Routes (Hanya diakses jika SUDAH login)
 Route::group(['middleware'=>['auth']], function() {
     Route::get('/files/{mime}/{type}/default', [ImageController::class, 'webDefault'])
     ->name('image.web.default');
@@ -44,6 +62,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     
     // Route::get('/hari-libur', [HariLiburController::class, 'index'])->name('admin.libur.index');
 });
+
+// 5. Guru Routes (Akses: Auth + Role Guru)
 Route::group(['middleware'=>['auth', 'role:guru']], function() {
     Route::get('/guru/dashboard', [DashboardController::class, 'guruDashboard'] );
 });

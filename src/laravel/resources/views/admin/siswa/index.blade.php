@@ -1,6 +1,6 @@
 
 
-@extends('adminlte::page')
+@extends('layouts.admin')
 
 @section('title', 'Index Siswa')
 @section('content_header')

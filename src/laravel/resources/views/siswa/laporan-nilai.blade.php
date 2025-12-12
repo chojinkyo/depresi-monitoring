@@ -1,10 +1,10 @@
 @extends('layouts.siswa')
 
-@section('title', 'Jadwal - Sistem Manajemen Siswa')
+@section('title', 'Laporan Nilai - Sistem Manajemen Siswa')
 
 @php
-    $pageTitle = 'Jadwal Pelajaran';
-    $pageSubtitle = 'Lihat jadwal pelajaran Anda';
+    $pageTitle = 'Laporan Nilai';
+    $pageSubtitle = 'Lihat hasil belajar dan nilai Anda';
 @endphp
 
 @section('content')

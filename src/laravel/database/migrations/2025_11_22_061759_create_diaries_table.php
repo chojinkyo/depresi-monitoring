@@ -23,7 +23,8 @@ return new class extends Migration
             $table->string('catatan_pred', 50);
             $table->string('catatan_ket', 100);
             $table->mediumText('catatan');
-            $table->timestamp('waktu')->useCurrent();
+            $table->timestamps();
+            // $table->timestamp('waktu')->useCurrent();
         });
     }
 
