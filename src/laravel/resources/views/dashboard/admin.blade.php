@@ -77,6 +77,9 @@
                                     </thead>
 
                                     <tbody>
+                                        @php
+                                            $index=0;
+                                        @endphp
                                         @foreach ($calendars as $week)
                                             <tr>
                                                 {{-- {{ dd($vacations) }} --}}
@@ -85,18 +88,24 @@
                                                        
                                                     </td>
                                                 @endfor
+                                                
                                                 @foreach ($week as $day)
                                                     <td class="col p-0" style="box-sizing: border-box;">
                                                         <button 
                                                         class="w-100 h-100  px-0 rounded-0 border-0  position-relative {{ in_array($day['day'], [5, 6]) ? 'btn text-secondary' : 'btn btn-outline-light text-dark' }}" 
                                                         >
                                                         @php
-                                                            $month=now()->month;
-                                                            $range=$vacations->get($month."_".$day['date']);
-                                                            $result=$range!=null;
-
+                                                            if($index < count($vacations)) {
+                                                                $vacation=$vacations[$index];
+                                                                $current=$day['date'];
+                                                                $vacant=false;
+                                                                if($current >= $vacation['tanggal_mulai'] && $current <= $vacation['tanggal_selesai'])
+                                                                    $vacant=true;
+                                                                if($current >= $vacation['tanggal_selesai'])
+                                                                    $index++;
+                                                            }
                                                         @endphp
-                                                            <div class="{{ $result ? 'bg-info' : '' }}">
+                                                            <div class="{{ $vacant ? 'bg-info' : '' }}">
                                                                 {{ $day['date'] }}
                                                             </div>
                                                         </button>

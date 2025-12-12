@@ -50,10 +50,7 @@ class DashboardController extends Controller implements HasMiddleware
     {
         $month=now()->month;
         $calendars=$this->getCalendarDays();
-        $vacations=PresensiLibur::select(['ket', 'tanggal_mulai', 'tanggal_selesai', 'bulan_mulai', 'bulan_selesai'])->where('bulan_mulai', $month)->get()->groupBy(function($item) {
-           
-            return $item->bulan_mulai.'_'.$item->tanggal_mulai;
-        });
+        $vacations=PresensiLibur::select(['ket', 'tanggal_mulai', 'tanggal_selesai', 'bulan_mulai', 'bulan_selesai'])->where('bulan_mulai', $month)->orderBy('tanggal_mulai')->get()->toArray();
         
         return view('dashboard.admin', compact('calendars', 'vacations'));
     }

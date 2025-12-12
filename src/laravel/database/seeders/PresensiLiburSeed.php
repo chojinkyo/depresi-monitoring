@@ -9,64 +9,50 @@ class PresensiLiburSeed extends Seeder
 {
     public function run()
     {
-        // Daftar hari libur nasional Indonesia (tanggal & bulan)
-        $holidays = [
-            ['ket' => 'Tahun Baru Masehi', 'd' => 1, 'm' => 1],
-            ['ket' => 'Isra Mi\'raj', 'd' => 27, 'm' => 1],
-            ['ket' => 'Tahun Baru Imlek', 'd' => 1, 'm' => 2],
-            ['ket' => 'Hari Raya Nyepi', 'd' => 29, 'm' => 3],
-            ['ket' => 'Wafat Isa Almasih', 'd' => 18, 'm' => 4],
-            ['ket' => 'Hari Buruh', 'd' => 1, 'm' => 5],
-            ['ket' => 'Kenaikan Isa Almasih', 'd' => 29, 'm' => 5],
-            ['ket' => 'Hari Lahir Pancasila', 'd' => 1, 'm' => 6],
-            ['ket' => 'Idul Adha', 'd' => 6, 'm' => 6],
-            ['ket' => 'Tahun Baru Hijriyah', 'd' => 26, 'm' => 6],
-            ['ket' => 'Hari Kemerdekaan RI', 'd' => 17, 'm' => 8],
-            ['ket' => 'Maulid Nabi', 'd' => 4, 'm' => 9],
-            ['ket' => 'Natal', 'd' => 25, 'm' => 12],
+        // Hari libur nasional + event sekolah
+        // FORMAT: ket, dmulai, dselesai, bmulai, bselesai, jenjang[]
+        $events = [
+
+            // === Libur Nasional ===
+            ['Tahun Baru Masehi',          1,  1,  1,  1, [1,2,3]],
+            ['Isra Mi\'raj',               27, 27, 1,  1, [1,2,3]],
+            ['Tahun Baru Imlek',           1,  1,  2,  2, [1,2,3]],
+            ['Hari Raya Nyepi',            29, 29, 3,  3, [1,2,3]],
+            ['Wafat Isa Almasih',          18, 18, 4,  4, [1,2,3]],
+            ['Hari Buruh',                  1,  1, 5,  5, [1,2,3]],
+            ['Kenaikan Isa Almasih',       29, 29, 5,  5, [1,2,3]],
+            ['Hari Lahir Pancasila',        1,  1, 6,  6, [1,2,3]],
+            ['Idul Adha',                   6,  6, 6,  6, [1,2,3]],
+            ['Tahun Baru Hijriyah',        26, 26, 6,  6, [1,2,3]],
+            ['Hari Kemerdekaan RI',        17, 17, 8,  8, [1,2,3]],
+            ['Maulid Nabi',                 4,  4, 9,  9, [1,2,3]],
+            ['Natal',                      25, 25,12, 12, [1,2,3]],
+
+            // === Event Sekolah (Tambahan) ===
+            ['Masa Pengenalan Lingkungan Sekolah (MPLS)',    15, 17, 7, 7, [1,2,3]],
+            ['Ujian Tengah Semester (UTS)',                  10, 14, 10, 10, [2,3]],
+            ['Ujian Akhir Semester (UAS)',                   2,  6,  12, 12, [2,3]],
+            ['Rapat Guru',                                   30, 30, 6,  6, [3]],
+            ['Kegiatan Parenting Day',                       22, 22, 4,  4, [1]],
+            ['Study Tour',                                   5,  7,  9,  9, [2,3]],
+            ['Class Meeting',                                12, 13, 6,  6, [1,2,3]],
+            ['Pembagian Raport Semester',                    20, 20, 12, 12, [1,2,3]],
+            ['Kegiatan Donor Darah Sekolah',                 3,  3,  5,  5, [3]],
+
+            // Event Custom Biar Tidak Kosong Per Periode
+            ['Libur Akhir Tahun Ajaran',                     25, 30, 6,  6, [1,2,3]],
+            ['Kegiatan Pramuka Gabungan',                    14, 14, 3,  3, [2,3]],
         ];
 
-        foreach ($holidays as $h) {
-
-            // 🟦 1) Kombinasi jenjang 1,2,3
+        foreach ($events as $e) {
             DB::table('presensi_libur')->insert([
-                'ket' => $h['ket'],
-                'tanggal_mulai' => $h['d'],
-                'tanggal_selesai' => $h['d'],
-                'bulan_mulai' => $h['m'],
-                'bulan_selesai' => $h['m'],
-                'jenjang' => json_encode([1,2,3]),
-                'id_author' => 1,
-            ]);
-
-            // 🟩 2) Kombinasi dua jenjang
-            $twoCombinations = [
-                [1,2],
-                [1,3],
-                [2,3]
-            ];
-
-            foreach ($twoCombinations as $combo) {
-                DB::table('presensi_libur')->insert([
-                    'ket' => $h['ket'],
-                    'tanggal_mulai' => $h['d'],
-                    'tanggal_selesai' => $h['d'],
-                    'bulan_mulai' => $h['m'],
-                    'bulan_selesai' => $h['m'],
-                    'jenjang' => json_encode($combo),
-                    'id_author' => 1,
-                ]);
-            }
-
-            // 🟧 3) Kombinasi satu jenjang
-            DB::table('presensi_libur')->insert([
-                'ket' => $h['ket'],
-                'tanggal_mulai' => $h['d'],
-                'tanggal_selesai' => $h['d'],
-                'bulan_mulai' => $h['m'],
-                'bulan_selesai' => $h['m'],
-                'jenjang' => json_encode([1]),
-                'id_author' => 1,
+                'ket'             => $e[0],
+                'tanggal_mulai'   => $e[1],
+                'tanggal_selesai' => $e[2],
+                'bulan_mulai'     => $e[3],
+                'bulan_selesai'   => $e[4],
+                'jenjang'         => json_encode($e[5]),
+                'id_author'       => 1,
             ]);
         }
     }
