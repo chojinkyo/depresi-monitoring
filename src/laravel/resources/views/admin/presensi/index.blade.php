@@ -114,7 +114,7 @@
                                     href="#" 
                                     class="btn btn-sm btn-primary"
                                     x-on:click="event.preventDefault();"
-                                    onclick="loadAttendancesHistory(`{{ route('admin.siswa.kehadiran.show', ['student'=>$studentAttendance->id, 'year'=>(request()->query('year'))]) }}`)"
+                                    onclick="loadAttendancesHistory(`{{ route('admin.siswa.kehadiran.show', ['student'=>$studentAttendance->id, 'year'=>(request()->query('year') ?? 1) ]) }}`)"
                                     >
                                         <i class="fas fa-eye mr-2"></i> Details
                                     </a>
