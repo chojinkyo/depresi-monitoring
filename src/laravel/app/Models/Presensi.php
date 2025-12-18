@@ -10,8 +10,12 @@ class Presensi extends Model
     //
     protected $guarded=['id'];
     protected $table='presensi';
-
     public $timestamps = false;
+
+    public function diary()
+    {
+        return $this->hasOne(Diary::class, 'id_presensi', 'id');
+    }
 
     public static function getAttendanceCalc($year, $students)
     {
@@ -60,8 +64,6 @@ class Presensi extends Model
             ")
             ->get()
             ->keyBy('id_siswa');
-        
-
         return [$results, $details];
     }
 

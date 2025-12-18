@@ -7,41 +7,43 @@
 
 <div class="row justify-content-center w-100">
     <div class="col-12">
-        <div class="card shadow-sm mb-4 border-top border-3 border-primary">
-            <div class="card-header no-after py-3 d-flex align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">{{ $title }}</h6>
-                <div class="d-flex align-items-center">
-                    <input type="text" name="" id="" class="form-control mr-2" placeholder="search items">
-                    @if($addRoute)
-                        <a 
-                        href="#" 
-                        class="btn btn-primary d-block d-flex align-items-center"
-                        x-on:click="event.preventDefault();"
-                        onclick="Livewire.dispatch('{{ $addRoute }}')"
-                        data-toggle="modal"
-                        data-target="#create-modal">
-                            <i class="fas fa-plus mr-2"></i> Tambah
-                        </a>
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success bg-gradient bg-opacity-50 no-after p-4 d-flex align-items-center justify-content-between">
+                <h6 class="m-0 fw-bold fs-5 text-black-50">{{ $title }}</h6>
+                <div class="w-auto">
+                    <div class="input-group">
+                        <input type="text" class="form-control mr-2 opacity-75 bg-light" placeholder="search items">
+                        @if($addRoute)
+                            <a 
+                            href="#" 
+                            class="btn btn-warning d-block d-flex align-items-center"
+                            x-on:click="event.preventDefault();"
+                            onclick="Livewire.dispatch('{{ $addRoute }}')"
+                            data-toggle="modal"
+                            data-target="#create-modal">
+                                <i class="fas fa-search mr-2"></i>
+                            </a>
 
-                        @if (isset($create_form))
-                            {{ $create_form }}
-                        @endif
+                            @if (isset($create_form))
+                                {{ $create_form }}
+                            @endif
 
-                        @if (isset($edit_form))
-                            {{ $edit_form }}
+                            @if (isset($edit_form))
+                                {{ $edit_form }}
+                            @endif
                         @endif
-                    @endif
+                    </div>
                 </div>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover shadow-sm">
-                        <thead class="bg-light">
+                    <table class="table table-bordered table-hover shadow-none">
+                        <thead class="table-light text-black-50">
                             <tr>
                                 @foreach($headers as $header)
-                                    <th scope="col">{{ $header }}</th>
+                                    <th scope="col" class="{{ $header=='No' ? 'text-center' : '' }} py-3 fw-medium">{{ $header }}</th>
                                 @endforeach
-                                <th scope="col" style="width: 120px;">Aksi</th>
+                                <th scope="col" class="py-3 fw-medium" style="width: 120px;">Aksi</th>
                             </tr>
                         </thead>
                         {{ $slot }}
@@ -52,10 +54,8 @@
                 </div>
                 
             </div>
-            <div class="card-footer">
+            <div class="card-footer py-0">
                 <div class="d-flex justify-content-left">
-                    
-
                     @if(isset($paginator))
                         {{ $paginator }}
                     @endif

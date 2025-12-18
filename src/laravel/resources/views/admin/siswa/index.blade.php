@@ -12,33 +12,41 @@
 @endsection
 @
 @section('content')
-<div class="row justify-content-center" x-data="{selected_id : `{{ old('id') }}`, id_user : `{{ old('id_user') }}`}" x-ref="mainContainer">
+<div class="row" x-data="{selected_id : `{{ old('id') }}`, id_user : `{{ old('id_user') }}`}" x-ref="mainContainer">
     <div class="col-6">
         <x-table
             title="Daftar Siswa"
-            :headers="['No', 'NISN', 'Nama Lengkap', 'Gender', 'Kelas', 'Status']"
+            :headers="['No', 'Siswa', 'Gender', 'Kelas', 'Status']"
             addRoute="siswa:create"
         >
             @forelse ($students as $i => $row)
                 <tr :class="{'table-active' : selected_id==`{{ $row->id }}`}">
-                    <td>{{ $i + 1 }}</td>
-                    <td>{{ $row->nisn}}</td>
-                    <td>{{ $row->nama_lengkap }}</td>
+                    <td class="text-center text-dark">
+                        {{ $i + 1 }}
+                    </td>
+                    
+                    <td>
+                        <small>
+                            <div class="fw-medium">{{ $row->nama_lengkap }}</div>
+                            <div class="text-black-50">{{ $row->nisn}}</div>
+                        </small>
+                        
+                    </td>
                     <td>{{ $row->gender ? "L" : "P" }}</td>
                     <td>{{ $row->getKelasAktif()?->nama }}</td>
                     <td>
 
                         @if(!$row->status)
-                            <div class="badge badge-sm bg-danger rounded-pill">Non-Aktif</div>
+                            <div class="badge badge-sm bg-danger bg-opacity-50 rounded-pill">Non-Aktif</div>
                         @else
-                            <div class="badge badge-sm bg-success rounded-pill">Aktif</div>
+                            <div class="badge badge-sm bg-success bg-opacity-75 rounded-pill">Aktif</div>
                         @endif
                     </td>
                     <td >
                         <a 
                         href="#" 
                         role="button"
-                        class="btn btn-warning btn-xs"
+                        class="btn btn-sm btn-warning"
                         x-on:click="event.preventDefault();selected_id=`{{ $row->id }}`"
                         onclick="editForm(`{{ $row->id }}`, `{{ route('admin.siswa.update', ['siswa'=>$row->id]) }}`, `{{ $row->user->id }}`)"
                         >
@@ -47,15 +55,14 @@
                         <a 
                         href="#" 
                         role="button"
-                        class="btn btn-danger btn-xs"
+                        class="btn btn-sm btn-danger"
                         x-on:click="event.preventDefault();setDeleteForm(`{{ route('admin.siswa.destroy', ['siswa'=>$row->id]) }}`)"
-                        onclick="Livewire.dispatch('swal:confirm', {
+                        onclick="window.dispatchEvent(new CustomEvent('swal:confirm', {detail : {
                             title : 'Konfirmasi hapus data',
                             text : 'Apakah anda yakin ingin menghapus siswa ini?',
                             icon : 'warning',
                             method : submitDeleteForm,
-                            params : {id : {{ $row->id }}}
-                        })"
+                        }}))"
                         >
                             <i class="fas fa-trash-alt"></i>
                         </a>
@@ -68,15 +75,16 @@
         <x-slot name="paginator">
             {{ $students->links() }}
         </x-slot>
+        <form 
+            method="post" 
+            id="form-delete" 
+            class="d-none"
+        >
+            @csrf
+            @method('DELETE')
+        </form>
     </div>
-    <form 
-        method="post" 
-        id="form-delete" 
-        class="d-none"
-    >
-        @csrf
-        @method('DELETE')
-    </form>
+    
     <form 
         @if(old('id')==null)
         action="{{ route('admin.siswa.store') }}"
@@ -85,7 +93,7 @@
         @endif
         method="POST" 
         id="form-siswa"
-        class="d-flex justify-between col-5 px-0" 
+        class="d-flex justify-content-between col-5 gap-4 px-0" 
         enctype="multipart/form-data"
     >
     @csrf
@@ -93,33 +101,41 @@
     <input type="hidden" name="avatar_url" id="avatar_url_field" value="{{ old('avatar_url') }}">
     <input type="hidden" name="id_user" id="id_user_field" value="{{ old('id_user') }}">
     <input type="hidden" name="_method" id="_method_field" value="{{ old('id') ? 'PUT' : 'POST' }}">
-    <div class="col-7 pl-0">
-        <div class="card shadow-sm border-top border-top border-4 border-info">
-            <div class="card-header no-after py-3 d-flex justify-content-between align-items-center">
-                <h2 class="h5 font-weight-bold text-info">Form Siswa</h2>
+
+    <div class="col-7">
+        <div class="card shadow-sm ">
+            <div class="card-header no-after py-4 d-flex justify-content-between align-items-center bg-warning bg-gradient bg-opacity-50">
+                <h2 class="fs-5 fw-bold text-black-50 m-0">Form Siswa</h2>
                 <a 
                 href="#"
                 role="button"
+                class="btn"
                 onclick="event.preventDefault();resetForm(`{{ route('admin.siswa.store') }}`)">
                     Clear
                 </a>
             </div>
             <div class="card-body">
-                <div class="form-group">
-                    <label for="">Nama Lengkap</label>
+                <div class="mb-3">
+                    <label for="" class="form-label fw-medium">
+                        <small>Nama Lengkap</small>
+                    </label>
                     <input type="text" id="nama_lengkap_field" class="form-control" name="nama_lengkap" value="{{ old('nama_lengkap') }}">
                     <x-form-error-text :field="'nama_lengkap'" />
                 </div>
-                <div class="form-group">
-                    <label for="">NISN</label>
+                <div class="mb-3">
+                    <label for="" class="form-label fw-medium">
+                        <small>NISN</small>
+                    </label>
                     <input type="text" id="nisn_field" class="form-control" name="nisn" value="{{ old('nisn') }}">
                     <x-form-error-text :field="'nisn'" />
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-group col">
-                        <label for="id_thak_masuk_field">Tahun Masuk</label>
-                        <select id="id_thak_masuk_field" class="form-control" name="id_thak_masuk" value="{{ old('id_thak_masuk') }}">
+                <div class="row">
+                    <div class="col mb-3">
+                        <label for="id_thak_masuk_field" class="form-label fw-medium">
+                            <small>Tahun Masuk</small>
+                        </label>
+                        <select id="id_thak_masuk_field" class="form-select form-select-sm py-2" name="id_thak_masuk" value="{{ old('id_thak_masuk') }}">
                             @forelse ($academicYears as $t)
                                 <option value="{{ $t->id }}">{{ $t->nama_tahun }}</option>
                             @empty
@@ -128,45 +144,55 @@
                         <x-form-error-text :field="'id_thak_masuk'" />
                     </div>
                     
-                    <div class="form-group col">
-                        <label for="id_kelas_field">Kelas</label>
-                        <select id="id_kelas_field" class="form-control" name="id_kelas" value="{{ old('id_kelas') }}">
+                    <div class="col mb-3">
+                        <label for="id_kelas_field" class="form-label fw-medium">
+                            <small>Kelas</small>
+                        </label>
+                        <select id="id_kelas_field" class="form-select form-select-sm py-2" name="id_kelas" value="{{ old('id_kelas') }}">
                             @forelse ($classes as $t)
                                 <option value="{{ $t->id }}">{{ $t->nama }}</option>
                             @empty
                             @endforelse
                         </select>
                         <x-form-error-text :field="'id_kelas'" />
-
                     </div>
                 </div>
-                <div class="form-group my-0">
-                    <label for="">Lahir</label>
-                    <div class="form-row" style="font-size: 16px;">
-                        <div class="form-group col">
-                            <label for="tempat_lahir_field" class="font-weight-normal">Tempat</label>
+
+                <div class="mb-3 my-0">
+                    <label for="" class="form-label fw-bold">Lahir</label>
+                    <div class="row">
+                        <div class="col">
+                            <label for="tempat_lahir_field" class="fw-medium form-label">
+                                <small>Tempat</small>
+                            </label>
                             <input type="text" id="tempat_lahir_field" class="form-control" name="tempat_lahir" value="{{ old('tempat_lahir') }}">
                         </div>
-                        <div class="form-group col">
-                            <label for="tanggal_lahir_field" class="font-weight-normal">Tanggal</label>
-                            <input type="date" id="tanggal_lahir_field" class="form-control" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}">
+                        <div class="col">
+                            <label for="tanggal_lahir_field" class="fw-medium form-label">
+                                <small>Tanggal</small>
+                            </label>
+                            <input type="date" id="tanggal_lahir_field" class="form-control form-control-sm py-2" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}">
                         </div>
                     </div>
                     <x-form-error-text :field="'tempat_lahir'" />
                     <x-form-error-text :field="'tanggal_lahir'" />
                 </div>
                 <div class="form-group">
-                    <div class="form-row" >
-                        <div class="form-group col">
-                            <label for="status_field">Status Siswa</label>
-                            <select id="riwayat_status_field" class="form-control" name="status" value="{{ old('status') }}">
+                    <div class="row" >
+                        <div class="col mb-3">
+                            <label for="status_field" class="form-label fw-medium">
+                                <small>Status Siswa</small>
+                            </label>
+                            <select id="riwayat_status_field" class="form-select form-select-sm py-2" name="status" value="{{ old('status') }}">
                                 <option value="NW">Baru</option>
                                 <option value="MM">Pindahan</option>
                             </select>
                             <x-form-error-text :field="'status'" />
                         </div>
-                        <div class="form-group d-flex flex-wrap col">
-                            <label>Gender</label>
+                        <div class="d-flex flex-wrap mb-3 col">
+                            <label class="form-label fw-medium">
+                                <small>Gender</small>
+                            </label>
                             <div class="input-group d-flex align-items-end" style="gap: 1rem;">
                                 <div class="form-check">
                                     <input type="radio" name="gender" id="gen_l" class="form-check-input" value="1" name="gender" @checked(old('gender')==1)>
@@ -184,26 +210,29 @@
                 </div>
                 
                 
-                <div class="form-group">
-                    <label for="alamat_field">Alamat</label>
+                <div class="mb-3">
+                    <label for="alamat_field" class="form-label fw-medium">
+                        <small>Alamat</small>
+                    </label>
                     <textarea id="alamat_field" cols="30" rows="4" class="form-control" name="alamat">{{ old('alamat') }}</textarea>
                     <x-form-error-text :field="'alamat'" />
                 </div>
-                <button type="submit" class="btn btn-lg btn-info w-100">Submit</button>
+                <button type="submit" class="btn btn-primary py-2 bg-gradient w-100">Submit</button>
                     
             </div>
             <div class="card-footer"></div>
         </div>
     </div>
-    <div class="col-5">
-        <div class="card shadow-sm border-top border-top border-4 border-info">
-            <div class="card-header">
-                <h2 class="h6 font-weight-bold text-info ">Info Akun</h2>
 
+    <div class="col-5">
+        <div class="card shadow-sm ">
+            <div class="card-header py-4  bg-primary bg-gradient bg-opacity-50">
+                <h2 class="fs-5 fw-bold text-black-50 m-0">Info Akun</h2>
+                <div class="btn"></div>
             </div>
             <div class="card-body">
                 <div 
-                    class="form-group" 
+                    class="mb-3" 
                     x-data="{
 
                         img_url : `{{ old('avatar_url') }}`, 
@@ -239,7 +268,7 @@
                     x-init="get_img();$watch('img_url', _=>get_img()) "
                     x-ref="imgContainer"
                 >
-                    <label for="">Foto Profil</label>
+                    <label for="" class="fw-bold form-label">Foto Profil</label>
                     <div class="w-50 mb-3 position-relative">
                         <img x-bind:src="img_preview || img_initial" alt="" class="w-100 d-block" style="aspect-ratio: 1/1;object-fit: cover;">
                         <button 
@@ -261,8 +290,10 @@
                     <x-form-error-text :field="'avatar'" />
 
                 </div>
-                <div class="form-group">
-                    <label for="">Email</label>
+                <div class="mb-3">
+                    <label for="" class="form-label fw-medium">
+                        <small>Email</small>
+                    </label>
                     <input type="text" id="email_field" class="form-control" name="email" value="{{ old('email') }}">
                     <x-form-error-text :field="'email'" />
                 </div>

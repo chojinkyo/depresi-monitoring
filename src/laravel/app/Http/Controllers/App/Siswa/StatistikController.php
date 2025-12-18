@@ -5,6 +5,7 @@ namespace App\Http\Controllers\App\Siswa;
 use App\Http\Controllers\Controller;
 use App\Models\Presensi;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
 
 class StatistikController extends Controller
 {
@@ -15,7 +16,7 @@ class StatistikController extends Controller
 
         // Check today's attendance
         $todayPresensi = Presensi::where('id_siswa', $id_siswa)
-            ->whereDate('created_at', now()->today())
+            ->whereDate('waktu', now()->today())
             ->first();
 
         $isTodayPresent = $todayPresensi ? true : false;
@@ -40,14 +41,14 @@ class StatistikController extends Controller
         $startDate = now()->subDays(13); // 14 days including today
 
         $moodData = Presensi::where('id_siswa', $id_siswa)
-            ->whereDate('created_at', '>=', $startDate)
-            ->whereDate('created_at', '<=', $endDate)
+            ->whereDate('waktu', '>=', $startDate)
+            ->whereDate('waktu', '<=', $endDate)
             ->with('diary')
-            ->orderBy('created_at')
+            ->orderBy('waktu')
             ->get()
             ->map(function ($presensi) {
                 return [
-                    'date' => $presensi->created_at->format('d M'),
+                    'date' => Carbon::parse($presensi->waktu)->format('d M'),
                     'emoji' => $presensi->diary ? $presensi->diary->emoji : null,
                 ];
             });

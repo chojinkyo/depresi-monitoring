@@ -46,7 +46,7 @@ class DashboardController extends Controller implements HasMiddleware
     
     }
     
-    public function admin()
+    public function adminDashboard()
     {
         $month=now()->month;
         $calendars=$this->getCalendarDays();
@@ -68,14 +68,14 @@ class DashboardController extends Controller implements HasMiddleware
         $startDate = now()->subDays(13); // 14 days including today
 
         $moodData = \App\Models\Presensi::where('id_siswa', $id_siswa)
-            ->whereDate('created_at', '>=', $startDate)
-            ->whereDate('created_at', '<=', $endDate)
+            ->whereDate('waktu', '>=', $startDate)
+            ->whereDate('waktu', '<=', $endDate)
             ->with('diary')
-            ->orderBy('created_at')
+            ->orderBy('waktu')
             ->get()
             ->map(function ($presensi) {
                 return [
-                    'date' => $presensi->created_at->format('d M'),
+                    'date' => Carbon::parse($presensi->waktu)->format('d M'),
                     'emoji' => $presensi->diary ? $presensi->diary->emoji : null,
                 ];
             });

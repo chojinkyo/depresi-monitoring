@@ -53,7 +53,7 @@ class LoginController extends Controller implements HasMiddleware
     }
     public function postLogout(Request $request)
     {
-        Auth::guard('web')->logout();
+        Auth::guard('api')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login');

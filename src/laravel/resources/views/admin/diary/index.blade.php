@@ -1,6 +1,6 @@
 
 
-@extends('adminlte::page')
+@extends('layouts.admin')
 
 @section('title', 'Index Siswa')
 @section('content_header')
@@ -12,7 +12,7 @@
 @endsection
 
 
-@section('js')
+@section('scripts')
 <script>
     var ctx = document.getElementById('myChart').getContext('2d');
     const labels = [["1 Jan", "2025"], ["1 Jan", "2025"], ["1 Jan", "2025"], ["1 Jan", "2025"], ["1 Jan", "2025"], ["1 Jan", "2025"]];
@@ -91,8 +91,8 @@
 @section('content')
 <div class="row justify-content-center">
     <div class="col-7">
-        <div class="card border-4 border-top border-primary shadow-sm mb-4">
-            <div class="card-header no-after py-4 d-flex align-items-center justify-content-between">
+        <div class="card shadow">
+            <div class="card-header no-after py-4 d-flex align-items-center justify-content-between bg-primary bg-gradient bg-opacity-50">
                 <div class="d-flex align-items-center">
                     <div class="input-group">
                         <input type="text" name="" id="" class="form-control" placeholder="search items">
@@ -105,28 +105,28 @@
                 </div>
                 <div class="d-flex align-items-center" style="gap: .5rem;">
                     <div class="form-group m-0">
-                        <select name="" id="" class="form-control bg-light">
+                        <select name="" id="" class="form-select bg-light">
                             <option value="">All Kelas</option>
                         </select>
                     </div>
                     <div class="form-group m-0">
-                        <select name="" id="" class="form-control bg-light">
+                        <select name="" id="" class="form-select bg-light">
                             <option value="">Tahun Ini</option>
                         </select>
                     </div>
                 </div>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4">
                 <div class="table-responsive">
                     <table class="table border">
-                        <thead class="bg-light">
+                        <thead class="table-light">
                             <tr>
-                                <th class="col-1">No</th>
-                                <th class="col-3">Siswa</th>
-                                <th class="col-2">Kelas</th>
-                                <th class="col-3">Tingkat Depresi</th>
-                                <th class="col-2">Label</th>
-                                <th scope="col" class="col-1">Aksi</th>
+                                <th class="col-1 py-3 fw-medium text-center">No</th>
+                                <th class="col-3 py-3 fw-medium">Siswa</th>
+                                <th class="col-2 py-3 fw-medium">Kelas</th>
+                                <th class="col-3 py-3 fw-medium">Tingkat Depresi</th>
+                                <th class="col-2 py-3 fw-medium">Label</th>
+                                <th scope="col" class="col-1 py-3 fw-medium">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="table-divide">
@@ -135,10 +135,12 @@
                                     $depressionRate=$student->mental_health->get('result')->get('depression_rate') ?? 0;
                                 @endphp
                                 <tr>
-                                    <td class="">{{ $key+1 }}</td>
+                                    <td class="text-center">{{ $key+1 }}</td>
                                     <td>
-                                        <div class="font-weight-bold">{{ $student->nama_lengkap }}</div>
-                                        <div class="text-secondary">{{ $student->nisn }}</div>
+                                        <small>
+                                            <div class="fw-medium">{{ $student->nama_lengkap }}</div>
+                                            <div class="text-secondary">{{ $student->nisn }}</div>
+                                        </small>
                                     </td>
                                     <td>
                                         {{ $student->activeClass->first()?->nama ?? "-" }}
@@ -149,9 +151,9 @@
                                         
                                         </div>
                                     </div>
-                                    <div class="w-75 d-flex flex-wrap text-xs">
-                                        <div style="width: {{ $depressionRate }}%;min-width: fit-content">
-                                            {{ $depressionRate }}%
+                                    <div class="w-75 d-flex flex-wrap">
+                                        <div style="width: {{ $depressionRate }}%;min-width: fit-content" class="fs-6">
+                                            <small>{{ $depressionRate }}%</small>
                                         </div>
                                     </div>
                                     </td>
@@ -223,28 +225,28 @@
     </div>
 
     <div class="col-4">
-        <div class="card shadow-sm border-4 border-top border-info">
-            <div class="card-body d-flex align-items-center" x-data="{student_data : {}}" x-ref="student_data_container">
+        <div class="card shadow-sm bg-success bg-gradient bg-opacity-50 mb-2">
+            <div class="card-body d-flex align-items-center gap-2" x-data="{student_data : {}}" x-ref="student_data_container">
                 <div class="img-container col-2" style="aspect-ratio: 1/1;">
                     <img 
                     :src="student_data.user?.avatar_url ?
                     `http://localhost:8000/files/images/users/id/${student_data.id_user}/${student_data.user.avatar_url}` :
                     'http://localhost:8000/files/images/users/default'" 
                     alt="" 
-                    class="w-100"
+                    class="w-100 img-fluid border border-2 border-white rounded-circle"
                     style="object-fit: contain;">
                 </div>
                 <div class="text-container col-8">
-                    <h3 class="font-weight-bold h4 text-info">
-                        <i x-text="student_data.nama_lengkap || 'Profile Name'">Profile Name</i>
+                    <h3 class="font-weight-bold h4 text-white">
+                        <div x-text="student_data.nama_lengkap || 'Profile Name'">Profile Name</div>
                     </h3>
-                    <h4 class="h6 text-secondary">
-                        <i x-text="student_data.nisn || 'NISN'">NISN</i>
+                    <h4 class="h6 text-secondary text-light">
+                        <div x-text="student_data.nisn || 'NISN'">NISN</div>
                     </h4>
                 </div>
             </div>
         </div>
-        <div class="card shadow-sm border-4 border-top border-info">
+        <div class="card shadow-sm mb-2">
             <div class="card-body d-flex align-items-center">
                 <div class="box box-primary">
                     <div class="box-header with-border">
@@ -258,27 +260,25 @@
                 </div>
             </div>
         </div>
-        <div class="card shadow-sm border-top border-top border-4 border-info">
-            <div class="card-header no-after py-3 d-flex justify-content-between align-items-center">
-                <h2 class="h5 font-weight-bold text-info">Riwayat Mental</h2>
+        <div class="card shadow-sm ">
+            <div class="card-header no-after py-3 d-flex justify-content-between align-items-center bg-warning bg-gradient bg-opacity-50">
+                <h2 class="h5 fw-medium text-black-50">Riwayat Mental</h2>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th class="col-2">
+                                <th class="col-2 py-3 fw-medium">
                                     No
                                 </th>
-                                <th class="col-6">
+                                <th class="col-6 py-3 fw-medium">
                                     Date
                                 </th>
-                                <th class="col-3">
+                                <th class="col-3 py-3 fw-medium">
                                     Result
                                 </th>
-                                {{-- <th class="col-2">
-
-                                </th> --}}
+                                
                             </tr>
                         </thead>
                         <tbody x-data="{history_data : [], index : 0, num : 0}" x-ref="history_data_container">
@@ -287,19 +287,18 @@
                                     <tr>
                                         <td x-text="num++"></td>
                                         <td>
-                                            <div class="font-weight-bold" x-text="item.waktu"></div>
-                                            
+                                            <div 
+                                            class="font-weight-bold" 
+                                            x-text="item.waktu">
+                                            </div>
                                         </td>
                                         <td>
-                                            <div x-text="item.swafoto_pred" ></div>
+                                            <div x-text="item.swafoto_pred">
+                                            </div>
                                         </td>
                                     </tr>
                                 </template>
-                                <tr class="table-active">
-                                    <td col="3">
-                                        <i>Choose siswa first</i>
-                                    </td>
-                                </tr>
+                                
                             </template>
                             <template x-if="history_data.length === 0">
                                 <tr class="table-active">

@@ -22,7 +22,6 @@ class SiswaStoreRequest extends FormRequest
      */
     public function rules(): array
     {
-        dd('test');
         $current_date=now()->format('Y-m-d');
         return [
             "nama_lengkap"=>"required|max:50",
