@@ -46,9 +46,34 @@ class StatistikController extends Controller
             ->orderBy('created_at')
             ->get()
             ->map(function ($presensi) {
+                $prediction = null;
+                if ($presensi->diary && $presensi->diary->swafoto_pred) {
+                    try {
+                        $predJson = json_decode($presensi->diary->swafoto_pred);
+                        if (isset($predJson->predicted)) {
+                            $prediction = $predJson->predicted;
+                        }
+                    } catch (\Exception $e) {
+                         // Keep null
+                    }
+                }
+
+                $moodVal = null;
+                if ($prediction) {
+                    switch(strtolower($prediction)) {
+                        case 'anger': $moodVal = 1; break;
+                        case 'disgust': $moodVal = 2; break;
+                        case 'fear': $moodVal = 3; break;
+                        case 'sadness': $moodVal = 4; break;
+                        case 'surprise': $moodVal = 5; break;
+                        case 'happy': $moodVal = 6; break;
+                    }
+                }
+
                 return [
                     'date' => $presensi->created_at->format('d M'),
-                    'emoji' => $presensi->diary ? $presensi->diary->emoji : null,
+                    'emoji' => $moodVal,
+                    'label' => $prediction
                 ];
             });
 

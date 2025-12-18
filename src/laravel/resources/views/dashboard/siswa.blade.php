@@ -21,7 +21,7 @@
             <div class="stat-header">
                 <div class="stat-info">
                     <p class="stat-label">Kehadiran Bulan Ini</p>
-                    <h3 class="stat-value">92%</h3>
+                    <h3 class="stat-value">{{ $attendancePercentage }}%</h3>
                 </div>
                 <div class="stat-icon attendance">
                     <i class="bi bi-check-circle-fill"></i>
@@ -33,7 +33,7 @@
             <div class="stat-header">
                 <div class="stat-info">
                     <p class="stat-label">Rata-rata Nilai</p>
-                    <h3 class="stat-value">87.5</h3>
+                    <h3 class="stat-value">{{ $averageGrade }}</h3>
                 </div>
                 <div class="stat-icon grades">
                     <i class="bi bi-graph-up"></i>
@@ -57,7 +57,7 @@
             <div class="stat-header">
                 <div class="stat-info">
                     <p class="stat-label">Peringkat</p>
-                    <h3 class="stat-value">12 / 30</h3>
+                    <h3 class="stat-value">{{ $rank }}</h3>
                 </div>
                 <div class="stat-icon rank">
                     <i class="bi bi-trophy-fill"></i>
@@ -126,14 +126,16 @@
 
             const labels = moodData.map(d => d.date);
             const dataPoints = moodData.map(d => d.emoji);
+            const pointLabels = moodData.map(d => d.label); // For tooltips
 
-            // Emoji labels for Y-axis
+            // Emoji labels for Y-axis (Mapped from Controller)
             const emojiLabels = {
-                1: '😢 Sangat Sedih',
-                2: '😟 Sedih',
-                3: '😐 Netral',
-                4: '🙂 Senang',
-                5: '😁 Sangat Senang'
+                1: '😠 Marah',
+                2: '🤢 Jijik',
+                3: '😨 Takut',
+                4: '😢 Sedih',
+                5: '😲 Terkejut',
+                6: '😊 Senang'
             };
 
             new Chart(ctx, {
@@ -165,6 +167,11 @@
                             callbacks: {
                                 label: function(context) {
                                     const value = context.raw;
+                                    // Use the explicit label from backend if available, else map value
+                                    const idx = context.dataIndex;
+                                    const explicitLabel = pointLabels[idx];
+                                    if(explicitLabel) return explicitLabel.charAt(0).toUpperCase() + explicitLabel.slice(1);
+
                                     return emojiLabels[value] || 'Tidak ada data';
                                 }
                             }
@@ -173,7 +180,7 @@
                     scales: {
                         y: {
                             min: 0,
-                            max: 6,
+                            max: 7, // Increased max for better spacing
                             ticks: {
                                 stepSize: 1,
                                 callback: function(value) {
