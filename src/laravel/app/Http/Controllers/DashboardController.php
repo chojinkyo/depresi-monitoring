@@ -123,6 +123,6 @@ class DashboardController extends Controller implements HasMiddleware
     }
     public function guruDashboard()
     {
-
+        return view('dashboard.guru');
     }
 }
