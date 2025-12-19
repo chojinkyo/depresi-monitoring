@@ -59,10 +59,22 @@
             @php
                 $siswa = Illuminate\Support\Facades\Auth::user()->siswa;
                 $hasFilledDass = $siswa && $siswa->kuesionerResults()->exists();
+                $showSelfCare = false;
+
+                if ($hasFilledDass) {
+                    $latestResult = $siswa->kuesionerResults()->latest()->first();
+                    if ($latestResult) {
+                        $scores = $latestResult->calculateScores();
+                        // Thresholds for Normal: Depression <= 9, Anxiety <= 7, Stress <= 14
+                        if ($scores['depression'] <= 9 && $scores['anxiety'] <= 7 && $scores['stress'] <= 14) {
+                            $showSelfCare = true;
+                        }
+                    }
+                }
             @endphp
 
             <li class="nav-item">
-                @if($hasFilledDass)
+                @if($showSelfCare)
                     @include('components.buttons.button-sidebar', [
                         'href' => '/siswa/diaryku',
                         'icon' => 'bi-journal-medical',
