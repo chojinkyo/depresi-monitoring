@@ -53,7 +53,7 @@ class PresensiLiburController extends Controller
     public function index()
     {
         $days=$this->getHrBlnIni();
-        $lbr=PresensiLibur::all()->sortBy('tgl_mulai');
+        $lbr=PresensiLibur::all()->sortBy('tanggal_mulai');
         return view('admin.hari_libur.index', compact('lbr', 'days'));
     }
     
@@ -70,12 +70,17 @@ class PresensiLiburController extends Controller
     {
         $validator=Validator::make($request->all(), [
             'ket'=>'required|max:255',
-            'tgl_mulai'=>'required|date_format:d-m',
-            'tgl_selesai'=>'nullable|date_format:d-m|after:tgl_mulai',
+            'tanggal_mulai'=>'required|integer',
+            'tanggal_selesai'=>'nullable|date_format:d-m|after:tanggal_mulai',
+            'bulan_mulai'=>'required|integer|between:1,12',
+            'bulan_selesai'=>'nullable|integer|between:1,12',
             'jenjang'=>'required|array',
             'jenjang.*'=>'required|between:1,3|distinct'
         ]);
-        if($validator->fails()) return;
+        if($validator->fails())
+        {
+            return back()->withError($validator)->withInput()->with('error', 'Input invalid');
+        }
 
 
         $user=auth('web')->user();
@@ -84,10 +89,10 @@ class PresensiLiburController extends Controller
         [
             ...$data,
             'id_author'=>$user->id,
-            'tgl_selesai'=>$data['tgl_selesai'] ?? $data['tgl_mulai'],
+            'tanggal_selesai'=>$data['tanggal_selesai'] ?? $data['tanggal_mulai'],
         ];
         PresensiLibur::create($data_lbr);
-        return;
+        return redirect()->route('admin.dashboard')->with('success', 'Hari libur berhasil ditambahkan');
     }
     public function update(Request $request, PresensiLibur $lbr)
     {
@@ -104,21 +109,23 @@ class PresensiLiburController extends Controller
 
         $validator=Validator::make($request->all(), [
             'ket'=>'required|max:255',
-            'tgl_mulai'=>'required|date_format:d-m',
-            'tgl_selesai'=>'nullable|date_format:d-m|after:tgl_mulai',
+            'tanggal_mulai'=>'required|integer',
+            'tanggal_selesai'=>'nullable|date_format:d-m|after:tanggal_mulai',
+            'bulan_mulai'=>'required|integer|between:1,12',
+            'bulan_selesai'=>'nullable|integer|between:1,12',
             'jenjang'=>'required|array',
             'jenjang.*'=>'required|between:1,3|distinct'
         ]);
         if($validator->fails())
         {
-            return;
+            return back()->with('error', '');
         }
         
         $data=$validator->validated();
         $data_lbr=
         [
             ...$data,
-            'tgl_selesai'=>$data['tgl_selesai'] ?? $data['tgl_mulai'],
+            'tanggal_selesai'=>$data['tanggal_selesai'] ?? $data['tanggal_mulai'],
         ];
         $lbr->update($data_lbr);
         return;

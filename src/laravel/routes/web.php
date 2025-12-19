@@ -12,6 +12,7 @@ use App\Http\Controllers\ImageController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Dashboard\Admin\PresensiLiburController as HariLiburController;
+use App\Http\Controllers\Dashboard\Admin\PresensiLiburController;
 use App\Models\TahunAkademik;
 use Illuminate\Support\Facades\Auth;
 
@@ -54,6 +55,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::resource('/kelas', KelasController::class)->except(['edit'])->parameter("kelas", "kelas");
     Route::resource('/tahun-akademik', TahunAkademikController::class)->names('tahun-akademik');
     Route::get('/siswa/kehadiran/{student}/{year}', [AdminPresensiController::class, 'show'])->name('siswa.kehadiran.show');
+
+    Route::post('/presensi-libur', [PresensiLiburController::class, 'store'])->name('presensi-libur.store');
 
     
     // Route::get('/dashboard', [DashboardController::class, 'adminDashboard'] );

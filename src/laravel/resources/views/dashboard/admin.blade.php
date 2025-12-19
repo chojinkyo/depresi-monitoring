@@ -9,7 +9,63 @@
 
 @section('content')
     
-    <div class="row justify-content-center">
+    <div 
+    class="row justify-content-center"
+    x-data="{
+        calendars : {{ Js::from($calendars) }},
+        vacations : {{ Js::from($vacations) }}, 
+        vacation : {}, 
+        current : 0, 
+        index : 0,
+        loading : true,
+        isEditing : false,
+        selectedDates : [],
+        async initData() 
+        {
+            
+
+            console.log(this.calendars);
+        },
+        async showEvents(date)
+        {
+            const container=Alpine.$data(document.querySelector(`[x-ref='events_container']`))
+
+            const lists=await this.vacations.filter(e=>{
+                const bulanMulai=e.bulan_mulai;
+                const bulanAkhir=e.bulan_selesai;
+                const now=date * bulanMulai;
+                console.log(date);
+                return e.tanggal_mulai * bulanMulai <= now && e.tanggal_selesai * bulanAkhir >= now;
+            })
+            console.log(lists)
+
+            container.events=lists
+        },
+        chooseDate(date)
+        {
+        
+            if(!this.isEditing) return
+            if(this.selectedDates.length >= 2)
+            {
+                this.selectedDates=[]
+                this.selectedDates.push(date)
+                return;
+            }
+            this.selectedDates.push(date)
+        
+            this.selectedDates.sort((a,b)=>a - b);
+        },
+        isChoosen(date)
+        {
+            const start = this.selectedDates[0];
+            const end = this.selectedDates[1] || start;
+            const chosen=start <= date && end >= date;
+            return chosen;
+        }
+    }"
+
+    x-init="initData"
+    x-ref="dates_container">
         <div class="col-3">
             <form action="" method="post">
                 <div class="accordion accordion-flush border" id="accordionExample">
@@ -88,8 +144,12 @@
             </form>
         </div>
         <div class="col-5">
-            <div class="card">
-                <form action="" method="post">
+            <div 
+            class="card"
+            >
+                <form 
+                action="" 
+                method="post">
                     @csrf
                     <div class="card-header py-0 no-after d-flex justify-content-between align-items-center bg-success bg-gradient bg-opacity-50">
                         <div class="py-4">
@@ -98,13 +158,21 @@
                             </h1>
                         </div>
                         
-                        <div class="form-group m-0">
+                        <div class="form-group d-flex m-0">
                             <select 
                             id="" 
                             name="" 
                             class="form-select bg-secondary-subtle fw-medium opacity-75">
                                 <option value="">Januari</option>
                             </select>
+
+                            <button
+                            type="button"
+                            x-on:click="isEditing=!isEditing;console.log(isEditing)"
+                            class="btn btn-warning btn-sm"
+                            >
+                                <i class="fas fa-edit"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -124,40 +192,7 @@
                                         @endforeach
                                     </tr>
                                 </thead>
-                                <tbody
-                                    x-data="{
-                                        calendars : {{ Js::from($calendars) }},
-                                        vacations : {{ Js::from($vacations) }}, 
-                                        vacation : {}, 
-                                        current : 0, 
-                                        index : 0,
-                                        loading : true,
-                                        async initData() 
-                                        {
-                                            
-
-                                            console.log(this.calendars);
-                                        },
-                                        async showEvents(date)
-                                        {
-                                            const container=Alpine.$data(document.querySelector(`[x-ref='events_container']`))
-
-                                            const lists=await this.vacations.filter(e=>{
-                                                const bulanMulai=e.bulan_mulai;
-                                                const bulanAkhir=e.bulan_selesai;
-                                                const now=date * bulanMulai;
-                                                console.log(date);
-                                                return e.tanggal_mulai * bulanMulai <= now && e.tanggal_selesai * bulanAkhir >= now;
-                                            })
-                                            console.log(lists)
-
-                                            container.events=lists
-                                        }
-                                    }"
-
-                                    x-init="initData"
-                                    x-ref="dates_container"
-                                >
+                                <tbody>
                                    
                                         
                                             <template x-for="week in calendars" :key="index">
@@ -202,9 +237,10 @@
 
                                                             <template x-if="!([5,6]).includes(day.day)">
                                                                 <button 
+                                                                
                                                                 type="button"
-                                                                class="w-100 h-100  px-0 rounded-0 border-0  position-relative btn btn-outline-light text-body" 
-                                                                x-on:click='showEvents(day.date)'
+                                                                class="w-100 h-100  px-0 rounded-0 border-0  position-relative text-body" 
+                                                                
                                                                 x-data="{
                                                                     vacant : false,
                                                                     setLibur() {
@@ -222,8 +258,15 @@
                                                                             this.vacant=(vacation.tanggal_mulai * bulanMulai <= now && now <= vacation.tanggal_selesai * bulanAkhir);
                                                                             if(current>=vacation.tanggal_selesai) index++;
                                                                         }
+                                                                    },
+                                                                    handleClick() {
+                                                                        if(isEditing) chooseDate(day.date);
+                                                                        else showEvents(day.date)
                                                                     }
                                                                 }"
+                                                                :class="isChoosen(day.date) ? 'btn bg-light' : 'btn btn-outline-light'"
+                                                                x-on:click='handleClick'
+
                                                                 x-init="setLibur()">
                                                                     
                                                                     <div :class="{'bg-warning-subtle' : vacant}" x-text="day.date">
@@ -331,15 +374,52 @@
         </div>
 
         <div class="col-3">
-            <div class="card">
+            <form action="{{ route('admin.presensi-libur.store') }}" method="post" x-data="{
+                async submitForm(event) {
+                    const form = event.target;
+                    const month = new Date().getMonth();
+                    document.getElementById('tanggal_mulai').value= selectedDates[0]
+                    document.getElementById('tanggal_selesai').value=  selectedDates[1] || selectedDates[0]
+                    document.getElementById('bulan_mulai').value= month
+                    document.getElementById('bulan_selesai').value= month
+
+
+                    form.submit();
+                }
+            }"
+            @submit.prevent="submitForm">
+                @csrf
+                <div class="card">
                 <div class="card-header py-4 bg-secondary bg-gradient bg-opacity-25">
                     <h2 class="fs-5 fw-medium m-0">Add Event</h2>
                 </div>
                 <div class="card-body">
-                    <textarea name="" id="" cols="30" rows="5" class="form-control"></textarea>
-                    <button type="button" class="btn btn-primary mt-3 w-100 rounded-0">Tambah</button>
+                    <input type="hidden" name="tanggal_mulai" id="tanggal_mulai">
+                    <input type="hidden" name="tanggal_selesai" id="tanggal_selesai">
+                    <input type="hidden" name="bulan_mulai" id="bulan_mulai">
+                    <input type="hidden" name="bulan_selesai" id="bulan_selesai">
+                    <textarea  id="" cols="30" rows="5" class="form-control" name="ket"></textarea>
+
+                    <ul class="list-unstyled d-flex">
+                        <li>
+                            <input type="checkbox" name="jenjang[]" value="1" class="form-check">
+                            <label for="">1</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" name="jenjang[]" value="2" class="form-check">
+                            <label for="">2</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" name="jenjang[]" value="3" class="form-check">
+                            <label for="">3</label>
+                        </li>
+                    </ul>
+                    <x-form-error-text :field="'jenjang[]'" />
+
+                    <button type="submit" class="btn btn-primary mt-3 w-100 rounded-0">Tambah</button>
                 </div>
             </div>
+            </form>
             
         </div>
     </div>

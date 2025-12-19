@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('tempat_lahir', 50);
             $table->boolean('gender');
             $table->boolean('status')->default(true);
+            $table->boolean('need_survey')->default(false);
+            $table->boolean('is_depressed')->default(false);
+            $table->boolean('need_selfcare')->default(false);
             $table->date('tanggal_lahir');
             $table->mediumText('alamat');
             $table->foreignId('id_user')
