@@ -10,6 +10,17 @@
 @section('content')
 <div class="card border-0 shadow-sm" style="border-radius: 15px;">
     <div class="card-body p-4">
+        <!-- Header with info -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h5 class="mb-1 fw-bold">Daftar Siswa</h5>
+                <p class="text-muted small mb-0">Klik nama siswa untuk melihat laporan lengkap</p>
+            </div>
+            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
+                <i class="bi bi-people me-1"></i> {{ count($siswaData) }} Siswa
+            </span>
+        </div>
+
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead class="bg-light">
@@ -17,7 +28,7 @@
                         <th class="py-3 ps-4" style="border-top-left-radius: 10px;">Nama Siswa</th>
                         <th class="py-3">Update Terakhir</th>
                         <th class="py-3 text-center">Mood Terakhir</th>
-                        <th class="py-3 pe-4 text-center" style="border-top-right-radius: 10px;">Status</th>
+                        <th class="py-3 pe-4 text-center" style="border-top-right-radius: 10px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -29,11 +40,9 @@
                                 {{ $siswa['mood_emoji'] }}
                             </td>
                             <td class="text-center">
-                                @if($siswa['mood_label'] != '-')
-                                    <span class="badge rounded-pill bg-success bg-opacity-10 text-success">Active</span>
-                                @else
-                                    <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary">No Data</span>
-                                @endif
+                                <a href="{{ route('guru.mood.detail', $siswa['id']) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="bi bi-eye me-1"></i> Lihat Detail
+                                </a>
                             </td>
                         </tr>
                     @empty
