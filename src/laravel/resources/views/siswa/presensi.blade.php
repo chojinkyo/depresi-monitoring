@@ -18,7 +18,7 @@
             <p class="form-date" id="currentDate">Minggu, 16 November 2025</p>
         </div>
 
-        <form id="absensiForm" enctype="multipart/form-data">
+        <form id="absensiForm">
             {{-- Status Selection Component --}}
             @include('components.presensi.status-selection')
 
@@ -70,84 +70,6 @@
 
 @section('scripts')
 <script>
-    const snapBtn=document.getElementById('snap-btn');
-    const cameraView=document.getElementById('camera-view');
-    const openCamBtn=document.getElementById('open-cam-btn');
-    const formPresensi=document.getElementById('absensiForm');
-    let swafoto=null;
-
-    snapBtn.addEventListener('click', TakePhoto);
-    openCamBtn.addEventListener('click', ToggleCamera);
-    formPresensi.addEventListener('submit', HandleSubmit);
-
-    async function HandleSubmit(event)
-    {
-        try {
-            event.preventDefault();
-            const formData=new FormData(formPresensi);
-            formData.append('swafoto', swafoto, 'selfie.jpg');
-
-            console.log(formData);
-            const response=await fetch('/api/siswa/presensi', {
-                method : "POST",
-                body : formData,
-                headers : {
-                    Accept : 'application/json',
-                    Authorization : `Bearer 1|CEK90kRHkXH3T90kYmtGUKFavr8CoEmrzBKfYnIh85afff2a`
-                }
-            })
-            const json=await response.json()
-            console.log(json)
-        } catch (error) {
-            console.log(error)
-        }
-    }
-    function base64ToBlob(base64, mime = "image/jpeg") {
-        const byteString = atob(base64.split(',')[1]); // decode base64
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-
-        for (let i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
-        }
-
-        return new Blob([ab], { type: mime });
-    }
-
-    function TakePhoto()
-    {
-        if(!cameraView.srcObject) return;
-        const canvas=document.getElementById('cam-capturer');
-        canvas.width=cameraView.videoWidth;
-        canvas.height=cameraView.videoHeight;
-
-        const ctx=canvas.getContext('2d');
-        ctx.drawImage(cameraView, 0, 0, canvas.width, canvas.height);
-        
-        const dataUrl=canvas.toDataURL('image/jpeg');
-        console.log(dataUrl);
-
-        swafoto=base64ToBlob(dataUrl)
-    }
-    function ToggleCamera()
-    {
-        if(cameraView.srcObject) CloseCamera();
-        else OpenCamera();
-    }
-    function OpenCamera() {
-        navigator.mediaDevices.getUserMedia({video : true, audio : false})
-        .then(stream=>cameraView.srcObject=stream)
-        .catch(e=>console.log(e));
-    }
-    function CloseCamera()
-    {
-        const stream=cameraView.srcObject;
-        const tracks=stream.getTracks();
-        tracks.forEach(tr=>tr.stop());
-        cameraView.srcObject=null;
-    }
-</script>
-<script>
     // Status Change Handler
     const statusRadios = document.querySelectorAll('input[name="status"]');
     const formIzin = document.getElementById('formIzin');
@@ -193,8 +115,10 @@
     });
 
     // API Config
-    const API_FACE_URL = "https://risetkami-risetkami.hf.space/predict_face";
-    const API_TEXT_URL = "https://risetkami-risetkami.hf.space/predict_text";
+    // const API_FACE_URL = "https://risetkami-risetkami.hf.space/predict_face";
+    // const API_TEXT_URL = "https://risetkami-risetkami.hf.space/predict_text";
+    const API_FACE_URL = "https://localhost:8001/image";
+    const API_TEXT_URL = "https://localhost:8001/text";
 
     // Prediction Functions
     async function predictFace(file) {
@@ -206,7 +130,8 @@
                 method: 'POST',
                 body: formData
             });
-            const data = await response.json();
+            const res = await response.json();
+            const data= res.response;
             console.log('Face Prediction:', data);
             document.getElementById('swafotoPred').value = JSON.stringify(data);
             return data;
@@ -226,7 +151,8 @@
                 },
                 body: JSON.stringify({ text: text })
             });
-            const data = await response.json();
+            const res= await response.json();
+            const data= res.response;
             console.log('Text Prediction:', data);
             document.getElementById('catatanPred').value = JSON.stringify(data);
             // Assuming catatan_ket might be derived or just same response for now

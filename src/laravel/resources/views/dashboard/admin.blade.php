@@ -8,40 +8,7 @@
 @endphp
 
 @section('content')
-    <p>lorem ipsum dolor sit amet conseptectur adipiscing elit</p>
-    <div class="row justify-content-center col-11 px-0 mx-auto" style="gap: 16px;">
-        <div class="col px-0">
-            <div class="card">
-                <div class="card-header">
-                    Siswa
-                </div>
-                <div class="card-body">
-
-                </div>
-            </div>
-        </div>
-        <div class="col px-0">
-            <div class="card">
-                <div class="card-header">
-                    Siswa
-                </div>
-                <div class="card-body">
-
-                </div>
-            </div>
-        </div>
-        <div class="col px-0">
-            <div class="card">
-                <div class="card-header">
-                    Siswa
-                </div>
-                <div class="card-body">
-
-                </div>
-            </div>
-        </div>
-        
-    </div>
+    
     <div class="row justify-content-center">
         <div class="col-3">
             <form action="" method="post">
@@ -389,5 +356,57 @@
         
         container.events=lists
     }
+    function calendarRange(dates) {
+    return {
+        dates,
+
+        editMode: false,
+        startDate: null,
+        endDate: null,
+        selectedDates: [],
+
+        toggleEdit() {
+            this.editMode = !this.editMode
+            this.reset()
+        },
+
+        setStart(date) {
+            if (!this.editMode) return
+            this.startDate = date
+            this.endDate = null
+            this.selectedDates = []
+        },
+
+        setEnd(date) {
+            if (!this.editMode || !this.startDate) return
+            this.endDate = date
+            this.buildRange()
+        },
+
+        buildRange() {
+            let start = new Date(this.startDate)
+            let end   = new Date(this.endDate)
+
+            if (start > end) [start, end] = [end, start]
+
+            this.selectedDates = []
+
+            while (start <= end) {
+                this.selectedDates.push(start.toISOString().slice(0, 10))
+                start.setDate(start.getDate() + 1)
+            }
+        },
+
+        isSelected(date) {
+            return this.selectedDates.includes(date)
+        },
+
+        reset() {
+            this.startDate = null
+            this.endDate = null
+            this.selectedDates = []
+        }
+    }
+}
 </script>
 @endsection
