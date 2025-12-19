@@ -7,10 +7,10 @@
     <!-- User Container -->
     <div class="user-container">
         <div class="user-profile">
-            <div class="user-avatar">ADM</div>
+            <div class="user-avatar">GURU</div>
             <div class="user-info">
-                <p class="user-name">{{ Auth::user()->name ?? 'Admin' }}</p>
-                <p class="user-role">Administrator</p>
+                <p class="user-name">{{ Auth::user()->name ?? 'Guru' }}</p>
+                <p class="user-role">Guru</p>
             </div>
         </div>
         <div class="welcome-divider">
@@ -23,42 +23,26 @@
         <ul class="list-unstyled">
             <li class="nav-item">
                 @include('components.buttons.button-sidebar', [
-                    'href' => route('admin.dashboard'),
+                    'href' => route('guru.dashboard'),
                     'icon' => 'bi-grid-fill',
                     'text' => 'Dashboard',
-                    'active' => request()->routeIs('admin.dashboard')
+                    'active' => request()->routeIs('guru.dashboard')
                 ])
             </li>
             <li class="nav-item">
                 @include('components.buttons.button-sidebar', [
-                    'href' => route('admin.kelas.index'),
-                    'icon' => 'bi-building',
-                    'text' => 'Kelas',
-                    'active' => request()->routeIs('admin.kelas.*')
+                    'href' => route('guru.mood.index'),
+                    'icon' => 'bi-emoji-smile',
+                    'text' => 'Laporan Mood',
+                    'active' => request()->routeIs('guru.mood.*')
                 ])
             </li>
             <li class="nav-item">
                 @include('components.buttons.button-sidebar', [
-                    'href' => route('admin.tahun-akademik.index'),
-                    'icon' => 'bi-calendar3',
-                    'text' => 'Tahun Akademik',
-                    'active' => request()->routeIs('admin.ta.*')
-                ])
-            </li>
-            <li class="nav-item">
-                @include('components.buttons.button-sidebar', [
-                    'href' => route('admin.siswa.index'),
-                    'icon' => 'bi-people-fill',
-                    'text' => 'Data Siswa',
-                    'active' => request()->routeIs('admin.siswa.*')
-                ])
-            </li>
-            <li class="nav-item">
-                @include('components.buttons.button-sidebar', [
-                    'href' => route('admin.hari-libur.index'),
-                    'icon' => 'bi-calendar-x',
-                    'text' => 'Hari Libur',
-                    'active' => request()->routeIs('admin.hari-libur.*')
+                    'href' => route('guru.nilai.index'),
+                    'icon' => 'bi-file-earmark-text',
+                    'text' => 'Laporan Nilai',
+                    'active' => request()->routeIs('guru.nilai.*')
                 ])
             </li>
         </ul>

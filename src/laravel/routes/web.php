@@ -119,11 +119,17 @@ Route::group(['middleware'=>['auth', 'role:admin']], function() {
     Route::resource('/admin/hari-libur', HariLiburController::class, ['as' => 'admin']);
 });
 
-// // 5. Guru Routes (Akses: Auth + Role Guru)
-// Route::group(['middleware'=>['auth', 'role:guru']], function() {
-//     // Dashboard Guru (Ditambahkan nama route)
-//     Route::get('/guru/dashboard', [DashboardController::class, 'guruDashboard'])->name('guru.dashboard');
-// });
+// 5. Guru Routes (Akses: Auth + Role Guru)
+Route::group(['middleware'=>['auth', 'role:guru']], function() {
+    // Dashboard Guru (Ditambahkan nama route)
+    Route::get('/guru/dashboard', [DashboardController::class, 'guruDashboard'])->name('guru.dashboard');
+    
+    // Fitur Guru Lainnya
+    Route::get('/guru/laporan-mood', [\App\Http\Controllers\Dashboard\Guru\GuruSiswaController::class, 'moodIndex'])->name('guru.mood.index');
+    Route::get('/guru/laporan-mood/{siswa}', [\App\Http\Controllers\Dashboard\Guru\GuruSiswaController::class, 'moodDetail'])->name('guru.mood.detail');
+    Route::get('/guru/laporan-mood/{siswa}/export', [\App\Http\Controllers\Dashboard\Guru\GuruSiswaController::class, 'exportMoodCsv'])->name('guru.mood.export');
+    Route::get('/guru/laporan-nilai', [\App\Http\Controllers\Dashboard\Guru\GuruSiswaController::class, 'nilaiIndex'])->name('guru.nilai.index');
+});
 
 // 6. Siswa Routes (Akses: Auth + Role Siswa)
 Route::group(['middleware'=>['auth', 'role:siswa']], function() {
