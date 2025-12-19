@@ -52,6 +52,10 @@ Route::group(['middleware'=>['auth', 'role:admin']], function() {
 Route::group(['middleware'=>['auth', 'role:guru']], function() {
     // Dashboard Guru (Ditambahkan nama route)
     Route::get('/guru/dashboard', [DashboardController::class, 'guruDashboard'])->name('guru.dashboard');
+    
+    // Fitur Guru Lainnya
+    Route::get('/guru/laporan-mood', [\App\Http\Controllers\Dashboard\Guru\GuruSiswaController::class, 'moodIndex'])->name('guru.mood.index');
+    Route::get('/guru/laporan-nilai', [\App\Http\Controllers\Dashboard\Guru\GuruSiswaController::class, 'nilaiIndex'])->name('guru.nilai.index');
 });
 
 // 6. Siswa Routes (Akses: Auth + Role Siswa)

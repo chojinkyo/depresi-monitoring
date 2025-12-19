@@ -1,13 +1,10 @@
 /* ===================================
-   LAYOUT SISWA - GLOBAL STYLES
+   LAYOUT - SIMPLIFIED VERSION
+   Menggunakan Bootstrap untuk spacing, typography, dan colors.
+   Custom CSS hanya untuk komponen yang tidak tersedia di Bootstrap.
    =================================== */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+/* Reset minimal - Bootstrap sudah handle sisanya */
 body {
     font-family: 'Poppins', sans-serif;
     background: #F8F9FA;
@@ -15,7 +12,7 @@ body {
 }
 
 /* ===================================
-   SIDEBAR STYLES
+   SIDEBAR (Komponen Custom)
    =================================== */
 .sidebar {
     position: fixed;
@@ -24,10 +21,10 @@ body {
     height: 100vh;
     width: 256px;
     background: linear-gradient(180deg, #51A2FF 0%, #AD46FF 100%);
-    padding: 0;
-    transition: all 0.3s ease;
+    transition: left 0.3s ease;
     z-index: 1000;
     overflow-y: auto;
+    padding: 0;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -39,31 +36,31 @@ body {
     border-radius: 3px;
 }
 
-/* User Profile Container */
+/* User Profile - Custom gradient container */
 .user-container {
     background: rgba(255, 255, 255, 0.3);
-    padding: 16px;
+    padding: 1rem;
     border-radius: 0 0 25px 25px;
-    margin-bottom: 20px;
+    margin-bottom: 1.25rem;
 }
 
 .user-profile {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
 }
 
 .user-avatar {
     width: 48px;
     height: 48px;
-    background: #FFFFFF;
+    background: #fff;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 1.125rem;
     color: #8200DB;
     flex-shrink: 0;
 }
@@ -75,62 +72,62 @@ body {
 
 .user-name {
     font-weight: 700;
-    font-size: 14px;
-    color: #FFFFFF;
+    font-size: 0.875rem;
+    color: #fff;
     margin: 0;
 }
 
 .user-role {
-    font-size: 12px;
+    font-size: 0.75rem;
     color: rgba(255, 255, 255, 0.8);
     margin: 0;
 }
 
 .welcome-divider {
     border-top: 1px solid rgba(255, 255, 255, 0.2);
-    padding-top: 12px;
+    padding-top: 0.75rem;
 }
 
 .welcome-text {
-    font-size: 14px;
+    font-size: 0.875rem;
     color: rgba(255, 255, 255, 0.95);
     margin: 0;
 }
 
-/* Navigation */
+/* Navigation - Custom active state */
 .nav-menu {
-    padding: 0 16px;
+    padding: 0 1rem;
 }
 
 .nav-item {
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
 }
 
 .nav-link {
     display: flex;
     align-items: center;
-    padding: 12px 16px;
-    gap: 12px;
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
     border-radius: 14px;
-    color: #FFFFFF;
+    color: #fff;
     text-decoration: none;
-    transition: all 0.3s ease;
-    font-size: 15px;
+    transition: background 0.3s;
+    font-size: 0.9375rem;
 }
 
 .nav-link:hover {
     background: rgba(255, 255, 255, 0.1);
-    color: #FFFFFF;
+    color: #fff;
 }
 
 .nav-link.active {
-    background: #FFFFFF;
+    background: #fff;
     color: #8200DB;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .nav-icon {
-    font-size: 20px;
+    font-size: 1.25rem;
 }
 
 .nav-text {
@@ -139,7 +136,7 @@ body {
 
 /* Logout Button */
 .logout-section {
-    padding: 16px;
+    padding: 1rem;
     margin-top: auto;
 }
 
@@ -147,16 +144,16 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 12px;
-    gap: 8px;
+    padding: 0.75rem;
+    gap: 0.5rem;
     width: 100%;
     background: rgba(255, 255, 255, 0.2);
     border: none;
     border-radius: 12px;
-    color: #FFFFFF;
-    font-size: 15px;
+    color: #fff;
+    font-size: 0.9375rem;
     font-weight: 500;
-    transition: all 0.3s ease;
+    transition: background 0.3s;
     cursor: pointer;
 }
 
@@ -170,52 +167,17 @@ body {
 .main-content {
     margin-left: 256px;
     min-height: 100vh;
-    transition: all 0.3s ease;
+    transition: margin-left 0.3s ease;
 }
 
-/* Header */
 .main-header {
-    background: #FFFFFF;
-    padding: 20px 32px;
+    background: #fff;
+    padding: 1.25rem 2rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.header-title h1 {
-    font-size: 24px;
-    font-weight: 600;
-    color: #1E2939;
-    margin: 0;
-}
-
-.header-subtitle {
-    font-size: 14px;
-    color: #6B7280;
-    margin: 4px 0 0 0;
-}
-
-/* Content Container */
-.content-container {
-    padding: 32px;
-}
-
-/* ===================================
-   MAIN CONTENT
-   =================================== */
-.main-content {
-    margin-left: 256px;
-    min-height: 100vh;
-    transition: all 0.3s ease;
-}
-
-/* Header */
-.main-header {
-    background: #FFFFFF;
-    padding: 20px 32px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    position: relative;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 1rem;
+    position: relative;
 }
 
 .header-title {
@@ -223,38 +185,37 @@ body {
 }
 
 .header-title h1 {
-    font-size: 24px;
+    font-size: 1.5rem;
     font-weight: 600;
     color: #1E2939;
     margin: 0;
 }
 
 .header-subtitle {
-    font-size: 14px;
+    font-size: 0.875rem;
     color: #6B7280;
-    margin: 4px 0 0 0;
+    margin: 0.25rem 0 0 0;
 }
 
-/* Content Container */
 .content-container {
-    padding: 32px;
+    padding: 2rem;
 }
 
 /* ===================================
-   MOBILE MENU TOGGLE (di dalam header)
+   MOBILE COMPONENTS
    =================================== */
 .mobile-menu-toggle {
     display: none;
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #51A2FF 0%, #AD46FF 100%);
+    background: linear-gradient(135deg, #51A2FF, #AD46FF);
     border: none;
     border-radius: 10px;
-    color: white;
-    font-size: 20px;
+    color: #fff;
+    font-size: 1.25rem;
     cursor: pointer;
-    transition: all 0.3s ease;
     flex-shrink: 0;
+    transition: transform 0.3s;
 }
 
 .mobile-menu-toggle:hover {
@@ -265,29 +226,32 @@ body {
     transform: scale(0.95);
 }
 
-/* Sidebar Close Button */
+.mobile-menu-toggle.hide {
+    opacity: 0;
+    pointer-events: none;
+}
+
 .sidebar-close {
     display: none;
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 1rem;
+    right: 1rem;
     width: 36px;
     height: 36px;
     background: rgba(255, 255, 255, 0.2);
     border: none;
     border-radius: 8px;
-    color: #FFFFFF;
-    font-size: 18px;
+    color: #fff;
+    font-size: 1.125rem;
     cursor: pointer;
-    transition: all 0.3s ease;
     z-index: 1001;
+    transition: background 0.3s;
 }
 
 .sidebar-close:hover {
     background: rgba(255, 255, 255, 0.3);
 }
 
-/* Overlay ketika sidebar dibuka di mobile */
 .sidebar-overlay {
     display: none;
     position: fixed;
@@ -307,17 +271,10 @@ body {
    RESPONSIVE
    =================================== */
 @media (max-width: 768px) {
-    /* Show hamburger in header */
     .mobile-menu-toggle {
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-
-    /* Hide hamburger when sidebar is open */
-    .mobile-menu-toggle.hide {
-        opacity: 0;
-        pointer-events: none;
     }
 
     .sidebar {
@@ -328,7 +285,6 @@ body {
         left: 0;
     }
 
-    /* Show close button when sidebar is active */
     .sidebar.active .sidebar-close {
         display: flex;
         align-items: center;
@@ -340,18 +296,18 @@ body {
     }
 
     .main-header {
-        padding: 16px 20px;
+        padding: 1rem 1.25rem;
     }
 
     .content-container {
-        padding: 20px;
+        padding: 1.25rem;
     }
 
     .header-title h1 {
-        font-size: 20px;
+        font-size: 1.25rem;
     }
 
     .header-subtitle {
-        font-size: 13px;
+        font-size: 0.8125rem;
     }
 }

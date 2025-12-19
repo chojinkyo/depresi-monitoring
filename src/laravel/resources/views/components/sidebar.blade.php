@@ -1,11 +1,25 @@
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
+    <!-- Close Button for Mobile -->
+    <button class="sidebar-close" id="sidebarClose">
+        <i class="bi bi-x-lg"></i>
+    </button>
     <!-- User Container -->
+    @php
+        $currentSiswa = Illuminate\Support\Facades\Auth::user()->siswa ?? null;
+        $namaLengkap = $currentSiswa ? $currentSiswa->nama_lengkap : 'Siswa';
+        // Generate initials from name (e.g., "John Doe" -> "JD")
+        $nameParts = explode(' ', $namaLengkap);
+        $initials = '';
+        foreach (array_slice($nameParts, 0, 2) as $part) {
+            $initials .= strtoupper(substr($part, 0, 1));
+        }
+    @endphp
     <div class="user-container">
         <div class="user-profile">
-            <div class="user-avatar">FA</div>
+            <div class="user-avatar">{{ $initials }}</div>
             <div class="user-info">
-                <p class="user-name">Fariz Hasim A.</p>
+                <p class="user-name">{{ $namaLengkap }}</p>
                 <p class="user-role">Siswa</p>
             </div>
         </div>

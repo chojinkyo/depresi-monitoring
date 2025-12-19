@@ -1,11 +1,15 @@
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
+    <!-- Close Button for Mobile -->
+    <button class="sidebar-close" id="sidebarClose">
+        <i class="bi bi-x-lg"></i>
+    </button>
     <!-- User Container -->
     <div class="user-container">
         <div class="user-profile">
             <div class="user-avatar">GURU</div>
             <div class="user-info">
-                <p class="user-name">{{ Auth::user()->name ?? 'Guru Presensi' }}</p>
+                <p class="user-name">{{ Auth::user()->name ?? 'Guru' }}</p>
                 <p class="user-role">Guru</p>
             </div>
         </div>
@@ -25,7 +29,22 @@
                     'active' => request()->routeIs('guru.dashboard')
                 ])
             </li>
-            <!-- Placeholder for future Guru features -->
+            <li class="nav-item">
+                @include('components.buttons.button-sidebar', [
+                    'href' => route('guru.mood.index'),
+                    'icon' => 'bi-emoji-smile',
+                    'text' => 'Laporan Mood',
+                    'active' => request()->routeIs('guru.mood.*')
+                ])
+            </li>
+            <li class="nav-item">
+                @include('components.buttons.button-sidebar', [
+                    'href' => route('guru.nilai.index'),
+                    'icon' => 'bi-file-earmark-text',
+                    'text' => 'Laporan Nilai',
+                    'active' => request()->routeIs('guru.nilai.*')
+                ])
+            </li>
         </ul>
     </nav>
 

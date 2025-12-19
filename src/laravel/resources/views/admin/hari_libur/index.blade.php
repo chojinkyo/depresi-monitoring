@@ -13,11 +13,12 @@
 @section('content')
 <div class="container-fluid">
     <div class="row justify-content-center">
-        <div class="col-5">
+        <!-- Calendar Card - Full width on mobile, 5 cols on large screens -->
+        <div class="col-12 col-lg-5 mb-4">
             <div class="card">
                 <form action="" method="post">
                     @csrf
-                    <div class="card-header py-0 no-after d-flex justify-content-between align-items-center">
+                    <div class="card-header py-0 no-after d-flex flex-wrap justify-content-between align-items-center gap-2">
                         <div class="py-4">
                             <h1 class="h3 m-0 p-0 text-dark d-block">
                                 <strong>Februari</strong> - <span class="font-weight-normal">2024</span>
@@ -39,7 +40,7 @@
                         </div>
                     </div>
 
-                    <div class="card-body">
+                    <div class="card-body" style="overflow-x: hidden;">
                         <ul class="list-unstyled d-flex bg-light">
                             <li class="col d-flex align-items-center justify-content-center font-weight-bold" style="aspect-ratio: 16/9;">Su</li>
                             <li class="col d-flex align-items-center justify-content-center font-weight-bold" style="aspect-ratio: 16/9;">Mo</li>
@@ -59,7 +60,7 @@
 
                                         @foreach ($cal as $c)
                                             <li class="text-center col p-0" style="aspect-ratio: 1/1;">
-                                                <button class="p-0 m-0 btn bg-light rounded-pill font-weight-medium text-dark" style="width:  50px;aspect-ratio: 1/1;">
+                                                <button class="p-0 m-0 btn bg-light rounded-pill font-weight-medium text-dark" style="width: 100%; max-width: 50px; aspect-ratio: 1/1; font-size: clamp(12px, 3vw, 16px);">
                                                     {{ $c['date'] }}
                                                 </button>
                                             </li>
@@ -90,7 +91,8 @@
             
         </div>
 
-        <div class="col-3">
+        <!-- Jadwal Harian Accordion - Full width on mobile, 3 cols on large screens -->
+        <div class="col-12 col-lg-3 mb-4">
             <form action="" method="post">
                 
                 <div class="accordion" id="accordionExample">
@@ -156,7 +158,8 @@
             </form>
         </div>
 
-        <div class="col-3 px-0">
+        <!-- Alerts Section - Full width on mobile, 3 cols on large screens -->
+        <div class="col-12 col-lg-3 px-lg-0 mb-4">
             <ul class="list-unstyled">
                 <li>
                     <div class="alert alert-info alert-dismissible fade show" >

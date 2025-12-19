@@ -1,5 +1,9 @@
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
+    <!-- Close Button for Mobile -->
+    <button class="sidebar-close" id="sidebarClose">
+        <i class="bi bi-x-lg"></i>
+    </button>
     <!-- User Container -->
     <div class="user-container">
         <div class="user-profile">
