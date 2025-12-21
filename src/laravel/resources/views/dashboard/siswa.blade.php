@@ -69,7 +69,7 @@
     <!-- Chart & Announcements Row -->
     <div class="row">
         <!-- Mood Chart -->
-        <div class="col-lg-7 mb-4">
+        <div class="col-lg-12 mb-4">
             <div class="chart-card">
                 <div class="chart-header">
                     <h3 class="chart-title">Mood Overall 14 Hari</h3>
@@ -82,7 +82,7 @@
         </div>
 
         <!-- Announcements -->
-        <div class="col-lg-5 mb-4">
+        {{-- <div class="col-lg-5 mb-4">
             <div class="announcements-card">
                 <div class="announcements-header">
                     <h3 class="announcements-title">Pengumuman Terbaru</h3>
@@ -113,7 +113,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 @endsection
 

@@ -352,7 +352,7 @@ return [
         ],
         [
             'text' => 'Kehadiran',
-            'route' => 'admin.kehadiran.index',
+            'route' => 'admin.siswa.kehadiran.index',
             'icon' => 'fas fa-fw fa-book',
         ],
         [

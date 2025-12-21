@@ -69,6 +69,11 @@
                     </td>
                 </tr>
             @empty
+                <tr>
+                    <td colspan="6" class="bg-light-subtle text-center text-black-50">
+                        Belum Ada Siswa
+                    </td>
+                </tr>
             @endforelse
         </x-table>
 
@@ -105,7 +110,7 @@
     <div class="col-7">
         <div class="card shadow-sm ">
             <div class="card-header no-after py-4 d-flex justify-content-between align-items-center bg-warning bg-gradient bg-opacity-50">
-                <h2 class="fs-5 fw-bold text-black-50 m-0">Form Siswa</h2>
+                <h2 class="fs-5 fw-medium text-black-50 m-0">Form Siswa</h2>
                 <a 
                 href="#"
                 role="button"
@@ -220,14 +225,14 @@
                 <button type="submit" class="btn btn-primary py-2 bg-gradient w-100">Submit</button>
                     
             </div>
-            <div class="card-footer"></div>
+            
         </div>
     </div>
 
     <div class="col-5">
         <div class="card shadow-sm ">
             <div class="card-header py-4  bg-primary bg-gradient bg-opacity-50">
-                <h2 class="fs-5 fw-bold text-black-50 m-0">Info Akun</h2>
+                <h2 class="fs-5 fw-medium text-black-50 m-0">Info Akun</h2>
                 <div class="btn"></div>
             </div>
             <div class="card-body">

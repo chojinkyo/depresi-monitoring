@@ -9,4 +9,5 @@ class PresensiLibur extends Model
     //
     protected $table='presensi_libur';
     protected $guarded=['id'];
+    public $timestamps=false;
 }

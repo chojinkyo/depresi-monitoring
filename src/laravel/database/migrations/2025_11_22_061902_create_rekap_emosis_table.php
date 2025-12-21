@@ -18,7 +18,7 @@ return new class extends Migration
             $table->mediumText('rekap_emoji');
             $table->foreignId('id_siswa')
             ->constrained('siswa')
-            ->onDelete('restrict')
+            ->onDelete('cascade')
             ->onUpdate('cascade');
             $table->timestamp('waktu')->useCurrent()->useCurrentOnUpdate();
         });

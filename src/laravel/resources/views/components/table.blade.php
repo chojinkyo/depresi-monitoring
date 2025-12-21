@@ -9,7 +9,7 @@
     <div class="col-12">
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-success bg-gradient bg-opacity-50 no-after p-4 d-flex align-items-center justify-content-between">
-                <h6 class="m-0 fw-bold fs-5 text-black-50">{{ $title }}</h6>
+                <h6 class="m-0 fw-medium fs-5 text-black-50">{{ $title }}</h6>
                 <div class="w-auto">
                     <div class="input-group">
                         <input type="text" class="form-control mr-2 opacity-75 bg-light" placeholder="search items">
@@ -38,7 +38,7 @@
             <div class="card-body p-4">
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover shadow-none">
-                        <thead class="table-light text-black-50">
+                        <thead class="text-black-50">
                             <tr>
                                 @foreach($headers as $header)
                                     <th scope="col" class="{{ $header=='No' ? 'text-center' : '' }} py-3 fw-medium">{{ $header }}</th>
@@ -48,13 +48,10 @@
                         </thead>
                         {{ $slot }}
                     </table>
-
-                    
-                    
                 </div>
                 
             </div>
-            <div class="card-footer py-0">
+            <div class="card-footer py-4 px-4">
                 <div class="d-flex justify-content-left">
                     @if(isset($paginator))
                         {{ $paginator }}

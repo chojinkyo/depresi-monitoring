@@ -34,10 +34,10 @@
                 const bulanMulai=e.bulan_mulai;
                 const bulanAkhir=e.bulan_selesai;
                 const now=date * bulanMulai;
-                console.log(date);
-                return e.tanggal_mulai * bulanMulai <= now && e.tanggal_selesai * bulanAkhir >= now;
+                
+                return e.tanggal_mulai <= date && e.tanggal_selesai >= date;
             })
-            console.log(lists)
+            console.log(this.vacations)
 
             container.events=lists
         },
@@ -55,7 +55,7 @@
         
             this.selectedDates.sort((a,b)=>a - b);
         },
-        isChoosen(date)
+        isChosen(date)
         {
             const start = this.selectedDates[0];
             const end = this.selectedDates[1] || start;
@@ -153,7 +153,7 @@
                     @csrf
                     <div class="card-header py-0 no-after d-flex justify-content-between align-items-center bg-success bg-gradient bg-opacity-50">
                         <div class="py-4">
-                            <h1 class="fs-5 m-0 p-0 text-dark d-block">
+                            <h1 class="fs-5 m-0 d-block text-black-50">
                                 <strong class="text-black-50">{{ now()->format('F')}}</strong> - <span class="font-weight-normal text-black-50">{{ now()->year }}</span>
                             </h1>
                         </div>
@@ -177,8 +177,6 @@
                     </div>
 
                     <div class="card-body">
-                        
-
                         <div class="table-responsive">
                             <table class="table table-bordered" style="table-layout: fixed;">
                                 <thead class="bg-light">
@@ -188,109 +186,91 @@
 
                                     <tr>
                                         @foreach ($headers as $key=>$header)
-                                            <th class="col text-center {{ in_array($key, [5, 6]) ? 'text-secondary' : '' }}">{{ $header }}</th>
+                                            <th 
+                                            class="col text-center {{ in_array($key, [5, 6]) ? 'text-secondary' : '' }}">{{ $header }}</th>
                                         @endforeach
                                     </tr>
                                 </thead>
                                 <tbody>
                                    
                                         
-                                            <template x-for="week in calendars" :key="index">
-                                                <tr>
-                                                    <template x-for="i in week[0].day">
-                                                        <td class="col p-0 bg-light">
-                                                            
-                                                        </td>
-                                                    </template>
-                                                
+                                    <template x-for="week in calendars" :key="index">
+                                        <tr>
+                                            <template x-for="i in week[0].day">
+                                                <td class="col p-0 bg-light">
                                                     
-                                                    <template x-for="day in week" :key="index+250">
-                                                        <td class="col p-0" style="box-sizing: border-box;">
-                                                            <template x-if="([5,6]).includes(day.day)">
-                                                                <button 
-                                                                type="button"
-                                                                class="w-100 h-100  px-0 rounded-0 border-0  position-relative btn btn-outline-light text-muted" disabled
-                                                                x-data="{
-                                                                    vacant : false,
-                                                                    setLibur() {
-                                                                        if(index < vacations.length)
-                                                                        {
-                                                                            vacation=vacations[index];
-                                                                            current=day.date;
-
-                                                                            const bulanMulai=vacation.bulan_mulai;
-                                                                            const bulanAkhir=vacation.bulan_selesai;
-                                                                            const now=current * bulanMulai;
-                                                                            
-                                                                            this.vacant=(vacation.tanggal_mulai * bulanMulai <= now && now <= vacation.tanggal_selesai * bulanAkhir);
-                                                                            if(current>=vacation.tanggal_selesai) index++;
-                                                                        }
-                                                                    }
-                                                                }"
-                                                                x-init="setLibur()">
-                                                                
-                                                                    <div :class="{'bg-warning-subtle' : vacant}" x-text="day.date">
-                                                                        
-                                                                    </div>
-                                                                </button>
-                                                            </template>
-
-                                                            <template x-if="!([5,6]).includes(day.day)">
-                                                                <button 
-                                                                
-                                                                type="button"
-                                                                class="w-100 h-100  px-0 rounded-0 border-0  position-relative text-body" 
-                                                                
-                                                                x-data="{
-                                                                    vacant : false,
-                                                                    setLibur() {
-                                    
-                                                                        if(index < vacations.length)
-                                                                        {
-                                                                            
-                                                                            vacation=vacations[index];
-                                                                            current=day.date;
-
-                                                                            const bulanMulai=vacation.bulan_mulai;
-                                                                            const bulanAkhir=vacation.bulan_selesai;
-                                                                            const now=current * bulanMulai;
-                                                                            
-                                                                            this.vacant=(vacation.tanggal_mulai * bulanMulai <= now && now <= vacation.tanggal_selesai * bulanAkhir);
-                                                                            if(current>=vacation.tanggal_selesai) index++;
-                                                                        }
-                                                                    },
-                                                                    handleClick() {
-                                                                        if(isEditing) chooseDate(day.date);
-                                                                        else showEvents(day.date)
-                                                                    }
-                                                                }"
-                                                                :class="isChoosen(day.date) ? 'btn bg-light' : 'btn btn-outline-light'"
-                                                                x-on:click='handleClick'
-
-                                                                x-init="setLibur()">
-                                                                    
-                                                                    <div :class="{'bg-warning-subtle' : vacant}" x-text="day.date">
-                                                                        
-                                                                    </div>
-                                                                </button>
-                                                            </template>
-                                                            
-                                                        </td>
-                                                    </template>
-
-                                                    <template x-for="_ in 6 - (week[week.length-1]['day'] || 0)">
-                                                        <td class="col p-0 bg-light"></td>
-                                                    </template>
-                                                    
-                                                
-                                                </tr>
+                                                </td>
                                             </template>
                                         
+                                            <template x-for="day in week" :key="index+250">
+                                                <td class="col p-0" style="box-sizing: border-box;">
+                                                    <template x-if="([5,6]).includes(day.day)">
+                                                        <button 
+                                                        type="button"
+                                                        class="w-100 h-100  px-0 rounded-0 border-0  position-relative btn btn-outline-light text-muted" disabled
+                                                        x-data="{
+                                                            vacant : false,
+                                                            setLibur() {
+                                                                current=day.date;   
+                                                                this.vacant=vacations.some(vacation=>{
+                                                                    return (vacation.tanggal_mulai <= current && current <= vacation.tanggal_selesai);
+                                                                })
+                                                            }
+                                                        }"
+                                                        x-init="setLibur()"
+                                                        >
+                                                            <div :class="{'bg-warning-subtle' : vacant}" x-text="day.date">
+                                                                
+                                                            </div>
+                                                        </button>
+                                                    </template>
+
+                                                    <template x-if="!([5,6]).includes(day.day)">
+                                                        <button 
+                                                        
+                                                        type="button"
+                                                        class="w-100 h-100  px-0 rounded-0 border-0  position-relative text-body" 
+                                                        
+                                                        x-data="{
+                                                            vacant : false,
+                                                            setLibur() {
+                                                                current=day.date    
+                                                                this.vacant=vacations.some(vacation=>{
+                                                                    return (vacation.tanggal_mulai <= current && current <= vacation.tanggal_selesai);
+                                                                })
+                                                            },
+                                                            handleClick() {
+                                                                if(isEditing) chooseDate(day.date);
+                                                                else showEvents(day.date)
+                                                            }
+                                                        }"
+                                                        :class="isChosen(day.date) ? 'btn bg-light' : 'btn btn-outline-light'"
+                                                        x-on:click='handleClick'
+
+                                                        x-init="setLibur()">
+                                                            
+                                                            <div :class="{'bg-warning-subtle' : vacant}" x-text="day.date">
+                                                                
+                                                            </div>
+                                                        </button>
+                                                    </template>
+                                                    
+                                                </td>
+                                            </template>
+
+                                            <template x-for="_ in 6 - (week[week.length-1]['day'] || 0)">
+                                                <td class="col p-0 bg-light"></td>
+                                            </template>
                                             
-                                            @php
-                                                $current=0;
-                                                $index=0;
-                                            @endphp
+                                        
+                                        </tr>
+                                    </template>
+                                
+                                    
+                                    @php
+                                        $current=0;
+                                        $index=0;
+                                    @endphp
                                     {{-- @foreach ($calendars as $week)
                                         <tr>
                                             @for ($i=0;$i<$week[0]['day'];$i++)
@@ -377,9 +357,9 @@
             <form action="{{ route('admin.presensi-libur.store') }}" method="post" x-data="{
                 async submitForm(event) {
                     const form = event.target;
-                    const month = new Date().getMonth();
+                    const month = new Date().getMonth() + 1;
                     document.getElementById('tanggal_mulai').value= selectedDates[0]
-                    document.getElementById('tanggal_selesai').value=  selectedDates[1] || selectedDates[0]
+                    document.getElementById('tanggal_selesai').value= selectedDates[1] || selectedDates[0]
                     document.getElementById('bulan_mulai').value= month
                     document.getElementById('bulan_selesai').value= month
 
@@ -390,8 +370,8 @@
             @submit.prevent="submitForm">
                 @csrf
                 <div class="card">
-                <div class="card-header py-4 bg-secondary bg-gradient bg-opacity-25">
-                    <h2 class="fs-5 fw-medium m-0">Add Event</h2>
+                <div class="card-header py-4 bg-warning bg-gradient bg-opacity-50">
+                    <h2 class="fs-5 fw-medium m-0 text-black-50">Add Event</h2>
                 </div>
                 <div class="card-body">
                     <input type="hidden" name="tanggal_mulai" id="tanggal_mulai">
@@ -414,9 +394,14 @@
                             <label for="">3</label>
                         </li>
                     </ul>
-                    <x-form-error-text :field="'jenjang[]'" />
+                    <x-form-error-text :field="'jenjang'" />
+                    <x-form-error-text :field="'tanggal_mulai'" />
+                    <x-form-error-text :field="'tanggal_selesai'" />
+                    <x-form-error-text :field="'bulan_mulai'" />
+                    <x-form-error-text :field="'bulan_selesai'" />
+                    <x-form-error-text :field="'ket'" />
 
-                    <button type="submit" class="btn btn-primary mt-3 w-100 rounded-0">Tambah</button>
+                    <button type="submit" class="btn btn-primary mt-3 w-100">Tambah</button>
                 </div>
             </div>
             </form>
@@ -431,62 +416,12 @@
             const bulanMulai=e.bulan_mulai;
             const bulanAkhir=e.bulan_selesai;
             const now=current * bulanMulai;
-            return e.tanggal_mulai * bulanMulai <= now && e.tanggal_selesai * bulanAkhir >= now;
+            return e.tanggal_mulai<=current && e.tanggal_selesai >= current;
         })
+        // console.log(`lists ${events_list}`)
         
         container.events=lists
     }
-    function calendarRange(dates) {
-    return {
-        dates,
 
-        editMode: false,
-        startDate: null,
-        endDate: null,
-        selectedDates: [],
-
-        toggleEdit() {
-            this.editMode = !this.editMode
-            this.reset()
-        },
-
-        setStart(date) {
-            if (!this.editMode) return
-            this.startDate = date
-            this.endDate = null
-            this.selectedDates = []
-        },
-
-        setEnd(date) {
-            if (!this.editMode || !this.startDate) return
-            this.endDate = date
-            this.buildRange()
-        },
-
-        buildRange() {
-            let start = new Date(this.startDate)
-            let end   = new Date(this.endDate)
-
-            if (start > end) [start, end] = [end, start]
-
-            this.selectedDates = []
-
-            while (start <= end) {
-                this.selectedDates.push(start.toISOString().slice(0, 10))
-                start.setDate(start.getDate() + 1)
-            }
-        },
-
-        isSelected(date) {
-            return this.selectedDates.includes(date)
-        },
-
-        reset() {
-            this.startDate = null
-            this.endDate = null
-            this.selectedDates = []
-        }
-    }
-}
 </script>
 @endsection

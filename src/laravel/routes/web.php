@@ -33,7 +33,6 @@ Route::group(['middleware'=>['guest']], function() {
     // Login
     Route::get('/login', [LoginController::class, 'index'])->name('login');
     Route::post('/login', [LoginController::class, 'postLogin'])->name('web.login.post');
-
     // Forgot Password
     Route::view('/forgot-password', 'auth.forgot-password')->name('password.request');
 });
@@ -48,9 +47,9 @@ Route::group(['middleware'=>['auth']], function() {
 });
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
-    Route::view('/siswa/mental', 'admin.siswa.mental.index')->name('admin.siswa.mental.index');
-    Route::resource('/siswa/kehadiran', AdminPresensiController::class)->except(['destroy', 'create', 'store', 'edit', 'update', 'show']);
-    Route::resource('/siswa/diary', DiaryController::class)->except(['destroy', 'create', 'store', 'edit', 'update']);
+    // Route::view('/siswa/mental', 'admin.siswa.mental.index')->name('siswa.mental.index');
+    Route::get('/siswa/diary', [DiaryController::class, 'index'])->name('siswa.diary.index');
+    Route::get('/siswa/kehadiran', [AdminPresensiController::class, 'index'])->name('siswa.kehadiran.index');
     Route::resource('/siswa', SiswaController::class);
     Route::resource('/kelas', KelasController::class)->except(['edit'])->parameter("kelas", "kelas");
     Route::resource('/tahun-akademik', TahunAkademikController::class)->names('tahun-akademik');
@@ -134,17 +133,23 @@ Route::group(['middleware'=>['auth', 'role:guru']], function() {
 // 6. Siswa Routes (Akses: Auth + Role Siswa)
 Route::group(['middleware'=>['auth', 'role:siswa']], function() {
     // Dashboard Siswa
-    Route::get('/siswa/dashboard', [DashboardController::class, 'siswaDashboard'])->name('siswa.dashboard');
     
     // Route Siswa Lainnya
-    Route::view('/siswa/presensi', 'siswa.presensi')->name('siswa.presensi');
-    Route::post('/siswa/presensi', [PresensiController::class, 'store'])->name('siswa.presensi.store');
-    Route::view('/siswa/jadwal', 'siswa.jadwal')->name('siswa.jadwal');
-    Route::view('/siswa/laporan-nilai', 'siswa.laporan-nilai')->name('siswa.laporan-nilai');
-    Route::get('/siswa/statistik', [App\Http\Controllers\App\Siswa\StatistikController::class, 'index'])->name('siswa.statistik');
-    Route::get('/siswa/diaryku', [App\Http\Controllers\App\Siswa\Dass21Controller::class, 'diarykuDashboard'])->name('siswa.diaryku');
-    Route::view('/form-input-dass21', 'dass21.form-input')->name('dass21.form');
-    Route::post('/siswa/dass21', [App\Http\Controllers\App\Siswa\Dass21Controller::class, 'store'])->name('dass21.store');
+    Route::group(['middleware'=>['survey_check:0']], function() {
+        Route::get('/siswa/dashboard', [DashboardController::class, 'siswaDashboard'])->name('siswa.dashboard');
+
+        Route::view('/siswa/presensi', 'siswa.presensi')->name('siswa.presensi');
+        Route::post('/siswa/presensi', [PresensiController::class, 'store'])->name('siswa.presensi.store');
+        Route::get('/siswa/statistik', [App\Http\Controllers\App\Siswa\StatistikController::class, 'index'])->name('siswa.statistik');
+    });
+    
+    Route::group(['middleware'=>['survey_check:1']], function() {
+        Route::view('/form-input-dass21', 'dass21.form-input')->name('dass21.form');
+        Route::get('/siswa/diaryku', [App\Http\Controllers\App\Siswa\Dass21Controller::class, 'diarykuDashboard'])->name('siswa.diaryku');
+        Route::post('/siswa/dass21', [App\Http\Controllers\App\Siswa\Dass21Controller::class, 'store'])->name('dass21.store');
+    });
+    // Route::view('/siswa/jadwal', 'siswa.jadwal')->name('siswa.jadwal');
+    // Route::view('/siswa/laporan-nilai', 'siswa.laporan-nilai')->name('siswa.laporan-nilai');
 });
 
 

@@ -18,11 +18,11 @@ return new class extends Migration
             $table->mediumText('ket')->nullable();
             $table->foreignId('id_siswa')
             ->constrained('siswa')
-            ->onDelete('restrict')
+            ->onDelete('cascade')
             ->onUpdate('cascade');
             $table->foreignId('id_thak')
             ->constrained('tahun_akademik')
-            ->onDelete('restrict')
+            ->onDelete('cascade')
             ->onUpdate('cascade');
             $table->timestamp('waktu')->nullable()->useCurrent()->useCurrentOnUpdate();
         });

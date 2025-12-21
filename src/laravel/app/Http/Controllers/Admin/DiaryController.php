@@ -22,19 +22,17 @@ class DiaryController extends Controller
         $studentIds=$students->pluck('id')->toArray();
         
 
+        // dd($students);
         $mentalHealthData=Diary::getMentalHealthData($academicYear, $studentIds);
         // dd($mentalHealthData);
-        $students=$students->map(function($student) use($mentalHealthData) {
+        $students=$students->through(function($student) use($mentalHealthData) {
             $details = collect($mentalHealthData->get($student->id));
-            
-
             $dpMeter = $details->reduce(function($acc, $row) {
                 $swafoto_pred=strtolower($row->swafoto_pred);
                 $catatan_pred=strtolower($row->catatan_pred);
                 $bool=($catatan_pred==='terindikasi depresi' && !in_array($swafoto_pred, ['happy', 'surprise']));
                 return $acc + (int) $bool;
             }, 0);
-            
             
             $percentage=0;
             $totals=$details->count();
@@ -63,7 +61,6 @@ class DiaryController extends Controller
             ]);
             return $student;
         });
-        // dd($students);
 
         
         return view('admin.diary.index', compact('students'));

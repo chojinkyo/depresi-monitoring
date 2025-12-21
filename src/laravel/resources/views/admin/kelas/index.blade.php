@@ -25,37 +25,48 @@
                     <td>{{ $row->nama}}</td>
                     <td>{{ $row->jenjang }}</td>
                     <td>{{ $row->jurusan }}</td>
-                    <td class="d-flex justify-content-around">
-                        <a href="#" class="btn btn-warning btn-sm">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <a 
-                        href="#" 
-                        role="button"
-                        class="btn btn-info btn-sm"
-                        onclick="event.preventDefault();editForm('{{ $row->id }}', `{{ route('admin.kelas.update', ['kelas'=>$row->id]) }}`)"
-                        x-on:click="selected_id={{ $row->id }};">
-                            <i class="fas fa-edit"></i>
-                        </a>
-
-                        <a 
-                        href="#"
-                        role="button"
-                        class="btn btn-sm btn-danger"
-                        onclick="
-                        event.preventDefault();
-                        setDeleteForm(`{{ route('admin.kelas.destroy', ['kelas'=>$row->id]) }}`);
-                        window.dispatchEvent(new CustomEvent('swal:confirm', {detail : {
-                            title : 'Konfirmasi hapus data',
-                            text : 'Apakah anda yakin ingin menghapus kelas ini?',
-                            icon : 'warning',
-                            method : submitDeleteForm,
-                        }}))">
-                            <i class="fas fa-trash-alt"></i>
-                        </a>
+                    <td class="">
+                        <div class="d-flex gap-1">
+                            <a 
+                            href="#" 
+                            class="btn btn-outline-primary btn-sm"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a 
+                            href="#" 
+                            role="button"
+                            class="btn btn-outline-warning btn-sm"
+                            onclick="event.preventDefault();editForm('{{ $row->id }}', `{{ route('admin.kelas.update', ['kelas'=>$row->id]) }}`)"
+                            x-on:click="selected_id={{ $row->id }};"
+                            >
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a 
+                            href="#"
+                            role="button"
+                            class="btn btn-sm btn-outline-danger"
+                            onclick="
+                            event.preventDefault();
+                            setDeleteForm(`{{ route('admin.kelas.destroy', ['kelas'=>$row->id]) }}`);
+                            window.dispatchEvent(new CustomEvent('swal:confirm', {detail : {
+                                title : 'Konfirmasi hapus data',
+                                text : 'Apakah anda yakin ingin menghapus kelas ini?',
+                                icon : 'warning',
+                                method : submitDeleteForm,
+                            }}))"
+                            >
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
             @empty
+                <tr>
+                    <td colspan="5" class="bg-light-subtle text-center text-black-50">
+                        No Class Found
+                    </td>
+                </tr>
             @endforelse
 
             <x-slot name="paginator">
@@ -124,7 +135,7 @@
                     <button type="submit" class="btn btn-primary bg-gradient w-100">Simpan</button>
                 </form>
             </div>
-            <div class="card-footer"></div>
+            
         </div>
     </div>
 </div>

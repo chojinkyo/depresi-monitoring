@@ -12,6 +12,10 @@ class Presensi extends Model
     protected $table='presensi';
     public $timestamps = false;
 
+    protected $casts=[
+        'waktu'=>'datetime'
+    ];
+
     public function diary()
     {
         return $this->hasOne(Diary::class, 'id_presensi', 'id');

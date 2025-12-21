@@ -25,7 +25,7 @@ class PresensiController extends Controller
         ->paginate(10);
         
         [$results, $details]=Presensi::getAttendanceCalc($academicYear, $students->pluck('id')->toArray());
-        $studentAttendances=$students->map(function($student) use($results, $details) {
+        $studentAttendances=$students->through(function($student) use($results, $details) {
             $result=$results->get($student->id) ?? null;
             $detail=$details?->get($student->id) ?? null;
 
@@ -36,6 +36,8 @@ class PresensiController extends Controller
 
             return $student;
         });
+
+
 
         // dd($results);
         

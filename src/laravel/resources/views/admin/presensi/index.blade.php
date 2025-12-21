@@ -36,18 +36,17 @@
                         </button>
                     </div>
                 </div>
-                
             </div>
             <div class="card-body p-4">
                 <div class="table-responsive">
                     <table class="table border">
                         <thead class="table-light">
                             <tr>
-                                <th class="col-1 text-center py-3 text-dark">No</th>
-                                <th class="col-3 py-3 text-dark">Siswa</th>
-                                <th class="col-1 py-3 text-dark">Kelas</th>
-                                <th class="col-5 py-3 text-dark">Kehadiran</th>
-                                <th scope="col" class="col-2 py-3 text-dark">Aksi</th>
+                                <th class="col-1 py-3 fw-medium text-dark text-center">No</th>
+                                <th class="col-3 py-3 fw-medium text-dark">Siswa</th>
+                                <th class="col-1 py-3 fw-medium text-dark">Kelas</th>
+                                <th class="col-5 py-3 fw-medium text-dark">Kehadiran</th>
+                                <th scope="col" class="col-2 py-3 fw-medium text-dark">Aksi</th>
                             </tr>
                         </thead>
                         
@@ -60,42 +59,63 @@
                                 if($studentAttendance->presensi)
                                 {
                                     $result=$studentAttendance->presensi->get('result');
-                                    $persenHadir=$result->persen_hadir;
-                                    $persenAlpha=$result->persen_alpha;
-                                    $persenIjinSakit=$result->persen_ijin_sakit;
+                                    $persenHadir=$result?->persen_hadir ?? 0;
+                                    $persenAlpha=$result?->persen_alpha ?? 0;
+                                    $persenIjinSakit=$result?->persen_ijin_sakit ?? 0;
                                 }
                             @endphp
                         
                             <tr>
                                 <td class="text-center">{{ $key+1 }}</td>
                                 <td>
-                                    <div class="fw-medium">{{$studentAttendance->nama_lengkap }}</div>
-                                    <div class="text-secondary">{{$studentAttendance->nisn }}</div>
+                                    <small>
+                                        <div class="fw-medium">{{$studentAttendance->nama_lengkap }}</div>
+                                        <div class="text-secondary">{{$studentAttendance->nisn }}</div>
+                                    </small>
                                 </td>
-                                <td>
-                                    {{ $studentAttendance->classes->first()?->nama ?? "-" }}
-                                </td>
-                                <td class="alignment-end py-3">
+                                <td>{{ $studentAttendance->classes->first()?->nama ?? "-" }}</td>
+                                <td class="alignment-end">
                                     <div class="progress rounded-pill w-75" style="height: 10px;">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $persenHadir }}%;" aria-valuenow="{{ $persenHadir }}" aria-valuemin="0" aria-valuemax="100">
-                                        
+                                        <div 
+                                        role="progressbar" 
+                                        class="progress-bar bg-success bg-opacity-75 bg-gradient" 
+                                        style="width: {{ $persenHadir }}%;" 
+                                        aria-valuenow="{{ $persenHadir }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100"
+                                        >
                                         </div>
-                                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $persenAlpha }}%;" aria-valuenow="{{ $persenAlpha }}" aria-valuemin="0" aria-valuemax="100">
 
+                                        <div 
+                                        role="progressbar" 
+                                        class="progress-bar bg-danger bg-opacity-75 bg-gradient" 
+                                        style="width: {{ $persenAlpha }}%;" 
+                                        aria-valuenow="{{ $persenAlpha }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100"
+                                        >
                                         </div>
-                                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $persenIjinSakit }}%;" aria-valuenow="{{ $persenIjinSakit }}" aria-valuemin="0" aria-valuemax="100">
 
+                                        <div 
+                                        role="progressbar" 
+                                        class="progress-bar bg-warning bg-opacity-75 bg-gradient" 
+                                        style="width: {{ $persenIjinSakit }}%;" 
+                                        aria-valuenow="{{ $persenIjinSakit }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100"
+                                        >
                                         </div>
                                     </div>
-                                    <div class="w-75 d-flex flex-wrap text-xs" style="font-size: 12px;">
+                                    
+                                    <div class="w-75 d-flex flex-wrap text-xs mt-1" style="font-size: 12px;">
                                         @if(($persenHadir+$persenAlpha+$persenIjinSakit))
-                                            <div style="width: {{ $persenHadir }}%;min-width: fit-content">
+                                            <div class="fw-medium" style="width: {{ $persenHadir }}%;min-width: fit-content">
                                                 <small>{{ $persenHadir }}%</small>
                                             </div>
-                                            <div style="width: {{ $persenAlpha }}%;min-width: fit-content">
+                                            <div class="fw-medium" style="width: {{ $persenAlpha }}%;min-width: fit-content">
                                                 <small>{{ $persenAlpha }}%</small>
                                             </div>
-                                            <div style="width: {{ $persenIjinSakit }}%;min-width: fit-content">
+                                            <div class="fw-medium" style="width: {{ $persenIjinSakit }}%;min-width: fit-content">
                                                 <small>{{ $persenIjinSakit }}%</small>
                                             </div>
                                         @else
@@ -119,7 +139,11 @@
 
                             </tr>
                         @empty
-                            
+                            <tr>
+                                <td colspan="5" class="bg-light-subtle text-center text-black-50">
+                                    Belum Ada Siswa
+                                </td>
+                            </tr>
                         @endforelse
                     </table>
 
@@ -144,7 +168,6 @@
                                 <span class="text-warning mr-1"><i class="fas fa-circle"></i></span>
                                 <small>Ijin/Sakit</small>
                             </li>
-                            
                         </ul>
                     </div>
                     <div>
@@ -152,28 +175,16 @@
                     </div>
                 </section>
                 <div class="d-flex justify-content-left">
-                    <nav>
-                        <ul class="pagination">
-                            <li class="page-item">
-                                <a href="#" class="page-link">
-                                    <span aria-hidden="true">&laquo;</span>
-                                    <span class="sr-only">Previous</span>
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a href="#" class="page-link">
-                                    1
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a href="#" class="page-link">
-                                    <span aria-hidden="true">&raquo;</span>
-                                    <span class="sr-only">Next</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-
+                    {{ $studentAttendances->links() }}
+                    <div class="form-group m-0">
+                        <select class="form-select bg-light rounded-start-0 border-start-0">
+                            <option value="10">10</option>
+                            <option value="10">25</option>
+                            <option value="10">50</option>
+                            <option value="10">100</option>
+                            <option value="10">250</option>
+                        </select>
+                    </div>
                     
                 </div>
             </div>
@@ -197,16 +208,16 @@
         </div>
         <div class="card shadow-sm mb-2">
             <div class="card-body d-flex align-items-center">
-                    <div class="box box-primary">
-                        <div class="box-header with-border">
-                            <h3 class="box-title h5">Diagram Mental</h3>
-                        </div>
-                        <div class="box-body">
-                            <div class="chart">
-                                <canvas id="myChart" style="height: 250px;"></canvas>
-                            </div>
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title h5">Diagram Mental</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="chart">
+                            <canvas id="myChart" style="height: 250px;"></canvas>
                         </div>
                     </div>
+                </div>
             </div>
         </div>
         <div class="card shadow-sm ">
@@ -239,7 +250,6 @@
                                         <td class="">1</td>
                                         <td>
                                             <div class="font-weight-bold" x-text="item.waktu"></div>
-                                            
                                         </td>
                                         <td>
                                             <div x-text="item.ket"></div>

@@ -30,7 +30,7 @@ return new class extends Migration
             ->onUpdate('cascade');
             $table->foreignId('id_thak_masuk')
             ->constrained('tahun_akademik')
-            ->onDelete('restrict')
+            ->onDelete('cascade')
             ->onUpdate('cascade');
             $table->timestamps();
         });

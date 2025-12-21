@@ -47,7 +47,7 @@
                     'active' => request()->is('siswa/presensi')
                 ])
             </li>
-            <li class="nav-item">
+            {{-- <li class="nav-item">
                 @include('components.buttons.button-sidebar', [
                     'href' => '/siswa/jadwal',
                     'icon' => 'bi-calendar-event',
@@ -62,7 +62,7 @@
                     'text' => 'Laporan Nilai',
                     'active' => request()->is('siswa/laporan-nilai')
                 ])
-            </li>
+            </li> --}}
             <li class="nav-item">
                 @include('components.buttons.button-sidebar', [
                     'href' => '/siswa/statistik',

@@ -143,7 +143,7 @@
     </div>
 
     <div class="col-4">
-        <div class="card">
+        <div class="card shadow-none">
             
             <div class="card-body px-0 py-0">
                 <div class="table-responsive">

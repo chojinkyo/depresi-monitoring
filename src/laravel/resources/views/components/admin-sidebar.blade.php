@@ -50,15 +50,24 @@
                     'href' => route('admin.siswa.index'),
                     'icon' => 'bi-people-fill',
                     'text' => 'Data Siswa',
-                    'active' => request()->routeIs('admin.siswa.*')
+                    'active' => request()->routeIs('admin.siswa.index')
+                ])
+            </li>
+            
+            <li class="nav-item">
+                @include('components.buttons.button-sidebar', [
+                    'href' => route('admin.siswa.kehadiran.index'),
+                    'icon' => 'bi-calendar-x',
+                    'text' => 'Kehadiran Siswa',
+                    'active' => request()->routeIs('admin.siswa.kehadiran.index')
                 ])
             </li>
             <li class="nav-item">
                 @include('components.buttons.button-sidebar', [
-                    'href' => route('admin.hari-libur.index'),
+                    'href' => route('admin.siswa.diary.index'),
                     'icon' => 'bi-calendar-x',
-                    'text' => 'Hari Libur',
-                    'active' => request()->routeIs('admin.hari-libur.*')
+                    'text' => 'Mental Siswa',
+                    'active' => request()->routeIs('admin.siswa.diary.index')
                 ])
             </li>
         </ul>

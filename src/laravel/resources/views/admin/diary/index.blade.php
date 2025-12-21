@@ -91,28 +91,25 @@
 @section('content')
 <div class="row justify-content-center">
     <div class="col-7">
-        <div class="card shadow">
-            <div class="card-header no-after py-4 d-flex align-items-center justify-content-between bg-primary bg-gradient bg-opacity-50">
-                <div class="d-flex align-items-center">
-                    <div class="input-group">
-                        <input type="text" name="" id="" class="form-control" placeholder="search items">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary">
-                                <i class="fas fa-search"></i>
-                            </button>
+        <div class="card shadow-sm">
+            <div class="card-header no-after p-4 d-flex align-items-center justify-content-between bg-primary bg-gradient bg-opacity-50">
+                <div class="d-flex w-100 align-items-center justify-content-between">
+                    <h2 class="fs-5 fw-medium text-black-50 m-0 col-4">Mental Siswa</h2>
+                    <div class="d-flex col-8 justify-content-end">
+                        <div class="col-5">
+                            <input type="text" class="form-control rounded-end-0 border-end-0 opacity-75" placeholder="search items">
                         </div>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center" style="gap: .5rem;">
-                    <div class="form-group m-0">
-                        <select name="" id="" class="form-select bg-light">
-                            <option value="">All Kelas</option>
-                        </select>
-                    </div>
-                    <div class="form-group m-0">
-                        <select name="" id="" class="form-select bg-light">
-                            <option value="">Tahun Ini</option>
-                        </select>
+                        <div class="col-5 d-flex">
+                            <select class="form-select bg-light rounded-0 border-end-0 opacity-75">
+                                <option value="">All Kelas</option>
+                            </select>
+                            <select class="form-select bg-light rounded-0 border-end-0 opacity-75">
+                                <option value="">Tahun Ini</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-warning rounded-start-0">
+                            <i class="fas fa-search"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -123,8 +120,8 @@
                             <tr>
                                 <th class="col-1 py-3 fw-medium text-center">No</th>
                                 <th class="col-3 py-3 fw-medium">Siswa</th>
-                                <th class="col-2 py-3 fw-medium">Kelas</th>
-                                <th class="col-3 py-3 fw-medium">Tingkat Depresi</th>
+                                <th class="col-1 py-3 fw-medium">Kelas</th>
+                                <th class="col-4 py-3 fw-medium">Tingkat Depresi</th>
                                 <th class="col-2 py-3 fw-medium">Label</th>
                                 <th scope="col" class="col-1 py-3 fw-medium">Aksi</th>
                             </tr>
@@ -146,72 +143,56 @@
                                         {{ $student->activeClass->first()?->nama ?? "-" }}
                                     </td>
                                     <td class="alignment-end">
-                                    <div class="progress rounded-pill w-75" style="height: 10px;">
-                                        <div class="progress-bar {{ $depressionRate >= 70 ? 'bg-success' : 'bg-danger' }}" role="progressbar" style="width: {{ $depressionRate }}%;" aria-valuenow="{{ $depressionRate }}" aria-valuemin="0" aria-valuemax="100">
-                                        
+                                        <div 
+                                        class="progress rounded-pill w-75" 
+                                        style="height: 10px;">
+                                            <div 
+                                            role="progressbar" 
+                                            class="progress-bar {{ $depressionRate >= 70 ? 'bg-success' : 'bg-danger' }} bg-gradient bg-opacity-75" 
+                                            style="width: {{ $depressionRate }}%;"
+                                            aria-valuenow="{{ $depressionRate }}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="w-75 d-flex flex-wrap">
-                                        <div style="width: {{ $depressionRate }}%;min-width: fit-content" class="fs-6">
-                                            <small>{{ $depressionRate }}%</small>
+                                        <div class="w-75 d-flex flex-wrap mt-1" style="font-size: 12px;">
+                                            <div class="fw-medium" style="width: {{ $depressionRate }}%;min-width: fit-content">
+                                                <small>{{ $depressionRate }}%</small>
+                                            </div>
                                         </div>
-                                    </div>
                                     </td>
                                     <td>
                                         @if($depressionRate >= 70)
-                                        <div class="badge badge-sm bg-success rounded-pill">Normal</div>
+                                        <div class="badge badge-sm bg-success bg-gradient bg-opacity-75 rounded-pill">Normal</div>
                                         @else
-                                        <div class="badge badge-sm bg-danger rounded-pill">Depresi</div>
+                                        <div class="badge badge-sm bg-danger bg-gradient bg-opacity-75 rounded-pill">Depresi</div>
                                         @endif
                                     </td>
                                     <td>
-                                        
                                         <button 
                                         class="btn btn-sm btn-primary"
-                                        onclick='setDetailedView({{ $student }}, {{ $student->mental_health->get("detail") }})'>
+                                        onclick='setDetailedView({{ $student }}, {{ $student->mental_health->get("detail") }})'
+                                        >
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </td>
                                 </tr>
                             @empty
-                                
+                                <tr>
+                                    <td colspan="6" class="bg-light-subtle text-center text-black-50">
+                                        Belum Ada Siswa
+                                    </td>
+                                </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
-            <div class="card-footer bg-white border-top d-flex justify-content-between no-after">
-                <section class="d-flex">
-                  
-                    
-                </section>
-                <div class="d-flex justify-content-left">
-                    <nav>
-                        <ul class="pagination">
-                            <li class="page-item">
-                                <a href="#" class="page-link">
-                                    <span aria-hidden="true">&laquo;</span>
-                                    <span class="sr-only">Previous</span>
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a 
-                                href="#" 
-                                class="page-link">
-                                    1
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a href="#" class="page-link">
-                                    <span aria-hidden="true">&raquo;</span>
-                                    <span class="sr-only">Next</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-
-                    <div class="form-group ml-2">
-                        <select name="" id="" class="form-control bg-light">
+            <div class="card-footer bg-light-subtle border-top d-flex justify-content-between no-after py-0 px-4">
+                <div class="d-flex justify-content-end py-4 w-100">
+                    {{ $students->links() }}
+                    <div class="form-group m-0">
+                        <select class="form-select bg-light rounded-start-0 border-start-0">
                             <option value="10">10</option>
                             <option value="10">25</option>
                             <option value="10">50</option>
@@ -262,14 +243,14 @@
         </div>
         <div class="card shadow-sm ">
             <div class="card-header no-after py-3 d-flex justify-content-between align-items-center bg-warning bg-gradient bg-opacity-50">
-                <h2 class="h5 fw-medium text-black-50">Riwayat Mental</h2>
+                <h2 class="h5 fw-medium text-black-50 m-0 py-2">Riwayat Mental</h2>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th class="col-2 py-3 fw-medium">
+                                <th class="col-2 py-3 fw-medium text-center">
                                     No
                                 </th>
                                 <th class="col-6 py-3 fw-medium">
@@ -278,31 +259,34 @@
                                 <th class="col-3 py-3 fw-medium">
                                     Result
                                 </th>
-                                
+                               
                             </tr>
                         </thead>
-                        <tbody x-data="{history_data : [], index : 0, num : 0}" x-ref="history_data_container">
-                            <template x-if="history_data.length > 0">
-                                <template x-for="item in history_data" :key="index">
-                                    <tr>
-                                        <td x-text="num++"></td>
-                                        <td>
-                                            <div 
-                                            class="font-weight-bold" 
-                                            x-text="item.waktu">
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div x-text="item.swafoto_pred">
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </template>
-                                
+                        <tbody x-data="{history_data : []}" x-ref="history_data_container">
+                            <template x-for="(item, index) in history_data" :key="index">
+                                <tr>
+                                    <td 
+                                    class="text-center"
+                                    x-text="index+1"
+                                    >
+                                    </td>
+                                    <td>
+                                        <div 
+                                        class="font-weight-bold" 
+                                        x-text="item.waktu">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div x-text="item.swafoto_pred">
+                                        </div>
+                                    </td>
+                                </tr>
                             </template>
+                            
+                            
                             <template x-if="history_data.length === 0">
                                 <tr class="table-active">
-                                    <td colspan="4" class="text-center">
+                                    <td colspan="3" class="text-center">
                                         <i>Choose siswa first</i>
                                     </td>
                                 </tr>

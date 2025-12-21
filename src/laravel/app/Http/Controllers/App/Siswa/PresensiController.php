@@ -147,6 +147,8 @@ class PresensiController extends Controller
     }
     public function store(Request $request)
     {
+    
+
         // try
         // {
         //     $file=$request->file('swafoto');
@@ -164,24 +166,23 @@ class PresensiController extends Controller
             // 'emoji'=>'required|integer|between:1,5',
             'ket'=>'required_if:status,I,S|max:255',
             'doc'=>'required_if:status,I,S|file|mimes:pdf,jpg,png,jpeg|max:10240',
-            'swafoto_pred'=>'nullable|string',
-            'catatan_pred'=>'nullable|string',
-            'catatan_ket'=>'nullable|string'
+            // 'swafoto_pred'=>'nullable|string',
+            // 'catatan_pred'=>'nullable|string',
+            // 'catatan_ket'=>'nullable|string'
         ]);
         if($validator->fails())
         {
-            return response()->json(['message' => $validator->errors()->first()], 422);
+            return response()->json(['message' => $validator->errors()], 422);
         }
 
         DB::beginTransaction();
         $data=$validator->validated();
-        $siswa=auth()->user()->siswa;
+        $siswa=$request->user()->siswa;
         try
         {
-            
             $tgl=now()->format('Y-m-d');
-            // $this->cekPresensi($tgl);
-            // $this->cekLibur($tgl);
+            $this->cekPresensi($tgl);
+            $this->cekLibur($tgl);
 
             $thak=$this->getCurThak();
             $id_sis=$siswa->id;

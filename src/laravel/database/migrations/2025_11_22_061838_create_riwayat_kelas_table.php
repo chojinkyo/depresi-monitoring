@@ -15,15 +15,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_kelas')
             ->constrained('kelas')
-            ->onDelete('restrict')
+            ->onDelete('cascade')
             ->onUpdate('cascade');
             $table->foreignId('id_siswa')
             ->constrained('siswa')
-            ->onDelete('restrict')
+            ->onDelete('cascade')
             ->onUpdate('cascade');
             $table->foreignId('id_thak')
             ->constrained('tahun_akademik')
-            ->onDelete('restrict')
+            ->onDelete('cascade')
             ->onUpdate('cascade');
             $table->enum('status', ['MM', 'MK', 'NW', 'LL', 'Sl', 'CL'])->default('NW');
             $table->boolean('active')->default(false);

@@ -17,7 +17,6 @@ return new class extends Migration
             ->constrained('presensi')
             ->onDelete('cascade')
             ->onUpdate('cascade');
-            $table->enum('emoji', [1, 2, 3, 4, 5])->default(1);
             $table->string('swafoto');
             $table->string('swafoto_pred', 50);
             $table->string('catatan_pred', 50);

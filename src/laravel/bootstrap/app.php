@@ -16,7 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         //
         $middleware->alias([
             // 'jwt'=>\App\Http\Middleware\JwtGuard::class,
-            'role'=>\App\Http\Middleware\RoleCheck::class
+            'role'=>\App\Http\Middleware\RoleCheck::class,
+            'survey_check'=>\App\Http\Middleware\SurveyCheck::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

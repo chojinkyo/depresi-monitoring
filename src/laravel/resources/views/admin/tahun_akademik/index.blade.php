@@ -20,7 +20,9 @@
             addRoute="kelas.create"
         >
             @forelse ($academicYears as $i => $row)
-                <tr :class="{'table-active' : (selected_id=={{ $row->id }}) }">
+                <tr 
+                class=""
+                :class="{'table-active' : (selected_id=={{ $row->id }}) }">
                     <td class="text-center">{{ $i + 1 }}</td>
                     <td>{{ $row->nama_tahun}}</td>
                     <td>{{ $row->tanggal_mulai }}</td>
@@ -29,43 +31,50 @@
                         @if($row->current)
                             <span class="badge rounded-pill bg-success">current</span>
                         @elseif($row->status)
-                            <span class="badge rounded-pill bg-info">opened</span>
+                            <span class="badge rounded-pill bg-primary">opened</span>
                         @else
                             <span class="badge rounded-pill bg-danger">closed</span>
                         @endif
                         
                     </td>
-                    <td class="d-flex justify-content-around">
-                        <a href="#" class="btn btn-warning btn-sm">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <a 
-                        href="#" 
-                        role="button"
-                        class="btn btn-info btn-sm"
-                        onclick="event.preventDefault();editForm('{{ $row->id }}', `{{ route('admin.tahun-akademik.update', ['tahun_akademik'=>$row->id]) }}`)"
-                        x-on:click="selected_id={{ $row->id }};">
-                            <i class="fas fa-edit"></i>
-                        </a>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <a href="#" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a 
+                            href="#" 
+                            role="button"
+                            class="btn btn-outline-warning btn-sm"
+                            onclick="event.preventDefault();editForm('{{ $row->id }}', `{{ route('admin.tahun-akademik.update', ['tahun_akademik'=>$row->id]) }}`)"
+                            x-on:click="selected_id={{ $row->id }};">
+                                <i class="fas fa-edit"></i>
+                            </a>
 
-                        <a 
-                        href="#"
-                        role="button"
-                        class="btn btn-sm btn-danger"
-                        onclick="
-                        event.preventDefault();
-                        setDeleteForm(`{{ route('admin.tahun-akademik.destroy', ['tahun_akademik'=>$row->id]) }}`);
-                        window.dispatchEvent(new CustomEvent('swal:confirm', {detail : {
-                            title : 'Konfirmasi hapus data',
-                            text : 'Apakah anda yakin ingin menghapus tahun akademik ini?',
-                            icon : 'warning',
-                            method : submitDeleteForm,
-                        }}))">
-                            <i class="fas fa-trash-alt"></i>
-                        </a>
+                            <a 
+                            href="#"
+                            role="button"
+                            class="btn btn-outline-danger btn-sm"
+                            onclick="
+                            event.preventDefault();
+                            setDeleteForm(`{{ route('admin.tahun-akademik.destroy', ['tahun_akademik'=>$row->id]) }}`);
+                            window.dispatchEvent(new CustomEvent('swal:confirm', {detail : {
+                                title : 'Konfirmasi hapus data',
+                                text : 'Apakah anda yakin ingin menghapus tahun akademik ini?',
+                                icon : 'warning',
+                                method : submitDeleteForm,
+                            }}))">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
             @empty
+                <tr>
+                    <td colspan="6" class="bg-light-subtle text-center text-black-50">
+                        Belum Ada Tahun Akademik
+                    </td>
+                </tr>
             @endforelse
             <x-slot name="paginator">
                 {{ $academicYears->links() }}
@@ -75,7 +84,7 @@
     <div class="col-3">
         <div class="card shadow-sm">
             <div class="card-header no-after py-4 d-flex justify-content-between align-items-center bg-warning bg-gradient bg-opacity-50">
-                <h2 class="fs-5 fw-bold text-black-50">Form Tahun Akademik</h2>
+                <h2 class="fs-5 fw-medium m-0 text-black-50">Form Tahun Akademik</h2>
                 <a 
                 href="#"
                 role="button"
@@ -91,9 +100,9 @@
                 </form>
                 <form 
                 @if(old('id')==null) 
-                action="{{ route('admin.tahun-akademik.store') }}" 
+                    action="{{ route('admin.tahun-akademik.store') }}" 
                 @else  
-                action="{{ route('admin.tahun-akademik.update', ['tahun_akademik'=>old('id')]) }}"
+                    action="{{ route('admin.tahun-akademik.update', ['tahun_akademik'=>old('id')]) }}"
                 @endif
                 method="POST"
                 class="w-100" id="form-tahun-akademik">
@@ -168,9 +177,8 @@
     const deleteForm=document.getElementById('form-delete');
     const formTahunAkademik=document.getElementById('form-tahun-akademik');
     const methodField=document.getElementById('_method_field');
-    const fields=['tahun_mulai', 'tahun_akhir', 'status', 'current', 'tanggal_mulai', 'tanggal_selesai'];
+    const fields=['tahun_mulai', 'tahun_akhir', 'status', 'current', 'tanggal_mulai', 'tanggal_selesai', 'id'];
     const fieldEls=Object.fromEntries(fields.map(key=>[key, document.getElementById(`${key}_field`)]))
-
     const academicYears=@json($academicYears->items())
 
     

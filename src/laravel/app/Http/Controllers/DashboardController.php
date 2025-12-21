@@ -50,8 +50,11 @@ class DashboardController extends Controller implements HasMiddleware
     {
         $month=now()->month;
         $calendars=$this->getCalendarDays();
-        $vacations=PresensiLibur::select(['ket', 'tanggal_mulai', 'tanggal_selesai', 'bulan_mulai', 'bulan_selesai'])->where('bulan_mulai', $month)->orderBy('tanggal_mulai')->get()->toArray();
-        
+        $vacations=PresensiLibur::select(['ket', 'tanggal_mulai', 'tanggal_selesai', 'bulan_mulai', 'bulan_selesai'])->where('bulan_mulai', $month)
+        ->orderBy('tanggal_mulai')
+        ->get()
+        ->toArray();
+        // dd($vacations);
         return view('dashboard.admin', compact('calendars', 'vacations'));
     }
     public function siswaDashboard()
@@ -134,8 +137,8 @@ class DashboardController extends Controller implements HasMiddleware
         $currentYear = now()->year;
         
         $attendanceStats = \App\Models\Presensi::where('id_siswa', $id_siswa)
-            ->whereMonth('created_at', $currentMonth)
-            ->whereYear('created_at', $currentYear)
+            ->whereMonth('waktu', $currentMonth)
+            ->whereYear('waktu', $currentYear)
             ->get();
 
         $totalSessions = $attendanceStats->count();

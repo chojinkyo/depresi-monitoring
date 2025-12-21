@@ -68,28 +68,38 @@ class PresensiLiburController extends Controller
     // }
     public function store(Request $request)
     {
+        // dd($request->all());
         $validator=Validator::make($request->all(), [
             'ket'=>'required|max:255',
             'tanggal_mulai'=>'required|integer',
-            'tanggal_selesai'=>'nullable|date_format:d-m|after:tanggal_mulai',
+            'tanggal_selesai'=>'nullable|integer',
             'bulan_mulai'=>'required|integer|between:1,12',
             'bulan_selesai'=>'nullable|integer|between:1,12',
             'jenjang'=>'required|array',
             'jenjang.*'=>'required|between:1,3|distinct'
         ]);
+    
         if($validator->fails())
         {
-            return back()->withError($validator)->withInput()->with('error', 'Input invalid');
+            return back()->withError($validator->errors())
+            ->withInput()
+            ->with('error', [
+                'icon'=>'error',
+                'title'=>'Galat 404!',
+                'text'=>'Input invalid'
+            ]);
         }
 
 
         $user=auth('web')->user();
         $data=$validator->validated();
+        $data['jenjang'] = json_encode($data['jenjang']);
         $data_lbr=
         [
             ...$data,
             'id_author'=>$user->id,
             'tanggal_selesai'=>$data['tanggal_selesai'] ?? $data['tanggal_mulai'],
+            'bulan_selesai'=>$data['bulan_selesai'] ?? $data['bulan_mulai']
         ];
         PresensiLibur::create($data_lbr);
         return redirect()->route('admin.dashboard')->with('success', 'Hari libur berhasil ditambahkan');

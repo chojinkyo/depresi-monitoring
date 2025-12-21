@@ -17,15 +17,16 @@ class DiarySeed extends Seeder
         $emojiLabels = [
             1 => 'happy',
             2 => 'surprise',
-            3 => 'sadness',
+            3 => 'disgust',
             4 => 'anger',
-            5 => 'anxiety'
+            5 => 'fear',
+            6 => 'sadness'
         ];
 
         foreach ($presensis as $p) {
 
             // 1) Random emoji (1–5)
-            $emoji = rand(1, 5);
+            $emoji = rand(1, 6);
 
             // 2) Swafoto pred (± 0–2 offset dari emoji, tapi tetap 1–5)
             $offset = rand(-2, 2);
@@ -49,7 +50,6 @@ class DiarySeed extends Seeder
 
             Diary::create([
                 'id_presensi'   => $p->id,
-                'emoji'         => $emoji,
                 'swafoto'       => '-',
                 'swafoto_pred'  => $emojiLabels[$swafotoPred],
                 'catatan_pred'  => $catatanPred,
