@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class Presensi extends Model
 {
     protected $table = 'presensi';
+    public $timestamps = false; 
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
     protected $fillable = [
         'id_siswa',
