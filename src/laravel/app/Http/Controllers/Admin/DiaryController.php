@@ -8,12 +8,22 @@ use App\Models\Siswa;
 use Illuminate\Http\Request;
 use App\Models\TahunAkademik;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class DiaryController extends Controller
 {
     public function index(Request $request)
     {
         $academicYear=$request->has('year') ? $request->input('year') : TahunAkademik::orderByRaw('(3 - current - status) ASC')->orderBy('nama_tahun', 'desc')->first()?->id;
+
+        $path="data/config/konfigurasi_rekap_mental.json";
+        if(!Storage::exists($path))
+            throw new \Exception('File konfigurasi tidak ditemukan', 500);
+        $config=Storage::get($path);
+        $config=json_decode($config, true);
+        $range=(int) $config['rentang'] ?? 1;
+        $threshold=(int) $config['threshold'];
 
         $students=Siswa::query()
         ->with('activeClass', 'user')
@@ -23,8 +33,7 @@ class DiaryController extends Controller
         
 
         // dd($students);
-        $mentalHealthData=Diary::getMentalHealthData($academicYear, $studentIds);
-        // dd($mentalHealthData);
+        $mentalHealthData=Diary::getMentalHealthData($academicYear, $studentIds, $range);
         $students=$students->through(function($student) use($mentalHealthData) {
             $details = collect($mentalHealthData->get($student->id));
             $dpMeter = $details->reduce(function($acc, $row) {
@@ -63,6 +72,56 @@ class DiaryController extends Controller
         });
 
         
-        return view('admin.diary.index', compact('students'));
+        return view('admin.diary.index', compact('students', 'threshold'));
+    }
+
+    public function updateConfig(Request $request)
+    {
+        $validator=Validator::make($request->all(), [
+            'rentang'=>'required|integer|min:1'
+        ]);
+        if($validator->fails())
+        {
+            return back()->withError($validator->errors())
+            ->withInput()
+            ->with('error', [
+                'icon'=>'error',
+                'title'=>'Galat 404!',
+                'text'=>'Input invalid'
+            ]);
+        }
+
+        try
+        {
+            $path="data/config/konfigurasi_rekap_mental.json";
+            if(!Storage::exists($path))
+                throw new \Exception('File konfigurasi tidak ditemukan', 500);
+
+            $config=Storage::get($path);
+            $config=json_decode($config, true);
+            $content=$validator->validated();
+            $content=
+            [
+                ...$config,
+                ...$content
+            ];
+
+
+            Storage::put($path, $content);
+            return back()->with('success', [
+                'icon'=>'success',
+                'title'=>'Berhasil',
+                'text'=>'Konfigurasi berhasil disimpan'
+            ]);
+        }
+        catch(\Exception $e)
+        {
+            return back()
+            ->with('error', [
+                'icon'=>'error',
+                'title'=>'Galat 500!',
+                'text'=>$e->getMessage()
+            ]);
+        }
     }
 }

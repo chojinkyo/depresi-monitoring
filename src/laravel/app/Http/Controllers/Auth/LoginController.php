@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
+use App\Models\Dass21Hasil;
 use App\Models\Diary;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
@@ -11,6 +12,7 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App\Models\TahunAkademik;
+use Illuminate\Support\Facades\Storage;
 
 class LoginController extends Controller implements HasMiddleware
 {
@@ -69,30 +71,54 @@ class LoginController extends Controller implements HasMiddleware
 
     private function setQuetionaryStatus($user)
     {
-        if($user->role==="siswa")
+        $siswa=$user?->siswa;
+
+        if($user->role==="siswa" && (bool) $siswa?->need_survey===false)
         {
 
             try
             {
-                $siswa=$user->siswa;
                 $yearId=TahunAkademik::orderByRaw('(3 - current - status) ASC')->orderBy('nama_tahun', 'desc')->first()?->id;
+                $lastRecap=Dass21Hasil::where('id_siswa', $siswa->id)->latest('created_at')->first();
 
-                if($yearId==null)
-                {
-                    dd('Tahun tidak ditemukan');
-                }
+                if($yearId==null) dd("Tahun tidak ditemukan");
 
-                $mentalData=Diary::orderBy('waktu', 'desc')->whereHas('attendance', function($query) use($siswa, $yearId) {
+                $path="data/config/konfigurasi_rekap_mental.json";
+                if(!Storage::exists($path))
+                    throw new \Exception("File konfigurasi tidak ditemukan", 500);
+
+                $config=Storage::get($path);
+                $config=json_decode($config, true);
+                $range=(int) $config['rentang'];
+                $threshold=(int) $config['threshold'];
+                $subQuery = 
+                $lastRecap===null? 
+                function($query) use($siswa, $yearId) {
                     return $query->where('id_thak', $yearId)->where('id_siswa', $siswa->id);
-                })->get();
+                }:
+                function($query) use($siswa, $yearId, $lastRecap) {
+                    return $query->where('id_thak', $yearId)->where('id_siswa', $siswa->id)->where('waktu', $lastRecap->created_at);
+                };
+
+                $mentalData=Diary::orderBy('waktu', 'desc')->whereHas('attendance', $subQuery)->limit($range)->get();
+                
                 $depressionRate=$mentalData->reduce(function($acc, $row) {
                     $swafoto_pred=strtolower($row->swafoto_pred);
                     $catatan_pred=strtolower($row->catatan_pred);
                     $bool=($catatan_pred==='terindikasi depresi' && !in_array($swafoto_pred, ['happy', 'surprise']));
                     return $acc + (int) $bool;
                 }, 0);
-                
-                $siswa->need_survey=$depressionRate >= 70;
+
+                // dd($depressionRate);
+                $depressionRate=($depressionRate/$range)*100;
+                $needSurvey=$depressionRate >= $threshold && $mentalData->count() >= $range;
+                $siswa->need_survey=$needSurvey;
+
+                if(!$needSurvey && $mentalData->count() >= $range)
+                {
+                    $siswa->is_depressed=false;
+                    $siswa->need_selfcare=false;
+                }
                 $siswa->save();
             }
             catch(\Exception $e)

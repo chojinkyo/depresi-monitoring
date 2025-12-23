@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PresensiLibur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class PresensiLiburController extends Controller
@@ -140,13 +141,119 @@ class PresensiLiburController extends Controller
         $lbr->update($data_lbr);
         return;
     }
-    public function destroy(PresensiLibur $lbr)
+    public function destroy(Request $request)
     {
-        if($lbr==null)
+       
+        $validator=Validator::make($request->all(), [
+            'id'=>'required|exists:presensi_libur,id',
+            'date'=>'required|date_format:d-m'
+        ]);
+        if($validator->fails())
         {
-            return;
+            return back()->withError($validator->errors())
+            ->withInput()
+            ->with('error', [
+                'icon'=>'error',
+                'title'=>'Galat 404!',
+                'text'=>'Input invalid'
+            ]);
         }
-        $lbr->delete();
-        return;
+        $validated=$validator->validated();
+        $pl=PresensiLibur::find($validated['id']);
+        $date=$validated['date'];
+
+
+        $dateStart=Carbon::createfromFormat('d-m', "$pl->tanggal_mulai-$pl->bulan_mulai");
+        $dateEnd=Carbon::createfromFormat('d-m', "$pl->tanggal_selesai-$pl->bulan_selesai");
+        $date=Carbon::createfromFormat('d-m', $date);
+
+        if(!$date->isBetween($dateStart, $dateEnd, true))
+        {
+            
+            return back()
+            ->with('error', [
+                'icon'=>'error',
+                'title'=>'Galat 422!',
+                'text'=>'Tanggal invalid'
+            ]);
+        }
+
+        
+        DB::beginTransaction();
+        $base=$pl->only(['ket', 'id_author', 'jenjang']);
+        
+        try
+        {
+            if($date->notEqualTo($dateStart) && $date->notEqualTo($dateEnd))
+            {
+                $date->subDay();
+                $monthStart1=$dateStart->month;
+                $monthEnd1=$date->month;
+                $dayStart1=$dateStart->day;
+                $dayEnd1=$date->day;
+
+                $date->addDays(2);
+                $monthStart2=$date->month;
+                $monthEnd2=$dateEnd->month;
+                $dayStart2=$date->day;
+                $dayEnd2=$dateEnd->day;
+                
+                $data1=
+                [
+                    ...$base,
+                    'bulan_mulai'=>$monthStart1,
+                    'bulan_selesai'=>$monthEnd1,
+                    'tanggal_mulai'=>$dayStart1,
+                    'tanggal_selesai'=>$dayEnd1,
+                ];
+                $data2=
+                [
+                    ...$base,
+                    'bulan_mulai'=>$monthStart2,
+                    'bulan_selesai'=>$monthEnd2,
+                    'tanggal_mulai'=>$dayStart2,
+                    'tanggal_selesai'=>$dayEnd2,
+                ];
+                PresensiLibur::insert([$data1, $data2]);
+            }
+            else
+            {
+                if($date->equalTo($dateStart)) $dateStart->addDay();
+                if($date->equalTo($dateEnd)) $dateEnd->subDay();
+
+                $monthStart=$dateStart->month;
+                $monthEnd=$dateEnd->month;
+                $dayStart=$dateStart->day;
+                $dayEnd=$dateEnd->day;
+                $data=
+                [
+                    'bulan_mulai'=>$monthStart,
+                    'bulan_selesai'=>$monthEnd,
+                    'tanggal_mulai'=>$dayStart,
+                    'tanggal_selesai'=>$dayEnd,
+                    ...$base
+                ];
+                PresensiLibur::create($data);
+            }
+            $pl->delete();
+            DB::commit();
+            return back()->with('success', [
+                'icon'=>'success',
+                'title'=>'Berhasil!',
+                'text'=>'Tanggal berhasil dihapus!'
+            ]);
+        }
+        catch(\Exception $e)
+        {
+            DB::rollBack();
+            return back()
+            ->with('error', [
+                'icon'=>'error',
+                'title'=>'Galat 500!',
+                'text'=>$e->getMessage()
+            ]);
+        }
+
+
     }
 }

@@ -72,19 +72,20 @@
                 ])
             @php
                 $siswa = Illuminate\Support\Facades\Auth::user()->siswa;
-                $hasFilledDass = $siswa && $siswa->kuesionerResults()->exists();
-                $showSelfCare = false;
+                $showSelfCare=$siswa->is_depressed || $siswa->need_selfcare;
+                // $hasFilledDass = $siswa && $siswa->kuesionerResults()->exists();
+                // $showSelfCare = false;
 
-                if ($hasFilledDass) {
-                    $latestResult = $siswa->kuesionerResults()->latest()->first();
-                    if ($latestResult) {
-                        $scores = $latestResult->calculateScores();
-                        // Thresholds for Normal: Depression <= 9, Anxiety <= 7, Stress <= 14
-                        if ($scores['depression'] <= 9 && $scores['anxiety'] <= 7 && $scores['stress'] <= 14) {
-                            $showSelfCare = true;
-                        }
-                    }
-                }
+                // if ($hasFilledDass) {
+                //     $latestResult = $siswa->kuesionerResults()->latest()->first();
+                //     if ($latestResult) {
+                //         $scores = $latestResult->calculateScores();
+                //         // Thresholds for Normal: Depression <= 9, Anxiety <= 7, Stress <= 14
+                //         if ($scores['depression'] <= 9 && $scores['anxiety'] <= 7 && $scores['stress'] <= 14) {
+                //             $showSelfCare = true;
+                //         }
+                //     }
+                // }
             @endphp
 
             <li class="nav-item">

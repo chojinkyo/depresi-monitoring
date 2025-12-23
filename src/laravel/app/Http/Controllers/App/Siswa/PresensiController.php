@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\App\Siswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\Dass21Hasil;
 use App\Models\Diary;
 use App\Models\Kelas;
 use App\Models\Presensi;
@@ -35,85 +36,86 @@ class PresensiController extends Controller
     }
     private function getSisJjg()
     {
-        $id_sis=auth()->user()->siswa?->id;
-        $riwayat = RiwayatKelas::where('id_siswa', $id_sis)
+        $studentId=auth('web')->user()->siswa?->id;
+        $riwayat = RiwayatKelas::where('id_siswa', $studentId)
             ->where('active', true)
             ->with('kelas')
             ->first();
             
         return $riwayat?->kelas?->jenjang;
     }
-    private function cekLibur($tgl)
+    private function cekLibur($date)
     {
         $jjg_kls=$this->getSisJjg();
         if (!$jjg_kls) return; // Skip if no class found
 
-        $cur=Carbon::parse($tgl)->format('d-m');
+        $cur=Carbon::parse($date)->format('d-m');
         $lbr=PresensiLibur::select(['ket'])
-            ->where('tgl_mulai', '<=', $cur)
-            ->where('tgl_selesai', '>=', $cur)
+            ->where('tanggal_mulai', '<=', $cur)
+            ->where('tanggal_selesai', '>=', $cur)
             ->whereJsonContains('jenjang', $jjg_kls)
             ->first();
         if($lbr==null) return;
         throw ValidationException::withMessages(['tgl'=>'Libur, kegiatan kalender akademik']);
     }
-    private function inTenggat($ls_jwl, $hr_id) : bool
+    private function inTenggat($schedules, $dayOfWeek)  : bool
     {
-        $jadwal=
-        array_filter($ls_jwl, function($jwl) use($hr_id) {
-            return $jwl[0]==$hr_id;
-        });
-        if(count($jadwal)==0)
-        {
-            // throw new \Exception('Jadwal untuk hari ini tidak ditemukan');
-            return false; // Changed to false to allow validation message
-        }
+        $jadwal= array_filter($schedules, function($index) use($dayOfWeek) {
+            return $index==$dayOfWeek;
+        }, ARRAY_FILTER_USE_KEY);
+        if(count($jadwal)==0) return false;
         $jadwal = array_values($jadwal)[0]; // Reset keys
-        $str=Carbon::createFromTimeString($jadwal[1]);
-        $end=Carbon::createFromTimeString($jadwal[2]);
+        $str=Carbon::createFromTimeString($jadwal['jam_mulai']);
+        $end=Carbon::createFromTimeString($jadwal['jam_akhir']);
         return now()->between($str, $end, true);
     }
-    private function cekPresensi($tgl)
+    private function cekPresensi($date, $grade)
     {
-        $hr_id=(int)Carbon::parse($tgl)->format("w");
-
-        if (!Storage::exists($this->storage_path)) {
+        $dayOfWeek=(int) Carbon::parse($date)->dayOfWeekIso - 1;
+        if (!Storage::exists($this->storage_path)) 
             throw new \Exception('File konfigurasi jadwal tidak ditemukan di: ' . $this->storage_path);
-        }
 
         $jsonContent = Storage::get($this->storage_path);
-        $conf = json_decode($jsonContent, true);
+        $config = json_decode($jsonContent, true);
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-             throw new \Exception('Format konfigurasi jadwal tidak valid: ' . json_last_error_msg());
-        }
+        if (json_last_error() !== JSON_ERROR_NONE) 
+            throw new \Exception('Format konfigurasi jadwal tidak valid: ' . json_last_error_msg());
 
-        if (!$conf) {
-             throw new \Exception('Gagal membaca konfigurasi jadwal (Empty)');
-        }
+        if (!$config) 
+            throw new \Exception('Gagal membaca konfigurasi jadwal (Empty)');
 
-        $hr_lbr=$conf['hari_libur'] ?? [];
-        $ls_jwl=$conf['jadwal'] ?? [];
+        $config=$config[$grade];
+
+        $weekdays=$config['hari_libur'] ?? [];
+        $schedules=$config['jadwal'] ?? [];
         
-        $is_lbr=in_array($hr_id,$hr_lbr);
-        if($is_lbr)
+        $is_weekday=in_array($dayOfWeek, $weekdays);
+        if($is_weekday)
             throw ValidationException::withMessages(['tgl'=>'Hari libur']);
 
-        $in_tgt=$this->inTenggat($ls_jwl,$hr_id);
-        if(!$in_tgt)
-            throw ValidationException::withMessages(['wkt'=>'Presensi sudah ditutup']);
+        $is_opened=$this->inTenggat($schedules, $dayOfWeek);
+        if(!$is_opened)
+            throw ValidationException::withMessages(['wkt'=>"Presensi sudah ditutup"]);
 
+    }
+    private function cekLimitPresensi($studentId, $config)
+    {
+        $current=now();
+        $limit=(int) $config['limit_absen'];
+        $attendances=Presensi::where('id_siswa', $studentId)->whereDate('waktu', $current->format('Y-m-d'))->get();
+        if($attendances->count() > $limit)
+            throw ValidationException::withMessages(['attendance'=>'Presensi melebihi batas']);
     }
     public function create()
     {
         try
         {
-            $tgl=now()->format('Y-m-d');
-            $this->cekPresensi($tgl);
-            $this->cekLibur($tgl);
+            $date=now()->format('Y-m-d');
+            $this->cekPresensi($date, 1);
+            $this->cekLibur($date);
             $response=
             [
-                'msg'=>"Presensi untuk tanggal $tgl tersedia",
+                'msg'=>"Presensi untuk tanggal $date tersedia",
                 'data'=>['is_open'=>true]
             ];
             return response()->json($response, 200);
@@ -122,7 +124,7 @@ class PresensiController extends Controller
         {
             $response=
             [
-                'msg'=>"Presensi untuk tanggal $tgl tidak tersedia",
+                'msg'=>"Presensi untuk tanggal $date tidak tersedia",
                 'err'=>$e->getMessage(),
                 'data'=>['is_open'=>true]
             ];
@@ -141,101 +143,58 @@ class PresensiController extends Controller
     }
     private function getCurThak()
     {
-        $thak=TahunAkademik::select('id', 'nama_tahun')->where('current', true)->first();
-        if($thak==null) throw new \Exception('Tidak ada tahun akademik yang aktif', 404);
-        return $thak;
+        $year=TahunAkademik::select('id', 'nama_tahun')->where('current', true)->first();
+        if($year==null) throw new \Exception('Tidak ada tahun akademik yang aktif', 404);
+        return $year;
     }
     public function store(Request $request)
     {
-    
-
-        // try
-        // {
-        //     $file=$request->file('swafoto');
-        //     $file?->storeAs('app/data/images/diaries/1234567890', now()->format('dmYHi').'.'.$file->getClientOriginalExtension(), 'private');
-        //     return response()->json(['message'=>$file==null], 200);
-        // }
-        // catch(\Exception $e)
-        // {
-        //     return response()->json(['message'=>$e->getMessage()], 500);
-        // }
+        
         $validator=Validator::make($request->all(), [
             'swafoto'=>'required|image|mimes:jpg,png,jpeg|max:1024',
             'catatan'=>'required|max:255',
             'status'=>'required|in:H,I,S,A',
-            // 'emoji'=>'required|integer|between:1,5',
             'ket'=>'required_if:status,I,S|max:255',
             'doc'=>'required_if:status,I,S|file|mimes:pdf,jpg,png,jpeg|max:10240',
-            // 'swafoto_pred'=>'nullable|string',
-            // 'catatan_pred'=>'nullable|string',
-            // 'catatan_ket'=>'nullable|string'
         ]);
         if($validator->fails())
-        {
             return response()->json(['message' => $validator->errors()], 422);
-        }
 
         DB::beginTransaction();
         $data=$validator->validated();
-        $siswa=$request->user()->siswa;
+        $student=$request->user()->siswa;
         try
         {
-            $tgl=now()->format('Y-m-d');
-            $this->cekPresensi($tgl);
-            $this->cekLibur($tgl);
+            // Read Config
+            $path="data/config/konfigurasi_rekap_mental.json";
+            if(!Storage::exists($path))
+                throw new \Exception("File konfigurasi tidak ditemukan", 500);
 
-            $thak=$this->getCurThak();
-            $id_sis=$siswa->id;
-            $id_thak=$thak->id;
-            $doc_path = null;
-            if ($request->hasFile('doc')) {
-                $docFile = $request->file('doc');
-                $docDir = '/data/docs/'.$siswa->nisn.'/'.$thak->nama_tahun;
-                $docName = 'doc_'.$siswa->nisn.'_'.now()->format('dmYHi').'.'.$docFile->getClientOriginalExtension();
-                $doc_path = $docDir.'/'.$docName;
-                Storage::disk('public')->put($doc_path, file_get_contents($docFile));
-            }
+            $config=Storage::get($path);
+            $config=json_decode($config, true);
 
-            $data_pres=
-            [
-                ...array_diff_key($data, array_flip(['swafoto', 'catatan', 'doc', 'emoji', 'swafoto_pred', 'catatan_pred', 'catatan_ket'])),
-                'id_thak'=>$id_thak,
-                'id_siswa'=>$id_sis,
-                'doc'=>$doc_path
-            ];
-            $presensi=Presensi::create($data_pres);
-
-            $file=$request->file('swafoto');
-            $dir_path='app/data/images/diaries/'.$siswa->nisn.'/'.$thak->nama_tahun.'/';
-            $filename='pres_'.$siswa->nisn.'_'.now()->format('dmYHi').'.'.$file->getClientOriginalExtension();
-            $strg_path=$dir_path.$filename;
-            Storage::disk('public')->put($strg_path, file_get_contents($file));
+            // Check Time
+            $date=now()->format('Y-m-d');
+            $this->cekPresensi($date, $student->getActiveClass()?->jenjang);
+            $this->cekLimitPresensi($student->id, $config);
+            $this->cekLibur($date);
             
-            $data_diary=
-            [
-                ...array_diff_key($data, array_flip(['swafoto', 'doc', 'ket', 'status'])),
-                'id_presensi'=>$presensi->id,
-                'swafoto'=>$strg_path,
-                'swafoto_pred'=>$data['swafoto_pred'] ?? '-',
-                'catatan_pred'=>$data['catatan_pred'] ?? '-',
-                'catatan_ket'=>$data['catatan_ket'] ?? '-',
-            ];
-            Diary::create($data_diary);
+            // Set Variables
+            $year=$this->getCurThak();
+            [$selfiePath, $selfie]=$this->createSelfieFile($request, $student, $year);
+            [$letterPath, $letter]=$this->createLetterFile($request, $student, $year);
+            [$faceResult, $textResult]=$this->predictMental($selfie, $data['catatan']);
+            if($faceResult['success']===false)
+                throw new \Exception("Wajah tidak terdeteksi", 422);
 
-            $lst_rkp=RekapEmosi::where('id_siswa',$id_sis)->latest('waktu')->first();
-            $rkp_dte=$lst_rkp ? Carbon::parse($lst_rkp->waktu) : now()->subDays(14);
-            if(now()->diffInDays($rkp_dte)>=14)
-            {
-                // Call the ML model for bi-weekly recap here
-                $new_rkp_data=
-                [
-                    'tgl'=>now()->format('Y-m-d'),
-                    'hasil'=>true,
-                    'id_siswa'=>$id_sis,
-                    'rekap_emoji'=>5,
-                ];
-                RekapEmosi::create($new_rkp_data);
-            }
+            $data['catatan_pred']=$textResult['predicted'];
+            $data['swafoto_pred']=$faceResult['predicted'];
+            $attendance=$this->storeAttendance($data, $year->id, $student->id, null);
+            $this->storeDiary($data, $attendance, $selfiePath);
+            $this->setQuetionaryStatus($student, $year, $config);
+            
+            if($selfie!==null) Storage::disk('private')->put($selfiePath, $selfie);
+            if($letter!==null) Storage::disk('private')->put($letterPath, $letter);
 
             DB::commit();
             $code=200;
@@ -249,13 +208,111 @@ class PresensiController extends Controller
         catch(\Exception $e)
         {
             DB::rollBack();
-            $code=500;
+            $code=$e->getCode()===0 ? 500 : $e->getCode();
             $response=
             [
-                'message'=>'Gagal presensi: ' . $e->getMessage(),
+                'message'=>$e->getMessage(),
                 'data'=>[]
             ];
             return response()->json($response, $code);
         }
+    }
+    private function predictMental($selfie, $note)
+    {
+        $API_FACE_URL = "https://risetkami-risetkami.hf.space/predict_face";
+        $API_TEXT_URL = "https://risetkami-risetkami.hf.space/predict_text";
+        $faceRes=Http::attach('file', $selfie, 'selfie.jpg')->post($API_FACE_URL);
+        $textRes=Http::post($API_TEXT_URL, ['text'=>$note]);
+
+        return [$faceRes->json(), $textRes->json()];
+    }
+    private function createSelfieFile(Request $request, $student, $year)
+    {
+        $file=$request->file('swafoto');
+        $directory='app/data/images/diaries/'.$student->nisn.'/'.$year->nama_tahun.'/';
+        $filename='pres_'.$student->nisn.'_'.now()->format('dmYHi').'.'.$file->getClientOriginalExtension();
+        $filepath=$directory.$filename;
+        $file=file_get_contents($file);
+
+        return [$filepath, $file];
+    }
+    private function createLetterFile(Request $request, $student, $year)
+    {
+        $filepath="";
+        $file=null;
+        if ($request->hasFile('doc')) {
+            $file = $request->file('doc');
+            $directory = '/data/docs/'.$student->nisn.'/'.$year->nama_tahun;
+            $filename = 'doc_'.$student->nisn.'_'.now()->format('dmYHi').'.'.$file->getClientOriginalExtension();
+            $filepath = $directory.'/'.$filename;
+            $file=file_get_contents($file);
+        }
+
+        return [$filepath, $file];
+    }
+    private function storeAttendance($data, $yearId, $studentId, $letterFilePath)
+    {
+        $attendanceExcludes=['swafoto', 'catatan', 'doc', 'emoji', 'swafoto_pred', 'catatan_pred', 'catatan_ket'];
+        $attendanceData=
+        [
+            ...array_diff_key($data, array_flip($attendanceExcludes)),
+            'id_siswa'=>$studentId,
+            'id_thak'=>$yearId,
+            'doc'=>$letterFilePath
+        ];
+        $attendance=Presensi::create($attendanceData);
+        return $attendance;
+    }
+    private function storeDiary($data, $attendance, $selfiePath)
+    {
+        $diaryExcludes=['swafoto', 'doc', 'ket', 'status'];
+        $diaryData=
+        [
+            ...array_diff_key($data, array_flip($diaryExcludes)),
+            'swafoto'=>$selfiePath,
+            'id_presensi'=>$attendance->id,
+            'catatan_ket'=>$data['catatan_ket'] ?? '-',
+            'swafoto_pred'=>$data['swafoto_pred'] ?? '-',
+            'catatan_pred'=>$data['catatan_pred'] ?? '-',
+        ];
+        $diary=Diary::create($diaryData);
+        return $diary;
+    }
+    private function setQuetionaryStatus($student, $year, $config)
+    {
+        $yearId=$year->id;
+        $lastRecap=Dass21Hasil::where('id_siswa', $student->id)->latest('created_at')->first();
+
+        
+        $range=(int) $config['rentang'];
+        $threshold=(int) $config['threshold'];
+
+        $subQuery = 
+        $lastRecap===null? 
+        function($query) use($student, $yearId) {
+            return $query->where('id_thak', $yearId)->where('id_siswa', $student->id);
+        }:
+        function($query) use($student, $yearId, $lastRecap) {
+            return $query->where('id_thak', $yearId)->where('id_siswa', $student->id)->where('waktu', $lastRecap->created_at);
+        };
+
+        $mentalData=Diary::orderBy('waktu', 'desc')->whereHas('attendance', $subQuery)->limit($range)->get();
+        $depressionRate=$mentalData->reduce(function($acc, $row) {
+            $swafoto_pred=strtolower($row->swafoto_pred);
+            $catatan_pred=strtolower($row->catatan_pred);
+            $bool=($catatan_pred==='terindikasi depresi' && !in_array($swafoto_pred, ['happy', 'surprise']));
+            return $acc + (int) $bool;
+        }, 0);
+
+        $depressionRate=($depressionRate/$range)*100;
+        $needSurvey=$depressionRate >= $threshold && $mentalData->count() >= $range;
+
+        $student->need_survey=$needSurvey;
+        if(!$needSurvey)
+        {
+            $student->is_depressed=false;
+            $student->need_selfcare=false;
+        }
+        $student->save();
     }
 }

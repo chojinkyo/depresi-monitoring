@@ -42,7 +42,7 @@
                     'href' => route('admin.tahun-akademik.index'),
                     'icon' => 'bi-calendar3',
                     'text' => 'Tahun Akademik',
-                    'active' => request()->routeIs('admin.ta.*')
+                    'active' => request()->routeIs('admin.tahun-akademik.*')
                 ])
             </li>
             <li class="nav-item">

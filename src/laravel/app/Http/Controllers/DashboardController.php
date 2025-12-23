@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller implements HasMiddleware
 {
@@ -43,19 +44,46 @@ class DashboardController extends Controller implements HasMiddleware
         }
         // dd($calendar);
         return $calendar;
-    
+    }
+    private function getSchedules()
+    {
+        $path="data/config/konfigurasi_jadwal_harian.json";
+        if(Storage::exists($path))
+        {
+            $file=Storage::get($path);
+            $content=json_decode($file);
+            return $content;
+        }
+        return [];
+    }
+    public function getDiaryConfig()
+    {
+        $path="data/config/konfigurasi_rekap_mental.json";
+        if(Storage::exists($path))
+        {
+            $file=Storage::get($path);
+            $content=json_decode($file, true);
+            return $content;
+        }
+        return [];
     }
     
-    public function adminDashboard()
+    public function adminDashboard(Request $request)
     {
         $month=now()->month;
+        $jenjang=(int) $request->input('jenjang') ?? 1;
+        
+
+        $schedules=$this->getSchedules();
         $calendars=$this->getCalendarDays();
-        $vacations=PresensiLibur::select(['ket', 'tanggal_mulai', 'tanggal_selesai', 'bulan_mulai', 'bulan_selesai'])->where('bulan_mulai', $month)
+        $diaryConfig=$this->getDiaryConfig();
+        $vacations=PresensiLibur::select(['id', 'ket', 'tanggal_mulai', 'tanggal_selesai', 'bulan_mulai', 'bulan_selesai'])->where('bulan_mulai', $month)
         ->orderBy('tanggal_mulai')
         ->get()
         ->toArray();
+        
         // dd($vacations);
-        return view('dashboard.admin', compact('calendars', 'vacations'));
+        return view('dashboard.admin', compact('calendars', 'vacations', 'schedules', 'diaryConfig'));
     }
     public function siswaDashboard()
     {

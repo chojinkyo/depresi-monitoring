@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Dashboard\Admin\JadwalHarianController;
 use App\Http\Controllers\Dashboard\Admin\PresensiLiburController as HariLiburController;
 use App\Http\Controllers\Dashboard\Admin\PresensiLiburController;
 use App\Models\TahunAkademik;
@@ -54,10 +55,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::resource('/kelas', KelasController::class)->except(['edit'])->parameter("kelas", "kelas");
     Route::resource('/tahun-akademik', TahunAkademikController::class)->names('tahun-akademik');
     Route::get('/siswa/kehadiran/{student}/{year}', [AdminPresensiController::class, 'show'])->name('siswa.kehadiran.show');
-
     Route::post('/presensi-libur', [PresensiLiburController::class, 'store'])->name('presensi-libur.store');
-
-    
+    Route::delete('/presensi-libur', [PresensiLiburController::class, 'destroy'])->name('presensi-libur.destroy');
+    Route::post('/admin/jadwal-kehadiran', [JadwalHarianController::class, 'update'])->name('jadwal-harian.update');
+    Route::post('/config/diary', [DiaryController::class, 'updateConfig'])->name('config.diary.update');
     // Route::get('/dashboard', [DashboardController::class, 'adminDashboard'] );
     // Route::view('/kelas', 'admin.kelas.index')->name('admin.kelas.index');
     // Route::view('/tahun-akademik', 'admin.tahun_akademik.index')->name('admin.thak.index');
@@ -145,9 +146,10 @@ Route::group(['middleware'=>['auth', 'role:siswa']], function() {
     
     Route::group(['middleware'=>['survey_check:1']], function() {
         Route::view('/form-input-dass21', 'dass21.form-input')->name('dass21.form');
-        Route::get('/siswa/diaryku', [App\Http\Controllers\App\Siswa\Dass21Controller::class, 'diarykuDashboard'])->name('siswa.diaryku');
         Route::post('/siswa/dass21', [App\Http\Controllers\App\Siswa\Dass21Controller::class, 'store'])->name('dass21.store');
     });
+
+    Route::get('/siswa/diaryku', [App\Http\Controllers\App\Siswa\Dass21Controller::class, 'diarykuDashboard'])->name('siswa.diaryku');
     // Route::view('/siswa/jadwal', 'siswa.jadwal')->name('siswa.jadwal');
     // Route::view('/siswa/laporan-nilai', 'siswa.laporan-nilai')->name('siswa.laporan-nilai');
 });

@@ -29,11 +29,11 @@
                     <td>{{ $row->tanggal_selesai }}</td>
                     <td>
                         @if($row->current)
-                            <span class="badge rounded-pill bg-success">current</span>
+                            <span class="badge rounded-pill bg-success bg-opacity-75">current</span>
                         @elseif($row->status)
-                            <span class="badge rounded-pill bg-primary">opened</span>
+                            <span class="badge rounded-pill bg-primary bg-opacity-75">opened</span>
                         @else
-                            <span class="badge rounded-pill bg-danger">closed</span>
+                            <span class="badge rounded-pill bg-danger bg-opacity-75">closed</span>
                         @endif
                         
                     </td>
@@ -167,9 +167,7 @@
                 <button type="submit" class="btn btn-primary w-100">Simpan</button>
             </form>
             </div>
-            <div class="card-footer">
-
-            </div>
+           
         </div>
     </div>
 </div>

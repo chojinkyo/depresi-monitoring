@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Dass21Hasil;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Dass21Controller extends Controller
 {
@@ -65,6 +66,12 @@ class Dass21Controller extends Controller
             'total_score' => $totalScore
         ]);
 
+        $need_selfcare=($finalDepression <= 9) && ($finalAnxiety <= 7) && ($finalStress <= 14);
+        $siswa->need_survey=false;
+        $siswa->need_selfcare=$need_selfcare;
+        $siswa->is_depressed=!$need_selfcare;
+        $siswa->save();
+
         return response()->json([
             'message' => 'Sukses!', 
             'redirect' => route('siswa.diaryku'),
@@ -90,6 +97,8 @@ class Dass21Controller extends Controller
                 // Use the model method we just added
                 $scores = $latestResult->calculateScores();
             }
+
+            // dd($latestResult);
         }
 
         return view('siswa.selfcare', compact('latestResult', 'scores'));

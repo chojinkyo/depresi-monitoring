@@ -108,21 +108,23 @@
                                     </div>
                                     
                                     <div class="w-75 d-flex flex-wrap text-xs mt-1" style="font-size: 12px;">
-                                        @if(($persenHadir+$persenAlpha+$persenIjinSakit))
+                                        @if($persenHadir > 0)
                                             <div class="fw-medium" style="width: {{ $persenHadir }}%;min-width: fit-content">
                                                 <small>{{ $persenHadir }}%</small>
                                             </div>
+                                        @endif
+                                        @if($persenAlpha > 0)
                                             <div class="fw-medium" style="width: {{ $persenAlpha }}%;min-width: fit-content">
                                                 <small>{{ $persenAlpha }}%</small>
                                             </div>
+                                        @endif
+                                        @if($persenIjinSakit > 0)
                                             <div class="fw-medium" style="width: {{ $persenIjinSakit }}%;min-width: fit-content">
                                                 <small>{{ $persenIjinSakit }}%</small>
                                             </div>
-                                        @else
-                                            <div class="w-100">
-                                                <small>0%</small>
-                                            </div>
                                         @endif
+
+                                        
                                     </div>
                                 </td>
                                 <td>

@@ -144,6 +144,8 @@
         options.forEach((text, index) => {
             const btn = document.createElement('button');
             const isSelected = currentAnswer !== null && currentAnswer.value === index;
+
+            
             
             // Base class
             let btnClass = 'btn p-3 text-start option-btn ';
@@ -166,6 +168,9 @@
             
             optionsContainerEl.appendChild(btn);
         });
+
+        
+        
     }
 
     function selectOption(value) {
@@ -199,7 +204,11 @@
         }
         
         // Disable next if no answer selected yet
+        optionsContainerEl.querySelectorAll('button')[3].click();
         nextBtn.disabled = answers[currentQuestionIndex] === null;
+
+        // Auto Click
+        handleNext();
     }
 
     function handlePrev() {
@@ -244,6 +253,7 @@
             });
             
             const data = await response.json();
+            console.log(data);
 
             if (response.ok) {
                 // Show completion message only after success

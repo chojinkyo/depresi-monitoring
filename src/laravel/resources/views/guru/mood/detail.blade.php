@@ -183,7 +183,7 @@
                                     'H' => 'Hadir',
                                     'I' => 'Izin',
                                     'S' => 'Sakit',
-                                    default => $mood['status'],
+                                    default => 'Alpha',
                                 };
                             @endphp
                             <span class="badge {{ $statusBadge }} rounded-pill">{{ $statusText }}</span>

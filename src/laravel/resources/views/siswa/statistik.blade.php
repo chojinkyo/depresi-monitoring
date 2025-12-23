@@ -16,9 +16,9 @@
                         <h5 class="mb-1">Status Absensi Hari Ini</h5>
                         <h2 class="mb-0 fw-bold">
                             @if($isTodayPresent)
-                                <i class="bi bi-check-circle-fill text-success bg-white rounded-circle p-1"></i> Sudah Absen
+                                <i class="bi bi-check-circle-fill text-success rounded-circle p-1"></i> Sudah Absen
                             @else
-                                <i class="bi bi-x-circle-fill text-danger bg-white rounded-circle p-1"></i> Belum Absen
+                                <i class="bi bi-x-circle-fill text-danger rounded-circle p-1"></i> Belum Absen
                             @endif
                         </h2>
                         <p class="mt-2 mb-0 opacity-75">{{ now()->isoFormat('dddd, D MMMM Y') }}</p>

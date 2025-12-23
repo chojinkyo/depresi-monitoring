@@ -79,6 +79,10 @@ class Siswa extends Model
     { 
         return $this->hasMany(Presensi::class, 'id_siswa', 'id');
     }
+    public function recaps() : HasMany
+    {
+        return $this->hasMany(Dass21Hasil::class, 'id_siswa', 'id');
+    }
     // public function classFilterIds($ids) : BelongsToMany
     // {
     //     return $this->kelas()->whereIn('id', $ids);

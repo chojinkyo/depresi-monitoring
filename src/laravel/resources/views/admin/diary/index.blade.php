@@ -18,11 +18,12 @@
     const labels = [["1 Jan", "2025"], ["1 Jan", "2025"], ["1 Jan", "2025"], ["1 Jan", "2025"], ["1 Jan", "2025"], ["1 Jan", "2025"]];
     const moodData = [1, 1, 1, 1, 1, 1]; // tanggal berurutan
     const emotionLabels = {
-        1: "anger",
-        2: "anxiety",
-        3: "sadness",
-        4: "happy",
-        5: "surprise"
+        1: "sadness",
+        2: "anger",
+        3: "fear",
+        4: "disgust",
+        5: "happy",
+        6: "surprise"
     };
     const emotionLabels2 = Object.fromEntries(Object.entries(emotionLabels).map(([key, value]) => [value, key]))
     function loadPaginatedData(history, page=1)
@@ -66,7 +67,7 @@
                         position: 'bottom',
                         ticks: {
                             min: 0,
-                            max: 5,
+                            max: 6,
                             step: 1,
                             callback: function (value) {
                                 return emotionLabels[value];
@@ -148,7 +149,7 @@
                                         style="height: 10px;">
                                             <div 
                                             role="progressbar" 
-                                            class="progress-bar {{ $depressionRate >= 70 ? 'bg-success' : 'bg-danger' }} bg-gradient bg-opacity-75" 
+                                            class="progress-bar {{ $depressionRate < $threshold ? 'bg-success' : 'bg-danger' }} bg-gradient bg-opacity-75" 
                                             style="width: {{ $depressionRate }}%;"
                                             aria-valuenow="{{ $depressionRate }}" 
                                             aria-valuemin="0" 
@@ -157,12 +158,12 @@
                                         </div>
                                         <div class="w-75 d-flex flex-wrap mt-1" style="font-size: 12px;">
                                             <div class="fw-medium" style="width: {{ $depressionRate }}%;min-width: fit-content">
-                                                <small>{{ $depressionRate }}%</small>
+                                                <small>{{ round($depressionRate, 2) }}%</small>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
-                                        @if($depressionRate >= 70)
+                                        @if($depressionRate < $threshold)
                                         <div class="badge badge-sm bg-success bg-gradient bg-opacity-75 rounded-pill">Normal</div>
                                         @else
                                         <div class="badge badge-sm bg-danger bg-gradient bg-opacity-75 rounded-pill">Depresi</div>

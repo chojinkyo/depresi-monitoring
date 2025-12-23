@@ -42,30 +42,44 @@ class GuruSiswaController extends Controller
      */
     public function moodIndex()
     {
-        $siswas = Siswa::with(['presensi' => function($query) {
-            $query->latest()->limit(1)->with('diary');
-        }])->get();
+        $siswas = Siswa::with([
+            // 'presensi' => function($query) {
+            //     return $query->latest('waktu')->limit(1)->with('diary');
+            // },
+            'recaps' => function($query) {
+                return $query->latest('created_at')->first();
+            }
+        ])
+        ->where('need_selfcare', true)
+        ->orWhere('is_depressed', true)
+        ->get();
+        
 
         $siswaData = $siswas->map(function($siswa) {
-            $lastPresensi = $siswa->presensi->first();
+            $lastPresensi = $siswa->presensi()->with('diary');
+            $lastPresensi = $siswa->recaps->count() > 0 ? $lastPresensi->where('waktu', '<=', $siswa->recaps->first()?->created_at) : $lastPresensi;
+            $lastPresensi = $lastPresensi->latest('waktu')->first();
             $latestMood = '-';
             $latestMoodLabel = '-';
             
             if ($lastPresensi && $lastPresensi->diary && $lastPresensi->diary->swafoto_pred) {
-                try {
-                    $predJson = json_decode($lastPresensi->diary->swafoto_pred);
-                    if (isset($predJson->predicted)) {
-                        $latestMoodLabel = $predJson->predicted;
-                        $latestMood = $this->getEmoji($latestMoodLabel);
-                    }
-                } catch (\Exception $e) { }
+                // try {
+                //     $predJson = json_decode($lastPresensi->diary->swafoto_pred);
+                //     if (isset($predJson->predicted)) {
+                //         $latestMoodLabel = $predJson->predicted;
+                //         $latestMood = $this->getEmoji($latestMoodLabel);
+                //     }
+                // } catch (\Exception $e) { }
+
+                $latestMoodLabel=$lastPresensi->diary->swafoto_pred;
+                
             }
 
             return [
                 'id' => $siswa->id,
                 'nama' => $siswa->nama_lengkap,
-                'last_update' => $lastPresensi ? $lastPresensi->created_at->format('d M Y H:i') : '-',
-                'mood_emoji' => $latestMood,
+                'last_update' => $lastPresensi ? $lastPresensi->waktu->format('d M Y H:i') : '-',
+                'mood_emoji' => $latestMoodLabel,
                 'mood_label' => $latestMoodLabel
             ];
         });
@@ -85,10 +99,10 @@ class GuruSiswaController extends Controller
         $endDate = Carbon::now();
         
         $presensiData = Presensi::where('id_siswa', $siswaId)
-            ->whereDate('created_at', '>=', $startDate)
-            ->whereDate('created_at', '<=', $endDate)
+            ->whereDate('waktu', '>=', $startDate)
+            ->whereDate('waktu', '<=', $endDate)
             ->with('diary')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('waktu', 'desc')
             ->get();
 
         $moodHistory = $presensiData->map(function($presensi) {
@@ -97,19 +111,21 @@ class GuruSiswaController extends Controller
             $predictionJson = '-';
             
             if ($presensi->diary && $presensi->diary->swafoto_pred) {
-                $predictionJson = $presensi->diary->swafoto_pred;
-                try {
-                    $pred = json_decode($predictionJson);
-                    if (isset($pred->predicted)) {
-                        $emotionLabel = $pred->predicted;
-                        $emotionEmoji = $this->getEmoji($emotionLabel);
-                    }
-                } catch (\Exception $e) {}
+                // $predictionJson = $presensi->diary->swafoto_pred;
+                // try {
+                //     $pred = json_decode($predictionJson);
+                //     if (isset($pred->predicted)) {
+                //         $emotionLabel = $pred->predicted;
+                //         $emotionEmoji = $this->getEmoji($emotionLabel);
+                //     }
+                // } catch (\Exception $e) {}
+
+                $emotionLabel=$presensi->diary->swafoto_pred;
             }
 
             return [
-                'tanggal' => $presensi->created_at->format('d M Y'),
-                'waktu' => $presensi->created_at->format('H:i'),
+                'tanggal' => $presensi->waktu->format('d M Y'),
+                'waktu' => $presensi->waktu->format('H:i'),
                 'status' => $presensi->status,
                 'emoji_manual' => $presensi->diary->emoji ?? '-',
                 'emotion_label' => $emotionLabel,
@@ -153,6 +169,7 @@ class GuruSiswaController extends Controller
             }
         }
 
+        // dd($moodHistory);
         return view('guru.mood.detail', compact('siswa', 'moodHistory', 'dassScores', 'dassAnswers'));
     }
 
@@ -167,10 +184,10 @@ class GuruSiswaController extends Controller
         $endDate = Carbon::now();
         
         $presensiData = Presensi::where('id_siswa', $siswaId)
-            ->whereDate('created_at', '>=', $startDate)
-            ->whereDate('created_at', '<=', $endDate)
+            ->whereDate('waktu', '>=', $startDate)
+            ->whereDate('waktu', '<=', $endDate)
             ->with('diary')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('waktu', 'desc')
             ->get();
 
         $dassResult = Dass21Hasil::where('id_siswa', $siswaId)->latest()->first();
@@ -198,7 +215,7 @@ class GuruSiswaController extends Controller
 
             // DASS-21 Summary
             if ($dassScores) {
-                fputcsv($file, ['Hasil DASS-21 (Tanggal: ' . $dassResult->created_at->format('d M Y') . ')']);
+                fputcsv($file, ['Hasil DASS-21 (Tanggal: ' . $dassResult->waktu->format('d M Y') . ')']);
                 fputcsv($file, ['Depression', $dassScores['depression'], $this->getDepressionLabel($dassScores['depression'])]);
                 fputcsv($file, ['Anxiety', $dassScores['anxiety'], $this->getAnxietyLabel($dassScores['anxiety'])]);
                 fputcsv($file, ['Stress', $dassScores['stress'], $this->getStressLabel($dassScores['stress'])]);
@@ -252,8 +269,8 @@ class GuruSiswaController extends Controller
                 }
 
                 fputcsv($file, [
-                    $p->created_at->format('d M Y'),
-                    $p->created_at->format('H:i'),
+                    $p->waktu->format('d M Y'),
+                    $p->waktu->format('H:i'),
                     $p->status,
                     $emotionLabel,
                     $p->diary->catatan ?? '-',

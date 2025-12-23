@@ -24,7 +24,7 @@
         {
             
 
-            console.log(this.calendars);
+            
         },
         async showEvents(date)
         {
@@ -34,12 +34,14 @@
                 const bulanMulai=e.bulan_mulai;
                 const bulanAkhir=e.bulan_selesai;
                 const now=date * bulanMulai;
-                
                 return e.tanggal_mulai <= date && e.tanggal_selesai >= date;
             })
-            console.log(this.vacations)
+            
 
+            const day=String(date).padStart(2, '0')
+            const month=String(new Date().getMonth()+1).padStart(2, '0')
             container.events=lists
+            container.date=`${day}-${month}`
         },
         chooseDate(date)
         {
@@ -67,8 +69,39 @@
     x-init="initData"
     x-ref="dates_container">
         <div class="col-3">
-            <form action="" method="post">
-                <div class="accordion accordion-flush border" id="accordionExample">
+            <form action="{{ route('admin.jadwal-harian.update') }}" method="post">
+            @csrf
+                <div 
+                id="accordionExample" 
+                class="accordion accordion-flush border" 
+                x-data="{ 
+                    data : {{ Js::from($schedules) }}, 
+                    grade : 1,
+                    schedule : [],
+                    days : {
+                        0 : 'Senin', 
+                        1 : 'Selasa',
+                        2 : 'Rabu', 
+                        3 : 'Kamis', 
+                        4 : 'Jumat',
+                        5 : 'Sabtu',
+                        6 : 'Minggu'
+                    },
+                    setSchedule() 
+                    {
+                        this.schedule=this.data[this.grade]
+                        console.log(this.schedule);
+                    },
+                    async initData()
+                    {
+                        schedule=await this.data;
+                        schedule=this.data[this.grade];
+                        this.schedule=schedule;
+                    }
+                }"
+                x-init="initData;$watch('grade', _=>setSchedule())"
+                >
+                    
                     <div class="accordion-item">
                         <h2 class="accordion-header bg-success bg-gradient">
                             <button class="accordion-button fs-5 fw-bold text-primary py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
@@ -87,58 +120,58 @@
                                 <label for="" class="font-weight-normal ms-2 fw-medium">Select All</label>
                             </div>
                             <div class="d-block">
-                                <select class="form-select form-select-sm w-auto bg-light">
+                                <select name="jenjang" class="form-select form-select-sm w-auto bg-light" x-model="grade">
                                     <option value="">--Pilih Jenjang--</option>
-                                    <option value="1">Jenjang 1</option>
-                                    <option value="2">Jenjang 2</option>
-                                    <option value="3">Jenjang 3</option>
+                                    <template x-for="i in 3" :key="i">
+                                        <option :value="i" :selected="i===parseInt(grade)" x-text="'Jenjang '+i"></option>
+                                    </template>
                                 </select>
+                                <x-form-error-text :field="'jenjang'" />
+
                             </div>
                         </div>
                     </div>
 
-            
+                    {{-- <input type="hidden" name="hari_libur[0]"> --}}
+                    <template x-if="schedule?.jadwal?.length > 0">
+                        <template x-for="(day, key) in days" :key="day">
+                            <div class="accordion-item" :id="'heading'+key">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed d-flex align-items-center" type="button" data-bs-toggle="collapse" :data-bs-target="'#collapse'+key" aria-expanded="true" :aria-controls="'collapse'+key">
+                                        
+                                        <input type="checkbox" class="form-check" :name="`hari_libur[${key}]`" :value="key" :checked="!schedule?.hari_libur.includes(parseInt(key))">
+                                        <div type="button" class="fs-6 fw-medium ms-2 text-black-50"  x-text="day">
+                                        
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div  :id="'collapse'+key" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                                    <div class="accordion-body bg-light-subtle">
+                                        <div class="row align-items-end justify-content-e px-2">
+                                            <div class="col p-0">
+                                                <label class="fw-medium mb-1 fs-6">
+                                                    <small>Mulai</small>
+                                                </label>
+                                                <input type="time" :name="`jadwal[${key}][jam_mulai]`" id="" class="form-control rounded-end-0 border-end-0" :value="schedule?.jadwal[key]?.jam_mulai">
+                                            </div>
+                                            <div class="col p-0">
+                                                <label class="fw-medium mb-1 fs-6">
+                                                    <small>Akhir</small>
+                                                </label>
+                                                <input type="time" :name="`jadwal[${key}][jam_akhir]`" id="" class="form-control rounded-0 border-end-0" :value="schedule?.jadwal[key]?.jam_akhir">
+                                            </div>
+                                            <div class="w-auto p-0">
+                                                <button type="submit" class="btn btn-pill btn-primary rounded-start-0">Save</button>
+                                            </div>
+                                        </div>
+                                        <x-form-error-text :field="'jadwal'" />
+                                        <x-form-error-text :field="'jadwal'" />
 
-                    @php
-                        $dayNames=['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
-                    @endphp
-                    
-                    @foreach ($dayNames as $key=>$dayName)
-                        @php
-                            $key=$key+1;
-                        @endphp
-                        <div class="accordion-item" id="heading{{ $key }}">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $key }}" aria-expanded="true" aria-controls="collapse{{ $key }}">
-                                    <input type="checkbox" class="form-check">
-                                    <div type="button" class="fs-6 fw-medium ms-2 text-black-50"  >
-                                        {{ $dayName }}
-                                    </div>
-                                </button>
-                            </h2>
-                            <div  id="collapse{{ $key }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                                <div class="accordion-body bg-light-subtle">
-                                    <div class="row align-items-end justify-content-e px-2">
-                                        <div class="col p-0">
-                                            <label class="fw-medium mb-1 fs-6">
-                                                <small>Mulai</small>
-                                            </label>
-                                            <input type="time" name="" id="" class="form-control rounded-end-0 border-end-0">
-                                        </div>
-                                        <div class="col p-0">
-                                            <label class="fw-medium mb-1 fs-6">
-                                                <small>Akhir</small>
-                                            </label>
-                                            <input type="time" name="" id="" class="form-control rounded-0 border-end-0">
-                                        </div>
-                                        <div class="w-auto p-0">
-                                            <button class="btn btn-pill btn-primary rounded-start-0">Save</button>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
+                        </template>
+                    </template>
                     
                 </div>
             </form>
@@ -168,7 +201,7 @@
 
                             <button
                             type="button"
-                            x-on:click="isEditing=!isEditing;console.log(isEditing)"
+                            x-on:click="isEditing=!isEditing;"
                             class="btn btn-warning btn-sm"
                             >
                                 <i class="fas fa-edit"></i>
@@ -261,8 +294,6 @@
                                             <template x-for="_ in 6 - (week[week.length-1]['day'] || 0)">
                                                 <td class="col p-0 bg-light"></td>
                                             </template>
-                                            
-                                        
                                         </tr>
                                     </template>
                                 
@@ -332,6 +363,8 @@
                                     @endforeach --}}
                                 </tbody>
                             </table>
+                            <x-form-error-text :field="'id'" />
+                            <x-form-error-text :field="'date'" />
                         </div>
                         </ul>
                         
@@ -339,12 +372,19 @@
                 </form>
             </div>
 
-            <ul class="list-unstyled mt-3" x-data="{events : [],index : 0}" x-ref="events_container">
+            <ul class="list-unstyled mt-3" x-data="{events : [], index : 0, date : ''}" x-ref="events_container">
                 <template x-for="item in events" :key="index++">
                     <li class="list-item mb-2">
                         <div class="card bg-warning-subtle text-sm">
-                            <div class="card-body">
-                                <p class="m-0 font-weight-semibold text-dark" style="font-size: 14px;" x-text="item.ket">Lorem ipsum dolor sit amet consectetur adipisicing elit. Non, quam!</p>
+                            <div class="card-body no-after d-flex justify-content-between align-items-center">
+                                <p class="m-0 font-weight-semibold text-black-50" style="font-size: 14px;" x-text="item.ket"></p>
+                                <form action="{{ route('admin.presensi-libur.destroy') }}" method="post">
+                                    @method('DELETE')
+                                    @csrf
+                                    <input type="hidden" name="id" x-model="item.id">
+                                    <input type="hidden" name="date" x-model="date">
+                                    <button type="submit" class="text-black-50 btn"><i class="fas fa-times"></i></button>
+                                </form>
                             </div>
                         </div>
                     </li>
@@ -370,58 +410,60 @@
             @submit.prevent="submitForm">
                 @csrf
                 <div class="card">
-                <div class="card-header py-4 bg-warning bg-gradient bg-opacity-50">
-                    <h2 class="fs-5 fw-medium m-0 text-black-50">Add Event</h2>
-                </div>
-                <div class="card-body">
-                    <input type="hidden" name="tanggal_mulai" id="tanggal_mulai">
-                    <input type="hidden" name="tanggal_selesai" id="tanggal_selesai">
-                    <input type="hidden" name="bulan_mulai" id="bulan_mulai">
-                    <input type="hidden" name="bulan_selesai" id="bulan_selesai">
-                    <textarea  id="" cols="30" rows="5" class="form-control" name="ket"></textarea>
+                    <div class="card-header py-4 bg-warning bg-gradient bg-opacity-50">
+                        <h2 class="fs-5 fw-medium m-0 text-black-50">Add Event</h2>
+                    </div>
+                    <div class="card-body">
+                        <input type="hidden" name="tanggal_mulai" id="tanggal_mulai">
+                        <input type="hidden" name="tanggal_selesai" id="tanggal_selesai">
+                        <input type="hidden" name="bulan_mulai" id="bulan_mulai">
+                        <input type="hidden" name="bulan_selesai" id="bulan_selesai">
+                        <textarea  id="" cols="30" rows="5" class="form-control" name="ket"></textarea>
 
-                    <ul class="list-unstyled d-flex">
-                        <li>
-                            <input type="checkbox" name="jenjang[]" value="1" class="form-check">
-                            <label for="">1</label>
-                        </li>
-                        <li>
-                            <input type="checkbox" name="jenjang[]" value="2" class="form-check">
-                            <label for="">2</label>
-                        </li>
-                        <li>
-                            <input type="checkbox" name="jenjang[]" value="3" class="form-check">
-                            <label for="">3</label>
-                        </li>
-                    </ul>
-                    <x-form-error-text :field="'jenjang'" />
-                    <x-form-error-text :field="'tanggal_mulai'" />
-                    <x-form-error-text :field="'tanggal_selesai'" />
-                    <x-form-error-text :field="'bulan_mulai'" />
-                    <x-form-error-text :field="'bulan_selesai'" />
-                    <x-form-error-text :field="'ket'" />
+                        <ul class="list-unstyled d-flex">
+                            <li>
+                                <input type="checkbox" name="jenjang[]" value="1" class="form-check">
+                                <label for="">1</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" name="jenjang[]" value="2" class="form-check">
+                                <label for="">2</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" name="jenjang[]" value="3" class="form-check">
+                                <label for="">3</label>
+                            </li>
+                        </ul>
+                        <x-form-error-text :field="'jenjang'" />
+                        <x-form-error-text :field="'tanggal_mulai'" />
+                        <x-form-error-text :field="'tanggal_selesai'" />
+                        <x-form-error-text :field="'bulan_mulai'" />
+                        <x-form-error-text :field="'bulan_selesai'" />
+                        <x-form-error-text :field="'ket'" />
 
-                    <button type="submit" class="btn btn-primary mt-3 w-100">Tambah</button>
+                        <button type="submit" class="btn btn-primary mt-3 w-100">Tambah</button>
+                    </div>
                 </div>
-            </div>
+            </form>
+
+            <form action="{{ route('admin.config.diary.update') }}" method="post">
+                @csrf
+                <div class="card mt-2">
+                    <div class="card-body">
+                        <label for="" class="form-label fw-medium">
+                            <small>Rekap Range</small>
+                        </label>
+                        <div class="input-group">
+                            <input type="number" name="rentang" value="{{ (int) $diaryConfig['rentang'] }}" class="form-control">
+                            <div class="input-group-text fs-6">
+                                <small>days</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                </div>
             </form>
             
         </div>
     </div>
-<script>
-    function showEvents(events_list, current)
-    {
-        const container=Alpine.$data(document.querySelector('[x-ref="events_container"]'))
-        const lists=events_list.filter(e=>{
-            const bulanMulai=e.bulan_mulai;
-            const bulanAkhir=e.bulan_selesai;
-            const now=current * bulanMulai;
-            return e.tanggal_mulai<=current && e.tanggal_selesai >= current;
-        })
-        // console.log(`lists ${events_list}`)
-        
-        container.events=lists
-    }
-
-</script>
 @endsection

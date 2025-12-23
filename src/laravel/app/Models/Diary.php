@@ -20,7 +20,7 @@ class Diary extends Model
         return $this->belongsTo(Presensi::class, 'id_presensi', 'id');
     }
 
-    public static function getMentalHealthData($year, $students)
+    public static function getMentalHealthData($year, $students, $range)
     {
         $base=DB::table('diary')
             ->join('presensi', 'presensi.id', '=', 'diary.id_presensi')
@@ -37,7 +37,7 @@ class Diary extends Model
        
         $data=DB::table(DB::raw("({$base->toSql()}) as a"))
             ->mergeBindings($base)
-            ->where('rn', '<=', 10)
+            ->where('rn', '<=', $range)
             ->orderByDesc('waktu')
             ->get()
             ->groupBy('id_siswa');

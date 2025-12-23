@@ -117,8 +117,6 @@
     // API Config
     const API_FACE_URL = "https://risetkami-risetkami.hf.space/predict_face";
     const API_TEXT_URL = "https://risetkami-risetkami.hf.space/predict_text";
-    // const API_FACE_URL = "https://localhost:8001/image";
-    // const API_TEXT_URL = "https://localhost:8001/text";
 
     // Prediction Functions
     async function predictFace(file) {
@@ -197,7 +195,7 @@
             stream.getTracks().forEach(track => track.stop());
 
             // Trigger Face Prediction immediately
-            await predictFace(file);
+            // await predictFace(file);
 
         }, 'image/jpeg');
     });
@@ -238,9 +236,9 @@
         try {
             // Trigger Text Prediction
             const catatan = document.querySelector('textarea[name="catatan"]').value;
-            if (catatan) {
-                await predictText(catatan);
-            }
+            // if (catatan) {
+            //     await predictText(catatan);
+            // }
 
             // Create FormData
             const formData = new FormData(this);
@@ -263,7 +261,7 @@
                     formData.append('doc', fileInput.files[0]);
                 }
             }
-            
+            console.log(formData);
             // Send to Laravel Backend
             const response = await fetch('/siswa/presensi', {
                 method: 'POST',
@@ -276,15 +274,19 @@
 
             const data = await response.json();
 
-            if (data.message) {
+            console.log(response.ok);
+            if (response.ok) {
                 window.location.href = '/siswa/dashboard';
             } else {
                 throw new Error(data.message || 'Terjadi kesalahan saat mengirim absensi.');
             }
 
         } catch (error) {
-            console.error('Error:', error);
-            alert('Gagal: ' + error.message);
+            window.dispatchEvent(new CustomEvent('swal:alert', {detail : {
+                icon : 'error',
+                title : 'Galat '+error.code,
+                text : error.message
+            }}))
         } finally {
             submitBtn.innerText = originalBtnText;
             submitBtn.disabled = false;
