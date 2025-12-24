@@ -104,6 +104,30 @@
     </table>
     @endif
 
+    @if(!empty($dassAnswers))
+    <div class="section-title">Detail Jawaban DASS-21</div>
+    <table>
+        <thead>
+            <tr>
+                <th width="30">#</th>
+                <th>Pertanyaan</th>
+                <th width="80">Kategori</th>
+                <th width="100">Jawaban</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($dassAnswers as $ans)
+            <tr>
+                <td style="text-align: center;">{{ $ans['no'] }}</td>
+                <td>{{ $ans['question'] }}</td>
+                <td style="text-align: center;">{{ substr($ans['category'], 0, 1) }} ({{ $ans['category'] }})</td>
+                <td>{{ $ans['answer_text'] }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+    @endif
+
     <div class="section-title">Riwayat Jurnal Harian & Mood (14 Hari Terakhir)</div>
     <table>
         <thead>

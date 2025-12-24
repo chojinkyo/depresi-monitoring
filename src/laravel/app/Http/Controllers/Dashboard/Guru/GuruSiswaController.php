@@ -254,15 +254,35 @@ class GuruSiswaController extends Controller
         // Get DASS-21 Data
         $dassResult = Dass21Hasil::where('id_siswa', $siswaId)->latest()->first();
         $dassScores = null;
+        $dassAnswers = [];
+
         if ($dassResult) {
             $dassScores = $dassResult->calculateScores();
             $dassScores['depression_label'] = $this->getDepressionLabel($dassScores['depression']);
             $dassScores['anxiety_label'] = $this->getAnxietyLabel($dassScores['anxiety']);
             $dassScores['stress_label'] = $this->getStressLabel($dassScores['stress']);
             $dassScores['date'] = $dassResult->created_at->translatedFormat('d M Y H:i');
+
+            // Format answers with question text
+            if (is_array($dassResult->answers)) {
+                foreach ($dassResult->answers as $ans) {
+                    $qIndex = is_array($ans) ? $ans['question_index'] : $ans->question_index;
+                    $value = is_array($ans) ? $ans['value'] : $ans->value;
+                    
+                    $dassAnswers[] = [
+                        'no' => $qIndex + 1,
+                        'question' => self::DASS21_QUESTIONS[$qIndex]['text'] ?? "Pertanyaan $qIndex",
+                        'category' => self::DASS21_QUESTIONS[$qIndex]['category'] ?? '-',
+                        'answer' => $value,
+                        'answer_text' => $this->getAnswerText($value),
+                    ];
+                }
+                // Sort by question number
+                usort($dassAnswers, fn($a, $b) => $a['no'] <=> $b['no']);
+            }
         }
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('guru.mood.pdf', compact('siswa', 'moodHistory', 'dassScores'));
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('guru.mood.pdf', compact('siswa', 'moodHistory', 'dassScores', 'dassAnswers'));
         return $pdf->download('Laporan_Mood_' . str_replace(' ', '_', $siswa->nama_lengkap) . '.pdf');
     }
 
