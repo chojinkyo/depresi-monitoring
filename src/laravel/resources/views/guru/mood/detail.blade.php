@@ -162,8 +162,10 @@
                         <th class="py-2">Tanggal</th>
                         <th class="py-2">Waktu</th>
                         <th class="py-2 text-center">Status</th>
-                        <th class="py-2 text-center">Prediksi Kamera</th>
-                        <th class="py-2">Catatan</th>
+                        <th class="py-2">Bagaimana Perasaan Hari Ini</th>
+                        <th class="py-2">Prediksi Kamera</th>
+                        <th class="py-2">Prediksi Teks</th>
+                        <th class="py-2">Cerita Perasaan Hari Ini</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -188,11 +190,15 @@
                             @endphp
                             <span class="badge {{ $statusBadge }} rounded-pill">{{ $statusText }}</span>
                         </td>
-                        <td class="text-center">
-                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3">{{ $mood['emotion_label'] }}</span>
+                        <td>{{ $mood['manual_mood'] }}</td>
+                        <td>
+                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3">{{ $mood['camera_pred'] }}</span>
                         </td>
-                        <td class="text-muted small" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $mood['catatan'] }}">
-                            {{ Str::limit($mood['catatan'], 50) }}
+                        <td>
+                            <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3">{{Str::limit( $mood['text_pred'], 20) }}</span>
+                        </td>
+                        <td class="text-muted small" style="max-width: 250px;">
+                            {{ Str::limit($mood['catatan'], 100) }}
                         </td>
                     </tr>
                     @endforeach

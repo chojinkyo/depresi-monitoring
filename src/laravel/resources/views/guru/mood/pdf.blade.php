@@ -3,9 +3,10 @@
 <head>
     <title>Laporan Mood Siswa</title>
     <style>
+        @page { size: A4 landscape; margin: 20px; }
         body {
             font-family: sans-serif;
-            font-size: 12px;
+            font-size: 11px;
             color: #333;
         }
         .header {
@@ -27,8 +28,8 @@
         .section-title {
             font-size: 14px;
             font-weight: bold;
-            margin-top: 20px;
-            margin-bottom: 10px;
+            margin-top: 15px;
+            margin-bottom: 8px;
             background-color: #f4f4f4;
             padding: 5px;
             border-left: 4px solid #333;
@@ -40,8 +41,9 @@
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 6px;
             text-align: left;
+            vertical-align: top;
         }
         th {
             background-color: #f8f9fa;
@@ -51,25 +53,13 @@
             border: none;
             padding: 4px;
         }
-        .badge {
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 10px;
-            color: #fff;
-            display: inline-block;
-        }
-        .bg-normal { background-color: #28a745; }
-        .bg-ringan { background-color: #17a2b8; }
-        .bg-sedang { background-color: #ffc107; color: #333; }
-        .bg-parah { background-color: #fd7e14; }
-        .bg-sangat-parah { background-color: #dc3545; }
-        
         .footer {
             margin-top: 30px;
             text-align: right;
             font-size: 10px;
             color: #666;
         }
+        .emoji { font-family: 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; }
     </style>
 </head>
 <body>
@@ -78,29 +68,27 @@
         <p>Depresiku - Sistem Monitoring Depresi Siswa</p>
     </div>
 
-    <div class="section-title">Informasi Siswa</div>
-    <table class="info-table">
-        <tr>
-            <td width="150">Nama Lengkap</td>
-            <td width="10">:</td>
-            <td>{{ $siswa->nama_lengkap }}</td>
-        </tr>
-        <tr>
-            <td>NISN</td>
-            <td>:</td>
-            <td>{{ $siswa->nisn }}</td>
-        </tr>
-        <tr>
-            <td>Periode Laporan</td>
-            <td>:</td>
-            <td>{{ \Carbon\Carbon::now()->subDays(13)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</td>
-        </tr>
-    </table>
+    <!-- Student Info -->
+    <div style="float: left; width: 60%;">
+        <div class="section-title" style="margin-top: 0;">Informasi Siswa</div>
+        <table class="info-table">
+            <tr><td width="120">Nama Lengkap</td><td width="10">:</td><td>{{ $siswa->nama_lengkap }}</td></tr>
+            <tr><td>NISN</td><td>:</td><td>{{ $siswa->nisn }}</td></tr>
+            <tr><td>Kelas</td><td>:</td><td>-</td></tr>
+        </table>
+    </div>
+    <div style="float: right; width: 35%;">
+        <div class="section-title" style="margin-top: 0;">Periode Laporan</div>
+        <table class="info-table">
+            <tr><td>Mulai</td><td>:</td><td>{{ \Carbon\Carbon::now()->subDays(13)->translatedFormat('d F Y') }}</td></tr>
+            <tr><td>Sampai</td><td>:</td><td>{{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</td></tr>
+        </table>
+    </div>
+    <div style="clear: both;"></div>
 
     @if($dassScores)
-    <div class="section-title">Hasil Asesmen DASS-21 Terakhir</div>
-    <p style="font-size: 10px; margin-bottom: 5px;">Tanggal Pengisian: {{ $dassScores['date'] }}</p>
-    <table>
+    <div class="section-title">Hasil Asesmen DASS-21 Terakhir ({{ $dassScores['date'] }})</div>
+    <table style="width: 50%;">
         <thead>
             <tr>
                 <th>Kategori</th>
@@ -109,34 +97,24 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>Depresi</td>
-                <td>{{ $dassScores['depression'] }}</td>
-                <td>{{ $dassScores['depression_label'] }}</td>
-            </tr>
-            <tr>
-                <td>Kecemasan (Anxiety)</td>
-                <td>{{ $dassScores['anxiety'] }}</td>
-                <td>{{ $dassScores['anxiety_label'] }}</td>
-            </tr>
-            <tr>
-                <td>Stres</td>
-                <td>{{ $dassScores['stress'] }}</td>
-                <td>{{ $dassScores['stress_label'] }}</td>
-            </tr>
+            <tr><td>Depresi</td><td>{{ $dassScores['depression'] }}</td><td>{{ $dassScores['depression_label'] }}</td></tr>
+            <tr><td>Kecemasan</td><td>{{ $dassScores['anxiety'] }}</td><td>{{ $dassScores['anxiety_label'] }}</td></tr>
+            <tr><td>Stres</td><td>{{ $dassScores['stress'] }}</td><td>{{ $dassScores['stress_label'] }}</td></tr>
         </tbody>
     </table>
     @endif
 
-    <div class="section-title">Riwayat Mood & Presensi (14 Hari Terakhir)</div>
+    <div class="section-title">Riwayat Jurnal Harian & Mood (14 Hari Terakhir)</div>
     <table>
         <thead>
             <tr>
-                <th width="80">Tanggal</th>
-                <th width="50">Waktu</th>
+                <th width="70">Tanggal</th>
+                <th width="40">Waktu</th>
                 <th width="50">Status</th>
-                <th width="100">Prediksi Mood</th>
-                <th>Catatan</th>
+                <th width="100">Bagaimana Perasaan Hari Ini</th>
+                <th width="80">Prediksi Kamera</th>
+                <th width="80">Prediksi Teks</th>
+                <th>Cerita Perasaan Hari Ini</th>
             </tr>
         </thead>
         <tbody>
@@ -145,9 +123,9 @@
                 <td>{{ $history['tanggal'] }}</td>
                 <td>{{ $history['waktu'] }}</td>
                 <td>{{ $history['status'] }}</td>
-                <td>
-                    {{ $history['emotion_emoji'] }} {{ ucfirst($history['emotion_label']) }}
-                </td>
+                <td>{{ $history['manual_mood'] }}</td>
+                <td>{{ $history['camera_emoji'] }} {{ $history['camera_pred'] }}</td>
+                <td>{{ $history['text_pred'] }}</td>
                 <td>{{ $history['catatan'] }}</td>
             </tr>
             @endforeach

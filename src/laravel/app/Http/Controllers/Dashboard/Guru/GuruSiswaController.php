@@ -40,14 +40,51 @@ class GuruSiswaController extends Controller
     /**
      * Display list of students with latest mood (main page)
      */
+    /**
+     * Display list of students with latest mood (main page)
+     * Filtered: Only show students with DOMINANT NEGATIVE mood in last 14 days
+     */
     public function moodIndex()
     {
-        $siswas = Siswa::with(['presensi' => function($query) {
-            $query->latest()->limit(1)->with('diary');
+        $startDate = Carbon::now()->subDays(13);
+        $endDate = Carbon::now();
+
+        // Eager load presensi for last 14 days to calculate dominant mood
+        $siswas = Siswa::with(['presensi' => function($query) use ($startDate, $endDate) {
+            $query->whereDate('created_at', '>=', $startDate)
+                  ->whereDate('created_at', '<=', $endDate)
+                  ->with('diary')
+                  ->orderBy('created_at', 'desc');
         }])->get();
 
-        $siswaData = $siswas->map(function($siswa) {
-            $lastPresensi = $siswa->presensi->first();
+        $filteredSiswas = $siswas->filter(function($siswa) {
+            $moodCounts = ['negative' => 0, 'positive' => 0];
+            
+            foreach($siswa->presensi as $presensi) {
+                if ($presensi->diary && $presensi->diary->swafoto_pred) {
+                    try {
+                        $predJson = json_decode($presensi->diary->swafoto_pred);
+                        if (isset($predJson->predicted)) {
+                            $mood = strtolower($predJson->predicted);
+                            if (in_array($mood, ['anger', 'disgust', 'fear', 'sadness'])) {
+                                $moodCounts['negative']++;
+                            } elseif (in_array($mood, ['happy', 'surprise'])) {
+                                $moodCounts['positive']++;
+                            }
+                        }
+                    } catch (\Exception $e) { }
+                }
+            }
+            
+            // Condition: Negative moods > Positive moods (Dominantly Bad Mood)
+            // Or if equal but non-zero? Let's stick to Bad > Good for now.
+            // Adjust threshold as needed (e.g., > 30% negative).
+            // User request: "kalo moodnya selama 14 hari jelek" -> strict reading implies majority bad.
+            return $moodCounts['negative'] > $moodCounts['positive'] && $moodCounts['negative'] > 0;
+        });
+
+        $siswaData = $filteredSiswas->map(function($siswa) {
+            $lastPresensi = $siswa->presensi->first(); // Since we ordered desc in eager load
             $latestMood = '-';
             $latestMoodLabel = '-';
             
@@ -111,10 +148,9 @@ class GuruSiswaController extends Controller
                 'tanggal' => $presensi->created_at->format('d M Y'),
                 'waktu' => $presensi->created_at->format('H:i'),
                 'status' => $presensi->status,
-                'emoji_manual' => $presensi->diary->emoji ?? '-',
-                'emotion_label' => $emotionLabel,
-                'emotion_emoji' => $emotionEmoji,
-                'prediction_json' => $predictionJson,
+                'manual_mood' => $presensi->diary->judul_perasaan ?? '-',
+                'camera_pred' => $emotionLabel,
+                'text_pred' => ucfirst($presensi->diary->catatan_pred ?? '-'),
                 'catatan' => $presensi->diary->catatan ?? '-',
             ];
         });
@@ -181,23 +217,36 @@ class GuruSiswaController extends Controller
         $moodHistory = $presensiData->map(function($presensi) {
             $emotionLabel = '-';
             $emotionEmoji = '-';
+            $textPred = '-';
+            $manualMood = '-';
             
-            if ($presensi->diary && $presensi->diary->swafoto_pred) {
-                try {
-                    $pred = json_decode($presensi->diary->swafoto_pred);
-                    if (isset($pred->predicted)) {
-                        $emotionLabel = $pred->predicted;
-                        $emotionEmoji = $this->getEmoji($emotionLabel);
-                    }
-                } catch (\Exception $e) {}
+            if ($presensi->diary) {
+                // Camera Prediction
+                if ($presensi->diary->swafoto_pred) {
+                    try {
+                        $pred = json_decode($presensi->diary->swafoto_pred);
+                        if (isset($pred->predicted)) {
+                            $emotionLabel = ucfirst($pred->predicted);
+                            $emotionEmoji = $this->getEmoji($emotionLabel);
+                        }
+                    } catch (\Exception $e) {}
+                }
+
+                // Text Prediction
+                $textPred = $presensi->diary->catatan_pred ?? '-';
+
+                // Manual Mood (Text Input)
+                $manualMood = $presensi->diary->judul_perasaan ?? '-';
             }
 
             return [
                 'tanggal' => $presensi->created_at->translatedFormat('d M Y'),
                 'waktu' => $presensi->created_at->format('H:i'),
                 'status' => $presensi->status,
-                'emotion_label' => $emotionLabel,
-                'emotion_emoji' => $emotionEmoji,
+                'camera_pred' => $emotionLabel,
+                'camera_emoji' => '', // Removed emoji
+                'text_pred' => ucfirst($textPred),
+                'manual_mood' => $manualMood,
                 'catatan' => $presensi->diary->catatan ?? '-',
             ];
         });

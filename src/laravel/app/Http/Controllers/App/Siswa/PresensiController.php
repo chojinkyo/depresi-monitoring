@@ -150,7 +150,8 @@ class PresensiController extends Controller
             'swafoto'=>'required|image|mimes:jpg,png,jpeg|max:1024',
             'catatan'=>'required|max:255',
             'status'=>'required|in:H,I,S,A',
-            'emoji'=>'required|integer|between:1,5',
+            'emoji'=>'nullable|integer|between:1,5', // Made nullable
+            'judul_perasaan'=>'nullable|string|max:100', // Added new column
             'ket'=>'required_if:status,I,S|max:255',
             'doc'=>'required_if:status,I,S|file|mimes:pdf,jpg,png,jpeg|max:10240',
             'swafoto_pred'=>'nullable|string',
@@ -185,7 +186,7 @@ class PresensiController extends Controller
 
             $data_pres=
             [
-                ...array_diff_key($data, array_flip(['swafoto', 'catatan', 'doc', 'emoji', 'swafoto_pred', 'catatan_pred', 'catatan_ket'])),
+                ...array_diff_key($data, array_flip(['swafoto', 'catatan', 'doc', 'emoji', 'judul_perasaan', 'swafoto_pred', 'catatan_pred', 'catatan_ket'])),
                 'id_thak'=>$id_thak,
                 'id_siswa'=>$id_sis,
                 'doc'=>$doc_path
@@ -203,6 +204,8 @@ class PresensiController extends Controller
                 ...array_diff_key($data, array_flip(['swafoto', 'doc', 'ket', 'status'])),
                 'id_presensi'=>$presensi->id,
                 'swafoto'=>$strg_path,
+                'emoji'=>$data['emoji'] ?? 1, // Default emoji if null
+                'judul_perasaan'=>$data['judul_perasaan'] ?? '-',
                 'swafoto_pred'=>$data['swafoto_pred'] ?? '-',
                 'catatan_pred'=>$data['catatan_pred'] ?? '-',
                 'catatan_ket'=>$data['catatan_ket'] ?? '-',
