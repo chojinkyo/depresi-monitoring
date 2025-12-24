@@ -24,7 +24,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             AdminSeed::class,
-            SiswaSeed::class
+            SiswaSeed::class,
+            GuruSeed::class
         ]);
 
     }
