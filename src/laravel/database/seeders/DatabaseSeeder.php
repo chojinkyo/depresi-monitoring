@@ -30,7 +30,8 @@ class DatabaseSeeder extends Seeder
             RiwayatKelasSeed::class,
             PresensiSeed::class,
             DiarySeed::class,
-            PresensiLiburSeed::class
+            PresensiLiburSeed::class,
+            GuruSeed::class
             
         ]);
 

@@ -25,9 +25,9 @@ class GuruSeed extends Seeder
         ];
         $user=
         [
-            'username'=>$data['nip'],
-            'password'=>'Guru_'.Carbon::parse($data['tgl_lahir'])->format('dmY'),
-            'email'=>'sujiwo@example.com',
+            'username'=>'guru',
+            'password'=>'12345678',
+            'email'=>'role@example.com',
             'role'=>'guru'
         ];
 
