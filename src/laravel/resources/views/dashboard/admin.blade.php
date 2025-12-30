@@ -8,10 +8,12 @@
 @endphp
 
 @section('content')
-    
     <div 
     class="row justify-content-center"
     x-data="{
+        today : {{ now()->day }},
+        calendarMonth : {{ (int) request('month', now()->month)-1 }},
+        currentMonth : {{ (int) now()->month-1 }},
         calendars : {{ Js::from($calendars) }},
         vacations : {{ Js::from($vacations) }}, 
         vacation : {}, 
@@ -20,11 +22,9 @@
         loading : true,
         isEditing : false,
         selectedDates : [],
-        async initData() 
+        isToday(date)
         {
-            
-
-            
+            return this.today===date && this.calendarMonth===this.currentMonth;
         },
         async showEvents(date)
         {
@@ -39,13 +39,13 @@
             
 
             const day=String(date).padStart(2, '0')
-            const month=String(new Date().getMonth()+1).padStart(2, '0')
+            const month=String(this.calendarMonth+1).padStart(2, '0')
             container.events=lists
             container.date=`${day}-${month}`
+            console.log(container.date)
         },
         chooseDate(date)
         {
-        
             if(!this.isEditing) return
             if(this.selectedDates.length >= 2)
             {
@@ -54,7 +54,6 @@
                 return;
             }
             this.selectedDates.push(date)
-        
             this.selectedDates.sort((a,b)=>a - b);
         },
         isChosen(date)
@@ -66,7 +65,7 @@
         }
     }"
 
-    x-init="initData"
+    
     x-ref="dates_container">
         <div class="col-3">
             <form action="{{ route('admin.jadwal-harian.update') }}" method="post">
@@ -90,7 +89,6 @@
                     setSchedule() 
                     {
                         this.schedule=this.data[this.grade]
-                        console.log(this.schedule);
                     },
                     async initData()
                     {
@@ -101,14 +99,24 @@
                 }"
                 x-init="initData;$watch('grade', _=>setSchedule())"
                 >
-                    
                     <div class="accordion-item">
                         <h2 class="accordion-header bg-success bg-gradient">
-                            <button class="accordion-button fs-5 fw-bold text-primary py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            <button 
+                            type="button" 
+                            class="accordion-button fs-5 fw-bold text-primary py-4" 
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#collapseOne"
+                            aria-expanded="true" 
+                            aria-controls="collapseOne"
+                            >
                                 Jadwal Harian
                             </button>
                         </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                        <div 
+                        id="collapseOne" 
+                        class="accordion-collapse collapse show" 
+                        data-bs-parent="#accordionExample"
+                        >
                             <div class="accordion-body">
                                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae, qui!
                             </div>
@@ -137,15 +145,31 @@
                         <template x-for="(day, key) in days" :key="day">
                             <div class="accordion-item" :id="'heading'+key">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed d-flex align-items-center" type="button" data-bs-toggle="collapse" :data-bs-target="'#collapse'+key" aria-expanded="true" :aria-controls="'collapse'+key">
-                                        
-                                        <input type="checkbox" class="form-check" :name="`hari_libur[${key}]`" :value="key" :checked="!schedule?.hari_libur.includes(parseInt(key))">
+                                    <button 
+                                    class="accordion-button collapsed d-flex align-items-center" 
+                                    type="button" 
+                                    data-bs-toggle="collapse" 
+                                    aria-expanded="true" 
+                                    :data-bs-target="'#collapse'+key" 
+                                    :aria-controls="'collapse'+key"
+                                    >
+                                        <input 
+                                        type="checkbox" 
+                                        class="form-check" 
+                                        :name="`hari_libur[${key}]`" 
+                                        :value="key" 
+                                        :checked="!schedule?.hari_libur.includes(parseInt(key))"
+                                        >
                                         <div type="button" class="fs-6 fw-medium ms-2 text-black-50"  x-text="day">
                                         
                                         </div>
                                     </button>
                                 </h2>
-                                <div  :id="'collapse'+key" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                                <div 
+                                :id="'collapse'+key"
+                                class="accordion-collapse collapse" 
+                                data-bs-parent="#accordionExample"
+                                >
                                     <div class="accordion-body bg-light-subtle">
                                         <div class="row align-items-end justify-content-e px-2">
                                             <div class="col p-0">
@@ -187,17 +211,53 @@
                     <div class="card-header py-0 no-after d-flex justify-content-between align-items-center bg-success bg-gradient bg-opacity-50">
                         <div class="py-4">
                             <h1 class="fs-5 m-0 d-block text-black-50">
-                                <strong class="text-black-50">{{ now()->format('F')}}</strong> - <span class="font-weight-normal text-black-50">{{ now()->year }}</span>
+                                <strong class="text-black-50">
+                                    {{ \Carbon\Carbon::create()
+                                    ->month((int) request('month', now()->month))
+                                    ->locale('id')->translatedFormat('F')}}
+                                </strong> 
+                                - 
+                                <span class="font-weight-normal text-black-50">{{ now()->year }}</span>
                             </h1>
                         </div>
-                        
-                        <div class="form-group d-flex m-0">
-                            <select 
-                            id="" 
-                            name="" 
-                            class="form-select bg-secondary-subtle fw-medium opacity-75">
-                                <option value="">Januari</option>
-                            </select>
+
+                        <div class="input-group m-0 w-auto">
+                            <div>
+                                <select 
+                                name="" 
+                                class="form-select bg-secondary-subtle fw-medium opacity-75 d-block rounded-end-0"
+                                x-data="
+                                {
+
+                                    months : [
+                                        'Januari', 'Februari', 'Maret', 
+                                        'April', 'Mei', 'Juni', 
+                                        'Juli', 'Agustus', 'September', 
+                                        'Oktober', 'November', 'Desember'
+                                    ],
+                                    changeMonth(event) {
+                                        let month=event.target.value || 1;
+                                        month=parseInt(month)
+
+                                        const baseURL=(window.location.href).split('?')
+                                        const url=new URL(baseURL[0])
+                                        url.searchParams.set('month', month);
+                                        window.location.href=url
+
+                                    },
+                                }"
+                                x-on:change="changeMonth($event)"
+                                
+                                >
+                                    <template x-for="(month, index) in months">
+                                        <option 
+                                        :value="index+1" 
+                                        :selected="calendarMonth===index"
+                                        x-text="month" 
+                                        ></option>
+                                    </template>
+                                </select>
+                            </div>
 
                             <button
                             type="button"
@@ -216,7 +276,6 @@
                                     @php
                                         $headers=['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
                                     @endphp
-
                                     <tr>
                                         @foreach ($headers as $key=>$header)
                                             <th 
@@ -225,22 +284,24 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                   
-                                        
                                     <template x-for="week in calendars" :key="index">
                                         <tr>
                                             <template x-for="i in week[0].day">
-                                                <td class="col p-0 bg-light">
-                                                    
-                                                </td>
+                                                <td class="col p-0 bg-light"></td>
                                             </template>
                                         
-                                            <template x-for="day in week" :key="index+250">
-                                                <td class="col p-0" style="box-sizing: border-box;">
+                                            <template 
+                                            x-for="day in week" 
+                                            :key="index+250"
+                                            >
+                                                <td 
+                                                class="col p-0" 
+                                                style="box-sizing: border-box;"
+                                                >
                                                     <template x-if="([5,6]).includes(day.day)">
                                                         <button 
                                                         type="button"
-                                                        class="w-100 h-100  px-0 rounded-0 border-0  position-relative btn btn-outline-light text-muted" disabled
+                                                        class="w-100 h-100  px-0 rounded-0 border-0  position-relative btn btn-outline-light text-muted" 
                                                         x-data="{
                                                             vacant : false,
                                                             setLibur() {
@@ -250,9 +311,15 @@
                                                                 })
                                                             }
                                                         }"
+                                                        disabled
                                                         x-init="setLibur()"
                                                         >
-                                                            <div :class="{'bg-warning-subtle' : vacant}" x-text="day.date">
+                                                            <div 
+                                                            :class="{
+                                                                'bg-warning-subtle' : vacant, 
+                                                                'bg-primary-subtle': isToday(day.date)
+                                                            }" 
+                                                            x-text="day.date">
                                                                 
                                                             </div>
                                                         </button>
@@ -282,8 +349,7 @@
 
                                                         x-init="setLibur()">
                                                             
-                                                            <div :class="{'bg-warning-subtle' : vacant}" x-text="day.date">
-                                                                
+                                                            <div :class="{'bg-warning-subtle' : vacant, 'bg-primary-subtle': isToday(day.date)}" x-text="day.date">
                                                             </div>
                                                         </button>
                                                     </template>
@@ -296,71 +362,6 @@
                                             </template>
                                         </tr>
                                     </template>
-                                
-                                    
-                                    @php
-                                        $current=0;
-                                        $index=0;
-                                    @endphp
-                                    {{-- @foreach ($calendars as $week)
-                                        <tr>
-                                            @for ($i=0;$i<$week[0]['day'];$i++)
-                                                <td class="col p-0 bg-light">
-                                                    
-                                                </td>
-                                            @endfor
-                                            
-                                            @foreach ($week as $day)
-                                                <td class="col p-0" style="box-sizing: border-box;">
-                                                    @if(in_array($day['day'], [5, 6]))
-                                                        <button 
-                                                        type="button"
-                                                        class="w-100 h-100  px-0 rounded-0 border-0  position-relative btn btn-outline-light text-muted" disabled
-                                                        >
-                                                            @php
-                                                                $vacant=false;
-                                                                if($index < count($vacations)) {
-                                                                    $vacation=$vacations[$index];
-                                                                    $current=$day['date'];
-                                                                    if($current >= $vacation['tanggal_mulai'] && $current <= $vacation['tanggal_selesai'])
-                                                                        $vacant=true;
-                                                                    if($current >= $vacation['tanggal_selesai'])
-                                                                        $index++;
-                                                                }
-                                                            @endphp
-                                                            <div class="{{ $vacant ? 'bg-warning-subtle' : '' }}">
-                                                                {{ $day['date'] }}
-                                                            </div>
-                                                        </button>
-                                                    @else
-                                                        <button 
-                                                        type="button"
-                                                        class="w-100 h-100  px-0 rounded-0 border-0  position-relative btn btn-outline-light text-body" 
-                                                        onclick='showEvents(@json($vacations), {{ $current+1 }})'
-                                                        >
-                                                            @php
-                                                                $vacant=false;
-                                                                if($index < count($vacations)) {
-                                                                    $vacation=$vacations[$index];
-                                                                    $current=$day['date'];
-                                                                    if($current >= $vacation['tanggal_mulai'] && $current <= $vacation['tanggal_selesai'])
-                                                                        $vacant=true;
-                                                                    if($current >= $vacation['tanggal_selesai'])
-                                                                        $index++;
-                                                                }
-                                                            @endphp
-                                                            <div class="{{ $vacant ? 'bg-warning-subtle' : '' }}">
-                                                                {{ $day['date'] }}
-                                                            </div>
-                                                        </button>
-                                                    @endif
-                                                </td>
-                                            @endforeach
-                                            @for ($i=$week[count($week)-1]['day'];$i<6;$i++)
-                                                <td class="col p-0 bg-light"></td>
-                                            @endfor
-                                        </tr>
-                                    @endforeach --}}
                                 </tbody>
                             </table>
                             <x-form-error-text :field="'id'" />
@@ -397,7 +398,7 @@
             <form action="{{ route('admin.presensi-libur.store') }}" method="post" x-data="{
                 async submitForm(event) {
                     const form = event.target;
-                    const month = new Date().getMonth() + 1;
+                    const month = calendarMonth;
                     document.getElementById('tanggal_mulai').value= selectedDates[0]
                     document.getElementById('tanggal_selesai').value= selectedDates[1] || selectedDates[0]
                     document.getElementById('bulan_mulai').value= month
@@ -420,16 +421,16 @@
                         <input type="hidden" name="bulan_selesai" id="bulan_selesai">
                         <textarea  id="" cols="30" rows="5" class="form-control" name="ket"></textarea>
 
-                        <ul class="list-unstyled d-flex">
-                            <li>
+                        <ul class="list-unstyled d-flex gap-3 mt-2">
+                            <li class="d-flex gap-1">
                                 <input type="checkbox" name="jenjang[]" value="1" class="form-check">
                                 <label for="">1</label>
                             </li>
-                            <li>
+                            <li class="d-flex gap-1">
                                 <input type="checkbox" name="jenjang[]" value="2" class="form-check">
                                 <label for="">2</label>
                             </li>
-                            <li>
+                            <li class="d-flex gap-1">
                                 <input type="checkbox" name="jenjang[]" value="3" class="form-check">
                                 <label for="">3</label>
                             </li>
@@ -463,6 +464,7 @@
                     </div>
                 </div>
             </form>
+            
             
         </div>
     </div>

@@ -71,7 +71,6 @@ class DiaryController extends Controller
             return $student;
         });
 
-        
         return view('admin.diary.index', compact('students', 'threshold'));
     }
 

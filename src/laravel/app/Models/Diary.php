@@ -5,16 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 class Diary extends Model
 {
     //
     protected $guarded = ['id'];
     protected $table='diary';
-
-    private static $mentalHealthCols=['id', 'id_presensi', 'emoji','swafoto', 'swafoto_pred', 'catatan_pred', 'catatan', 'catatan_ket', 'waktu'];
-
+    protected $casts=['waktu'=>'datetime', 'waktu_string'=>'datetime'];
     public $timestamps = false;
+
+    protected static function booted()
+    {
+        static::addGlobalScope('locale_id', function (Builder $builder) {
+            $builder->getQuery()->connection
+                ->statement("SET lc_time_names = 'id_ID'");
+        });
+    }
     public function attendance() : BelongsTo
     {
         return $this->belongsTo(Presensi::class, 'id_presensi', 'id');
@@ -24,8 +31,9 @@ class Diary extends Model
     {
         $base=DB::table('diary')
             ->join('presensi', 'presensi.id', '=', 'diary.id_presensi')
-            ->selectRaw(
-                "diary.*, 
+            ->selectRaw("
+                diary.*, 
+                DATE_FORMAT(diary.waktu, '%d %M %Y %H:%i') AS waktu_string,
                 presensi.id_siswa, presensi.id_thak,
                 ROW_NUMBER() OVER (
                     PARTITION BY presensi.id_siswa

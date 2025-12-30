@@ -54,11 +54,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::resource('/siswa', SiswaController::class);
     Route::resource('/kelas', KelasController::class)->except(['edit'])->parameter("kelas", "kelas");
     Route::resource('/tahun-akademik', TahunAkademikController::class)->names('tahun-akademik');
-    Route::get('/siswa/kehadiran/{student}/{year}', [AdminPresensiController::class, 'show'])->name('siswa.kehadiran.show');
+    Route::get('/siswa/kehadiran/{student}', [AdminPresensiController::class, 'show'])->name('siswa.kehadiran.show');
     Route::post('/presensi-libur', [PresensiLiburController::class, 'store'])->name('presensi-libur.store');
     Route::delete('/presensi-libur', [PresensiLiburController::class, 'destroy'])->name('presensi-libur.destroy');
     Route::post('/admin/jadwal-kehadiran', [JadwalHarianController::class, 'update'])->name('jadwal-harian.update');
     Route::post('/config/diary', [DiaryController::class, 'updateConfig'])->name('config.diary.update');
+    Route::get('/calendars', [DashboardController::class, 'getCalendaryDays'])->name('calendar.show');
     // Route::get('/dashboard', [DashboardController::class, 'adminDashboard'] );
     // Route::view('/kelas', 'admin.kelas.index')->name('admin.kelas.index');
     // Route::view('/tahun-akademik', 'admin.tahun_akademik.index')->name('admin.thak.index');

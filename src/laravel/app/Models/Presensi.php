@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 class Presensi extends Model
 {
@@ -16,6 +17,13 @@ class Presensi extends Model
         'waktu'=>'datetime'
     ];
 
+    protected static function booted()
+    {
+        static::addGlobalScope('locale_id', function (Builder $builder) {
+            $builder->getQuery()->connection
+                ->statement("SET lc_time_names = 'id_ID'");
+        });
+    }
     public function diary()
     {
         return $this->hasOne(Diary::class, 'id_presensi', 'id');
@@ -25,19 +33,18 @@ class Presensi extends Model
     {
         
         // $details=DB::table('presensi')
-        //     ->selectRaw('
+        //     ->selectRaw("
         //         *,
         //         ROW_NUMBER() OVER (
         //             PARTITION BY id_siswa
         //         ) AS rn
-        //     ')
+        //     ")
         //     ->where('id_thak', $year)
         //     ->whereIn('id_siswa', $students)
         //     ->get()
-        //     ->groupBy('id_siswa')
+        //     ->groupBy('id_siswa');
         //     ->map(fn($item)=>$item->chunk(10));
         // dd($details);
-        $details=null;
         $baseResult1=DB::table('presensi')
             ->selectRaw("
                 id_siswa,
@@ -59,7 +66,7 @@ class Presensi extends Model
                 ROUND((a.total_hadir/a.total_presensi) * 100, 2) as persen_hadir,
                 ROUND((a.total_alpha/a.total_presensi) * 100, 2) as persen_alpha
             ");
-
+            
         $results=DB::table(DB::raw("({$baseResult2->toSql()}) as b"))
             ->mergeBindings($baseResult2)
             ->selectRaw("
@@ -68,7 +75,7 @@ class Presensi extends Model
             ")
             ->get()
             ->keyBy('id_siswa');
-        return [$results, $details];
+        return $results;
     }
 
 }

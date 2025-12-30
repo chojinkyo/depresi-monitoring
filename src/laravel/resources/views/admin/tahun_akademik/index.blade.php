@@ -39,13 +39,13 @@
                     </td>
                     <td>
                         <div class="d-flex gap-1">
-                            <a href="#" class="btn btn-outline-primary btn-sm">
+                            {{-- <a href="#" class="btn btn-outline-primary btn-sm">
                                 <i class="fas fa-eye"></i>
-                            </a>
+                            </a> --}}
                             <a 
                             href="#" 
                             role="button"
-                            class="btn btn-outline-warning btn-sm"
+                            class="btn btn-sm bg-warning bg-opacity-75 bg-gradient"
                             onclick="event.preventDefault();editForm('{{ $row->id }}', `{{ route('admin.tahun-akademik.update', ['tahun_akademik'=>$row->id]) }}`)"
                             x-on:click="selected_id={{ $row->id }};">
                                 <i class="fas fa-edit"></i>
@@ -54,7 +54,7 @@
                             <a 
                             href="#"
                             role="button"
-                            class="btn btn-outline-danger btn-sm"
+                            class="btn btn-sm bg-danger bg-opacity-75 bg-gradient"
                             onclick="
                             event.preventDefault();
                             setDeleteForm(`{{ route('admin.tahun-akademik.destroy', ['tahun_akademik'=>$row->id]) }}`);

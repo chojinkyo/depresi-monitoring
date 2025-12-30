@@ -32,7 +32,7 @@ class SiswaStoreRequest extends FormRequest
             "tanggal_lahir"=>"required|date_format:Y-m-d|before:$current_date",
             "alamat"=>"required|max:255",
             "id_kelas"=>"required|exists:kelas,id",
-            "avatar"=>"nullable|image|mimes:jpg,png,jpeg|max:512",
+            "avatar"=>"required|image|mimes:jpg,png,jpeg|max:512",
             "status"=>"required|in:NW,MM",
             "id_thak_masuk"=>
             [

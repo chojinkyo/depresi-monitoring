@@ -11,6 +11,7 @@ use App\Models\RiwayatKelas;
 use App\Models\TahunAkademik;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -94,6 +95,7 @@ class SiswaController extends Controller
             
             $file=$request->file('avatar');
             $fileName=$file ? $this->generateProfileName($file) : "";
+            if($file===null) throw new Exception("Not found image", 404);
 
             // Create Data User
             $birthDate=Carbon::parse($validated['tanggal_lahir'])->format('dmY');
@@ -106,6 +108,7 @@ class SiswaController extends Controller
                 'role'=>'siswa'
             ];
             $user=User::create($userData);
+            
 
             // Create Data Siswa
             $studentData=[

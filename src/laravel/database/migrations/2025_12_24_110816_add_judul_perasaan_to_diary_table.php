@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('diary', function (Blueprint $table) {
-            $table->string('judul_perasaan')->nullable()->after('emoji');
+            $table->string('judul_perasaan')->nullable()->after('waktu');
         });
     }
 

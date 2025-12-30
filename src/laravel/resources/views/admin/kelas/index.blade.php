@@ -27,16 +27,16 @@
                     <td>{{ $row->jurusan }}</td>
                     <td class="">
                         <div class="d-flex gap-1">
-                            <a 
+                            {{-- <a 
                             href="#" 
-                            class="btn btn-outline-primary btn-sm"
+                            class="btn btn-sm bg-primary bg-opacity-75 bg-gradient text-light-emphasis"
                             >
                                 <i class="fas fa-eye"></i>
-                            </a>
+                            </a> --}}
                             <a 
                             href="#" 
                             role="button"
-                            class="btn btn-outline-warning btn-sm"
+                            class="btn btn-sm bg-warning bg-opacity-75 bg-gradient text-light-emphasis"
                             onclick="event.preventDefault();editForm('{{ $row->id }}', `{{ route('admin.kelas.update', ['kelas'=>$row->id]) }}`)"
                             x-on:click="selected_id={{ $row->id }};"
                             >
@@ -45,7 +45,7 @@
                             <a 
                             href="#"
                             role="button"
-                            class="btn btn-sm btn-outline-danger"
+                            class="btn btn-sm bg-danger bg-opacity-75 bg-gradient text-light-emphasis"
                             onclick="
                             event.preventDefault();
                             setDeleteForm(`{{ route('admin.kelas.destroy', ['kelas'=>$row->id]) }}`);

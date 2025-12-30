@@ -15,8 +15,8 @@
 @section('scripts')
 <script>
     var ctx = document.getElementById('myChart').getContext('2d');
-    const labels = [["1 Jan", "2025"], ["1 Jan", "2025"], ["1 Jan", "2025"], ["1 Jan", "2025"], ["1 Jan", "2025"], ["1 Jan", "2025"]];
-    const moodData = [1, 1, 1, 1, 1, 1]; // tanggal berurutan
+    const labels = [];
+    const moodData = []; // tanggal berurutan
     const emotionLabels = {
         1: "sadness",
         2: "anger",
@@ -75,7 +75,7 @@
                         },
                         scaleLabel: {
                             display: true,
-                            labelString: 'Moods'
+                            
                         }
                     }]
                 }
@@ -93,7 +93,7 @@
 <div class="row justify-content-center">
     <div class="col-7">
         <div class="card shadow-sm">
-            <div class="card-header no-after p-4 d-flex align-items-center justify-content-between bg-primary bg-gradient bg-opacity-50">
+            <div class="card-header no-after p-4 d-flex align-items-center justify-content-between bg-success bg-gradient bg-opacity-50">
                 <div class="d-flex w-100 align-items-center justify-content-between">
                     <h2 class="fs-5 fw-medium text-black-50 m-0 col-4">Mental Siswa</h2>
                     <div class="d-flex col-8 justify-content-end">
@@ -120,9 +120,9 @@
                         <thead class="table-light">
                             <tr>
                                 <th class="col-1 py-3 fw-medium text-center">No</th>
-                                <th class="col-3 py-3 fw-medium">Siswa</th>
+                                <th class="col-4 py-3 fw-medium">Siswa</th>
                                 <th class="col-1 py-3 fw-medium">Kelas</th>
-                                <th class="col-4 py-3 fw-medium">Tingkat Depresi</th>
+                                <th class="col-3 py-3 fw-medium">Tingkat Depresi</th>
                                 <th class="col-2 py-3 fw-medium">Label</th>
                                 <th scope="col" class="col-1 py-3 fw-medium">Aksi</th>
                             </tr>
@@ -133,17 +133,17 @@
                                     $depressionRate=$student->mental_health->get('result')->get('depression_rate') ?? 0;
                                 @endphp
                                 <tr>
-                                    <td class="text-center">{{ $key+1 }}</td>
-                                    <td>
+                                    <td class="text-center py-3">{{ $key+1 }}</td>
+                                    <td class="py-3">
                                         <small>
                                             <div class="fw-medium">{{ $student->nama_lengkap }}</div>
                                             <div class="text-secondary">{{ $student->nisn }}</div>
                                         </small>
                                     </td>
-                                    <td>
+                                    <td class="py-3">
                                         {{ $student->activeClass->first()?->nama ?? "-" }}
                                     </td>
-                                    <td class="alignment-end">
+                                    <td class="alignment-end py-3">
                                         <div 
                                         class="progress rounded-pill w-75" 
                                         style="height: 10px;">
@@ -162,14 +162,14 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="py-3">
                                         @if($depressionRate < $threshold)
                                         <div class="badge badge-sm bg-success bg-gradient bg-opacity-75 rounded-pill">Normal</div>
                                         @else
                                         <div class="badge badge-sm bg-danger bg-gradient bg-opacity-75 rounded-pill">Depresi</div>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="py-3">
                                         <button 
                                         class="btn btn-sm btn-primary"
                                         onclick='setDetailedView({{ $student }}, {{ $student->mental_health->get("detail") }})'
@@ -207,7 +207,7 @@
     </div>
 
     <div class="col-4">
-        <div class="card shadow-sm bg-success bg-gradient bg-opacity-50 mb-2">
+        <div class="card shadow-sm bg-primary bg-gradient bg-opacity-50 mb-2">
             <div class="card-body d-flex align-items-center gap-2" x-data="{student_data : {}}" x-ref="student_data_container">
                 <div class="img-container col-2" style="aspect-ratio: 1/1;">
                     <img 
@@ -215,11 +215,11 @@
                     `http://localhost:8000/files/images/users/id/${student_data.id_user}/${student_data.user.avatar_url}` :
                     'http://localhost:8000/files/images/users/default'" 
                     alt="" 
-                    class="w-100 img-fluid border border-2 border-white rounded-circle"
+                    class="w-100 img-fluid border border-2 border-black-50 rounded-circle"
                     style="object-fit: contain;">
                 </div>
                 <div class="text-container col-8">
-                    <h3 class="font-weight-bold h4 text-white">
+                    <h3 class="font-weight-bold h5 text-white">
                         <div x-text="student_data.nama_lengkap || 'Profile Name'">Profile Name</div>
                     </h3>
                     <h4 class="h6 text-secondary text-light">
@@ -229,14 +229,14 @@
             </div>
         </div>
         <div class="card shadow-sm mb-2">
-            <div class="card-body d-flex align-items-center">
+            <div class="card-body d-flex align-items-center p-4">
                 <div class="box box-primary">
                     <div class="box-header with-border">
-                        <h2 class="h5 font-weight-bold text-info">Diagram Mental</h2>
+                        <h2 class="h5 font-weight-bold">Diagram Mental</h2>
                     </div>
                     <div class="box-body">
                         <div class="chart">
-                            <canvas id="myChart" style="height: 250px;"></canvas>
+                            <canvas id="myChart" width="450" height="300"></canvas>
                         </div>
                     </div>
                 </div>
@@ -274,7 +274,7 @@
                                     <td>
                                         <div 
                                         class="font-weight-bold" 
-                                        x-text="item.waktu">
+                                        x-text="item.waktu_string">
                                         </div>
                                     </td>
                                     <td>
@@ -295,6 +295,8 @@
                         </tbody>
                     </table>
                 </div>
+
+                
             </div>
         </div>
     </div>

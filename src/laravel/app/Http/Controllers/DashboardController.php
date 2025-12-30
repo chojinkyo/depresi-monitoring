@@ -22,12 +22,10 @@ class DashboardController extends Controller implements HasMiddleware
         ];
     }
     
-    private function getCalendarDays()
+    private function getCalendarDays($month, $year)
     {
-        $month=now()->month;
-        $years=now()->year;
 
-        $start=Carbon::create($years, $month, 1);
+        $start=Carbon::create($year, $month, 1);
         $end=$start->copy()->endOfMonth();
 
         $index=0;
@@ -70,12 +68,13 @@ class DashboardController extends Controller implements HasMiddleware
     
     public function adminDashboard(Request $request)
     {
-        $month=now()->month;
+        $month=$request->input('month') ?? now()->month;
+        $year=now()->year;
         $jenjang=(int) $request->input('jenjang') ?? 1;
         
 
         $schedules=$this->getSchedules();
-        $calendars=$this->getCalendarDays();
+        $calendars=$this->getCalendarDays($month, $year);
         $diaryConfig=$this->getDiaryConfig();
         $vacations=PresensiLibur::select(['id', 'ket', 'tanggal_mulai', 'tanggal_selesai', 'bulan_mulai', 'bulan_selesai'])->where('bulan_mulai', $month)
         ->orderBy('tanggal_mulai')

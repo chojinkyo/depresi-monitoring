@@ -19,11 +19,13 @@ class TahunAkademikController extends Controller
 
         $academicYears=TahunAkademik::selectRaw("
             *,
+            DATE_FORMAT(tanggal_mulai, '%d %M %Y') AS tanggal_mulai,
+            DATE_FORMAT(tanggal_selesai, '%d %M %Y') AS tanggal_selesai,
             SUBSTRING_INDEX(nama_tahun, '/', 1) AS tahun_mulai,
             SUBSTRING_INDEX(nama_tahun, '/', -1) AS tahun_akhir
         ")->orderByRaw('(3 - current - status) ASC')->orderBy('nama_tahun', 'desc')->paginate(10);
 
-        
+        // dd($academicYears);
         return view('admin.tahun_akademik.index', compact('academicYears'));
     }
 
