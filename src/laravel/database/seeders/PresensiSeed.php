@@ -21,7 +21,7 @@ class PresensiSeed extends Seeder
         $idThak = TahunAkademik::where('current', true)->first()?->id ?? 1;
 
         // Range tanggal: 1 Maret 2025 – 1 Februari 2026
-        $period = CarbonPeriod::create('2025-03-01', '2026-02-01');
+        $period = CarbonPeriod::create('2025-12-01', '2025-12-30');
 
         // Hari libur nasional (tambahin sendiri kalau sekolah punya libur internal)
         $tanggalMerah = [

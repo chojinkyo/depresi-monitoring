@@ -208,7 +208,7 @@
         nextBtn.disabled = answers[currentQuestionIndex] === null;
 
         // Auto Click
-        handleNext();
+        // handleNext();
     }
 
     function handlePrev() {

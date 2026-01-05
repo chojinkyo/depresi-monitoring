@@ -103,7 +103,8 @@ class PresensiController extends Controller
         $current=now();
         $limit=(int) $config['limit_absen'];
         $attendances=Presensi::where('id_siswa', $studentId)->whereDate('waktu', $current->format('Y-m-d'))->get();
-        if($attendances->count() > $limit)
+        // throw new \Exception($attendances->count());
+        if($attendances->count() >= $limit)
             throw ValidationException::withMessages(['attendance'=>'Presensi melebihi batas']);
     }
     public function create()
@@ -178,6 +179,7 @@ class PresensiController extends Controller
             // Check Time
             $date=now()->format('Y-m-d');
             $this->cekPresensi($date, $student->getActiveClass()?->jenjang);
+            
             $this->cekLimitPresensi($student->id, $config);
             $this->cekLibur($date);
             

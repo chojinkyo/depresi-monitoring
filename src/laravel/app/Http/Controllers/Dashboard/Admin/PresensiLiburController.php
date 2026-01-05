@@ -103,7 +103,11 @@ class PresensiLiburController extends Controller
             'bulan_selesai'=>$data['bulan_selesai'] ?? $data['bulan_mulai']
         ];
         PresensiLibur::create($data_lbr);
-        return redirect()->route('admin.dashboard')->with('success', 'Hari libur berhasil ditambahkan');
+        return redirect()->route('admin.dashboard')->with('success', [
+            'icon'=>'success',
+            'title'=>'Berhasil!',
+            'text'=>'Hari libur berhasil ditambahkan!'
+        ]);
     }
     public function update(Request $request, PresensiLibur $lbr)
     {
@@ -240,7 +244,7 @@ class PresensiLiburController extends Controller
             return back()->with('success', [
                 'icon'=>'success',
                 'title'=>'Berhasil!',
-                'text'=>'Tanggal berhasil dihapus!'
+                'text'=>'Hari libur berhasil dihapus!'
             ]);
         }
         catch(\Exception $e)

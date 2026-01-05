@@ -43,6 +43,7 @@
     }
     function loadDiagram(data, xLabels)
     {
+        console.log(data)
         let myChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -209,14 +210,16 @@
     <div class="col-4">
         <div class="card shadow-sm bg-primary bg-gradient bg-opacity-50 mb-2">
             <div class="card-body d-flex align-items-center gap-2" x-data="{student_data : {}}" x-ref="student_data_container">
-                <div class="img-container col-2" style="aspect-ratio: 1/1;">
-                    <img 
-                    :src="student_data.user?.avatar_url ?
-                    `http://localhost:8000/files/images/users/id/${student_data.id_user}/${student_data.user.avatar_url}` :
-                    'http://localhost:8000/files/images/users/default'" 
-                    alt="" 
-                    class="w-100 img-fluid border border-2 border-black-50 rounded-circle"
-                    style="object-fit: contain;">
+                <div class="img-container col-2">
+                    <div class="w-100 ratio ratio-1x1">
+                        <img 
+                        :src="student_data.user?.avatar_url ?
+                        `http://localhost:8000/files/images/users/id/${student_data.id_user}/${student_data.user.avatar_url}` :
+                        'http://localhost:8000/files/images/users/default'" 
+                        alt="" 
+                        class="w-100 img-fluid border border-2 border-black-50 rounded-circle"
+                        style="object-fit: cover;">
+                    </div>
                 </div>
                 <div class="text-container col-8">
                     <h3 class="font-weight-bold h5 text-white">

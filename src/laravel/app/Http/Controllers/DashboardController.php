@@ -8,6 +8,10 @@ use Illuminate\Support\Carbon;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Siswa;
+use App\Models\Diary;
+use App\Models\Presensi;
+use App\Models\TahunAkademik;
 
 class DashboardController extends Controller implements HasMiddleware
 {
@@ -87,101 +91,63 @@ class DashboardController extends Controller implements HasMiddleware
     public function siswaDashboard()
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-        if (!$user || !$user->siswa) {
+        if (!$user || !$user->siswa) 
             return redirect()->route('login');
+
+        $academicYear=TahunAkademik::orderByRaw('(3 - current - status) ASC')->orderBy('nama_tahun', 'desc')->first()?->id;
+
+        $path="data/config/konfigurasi_rekap_mental.json";
+        if(!Storage::exists($path))
+            throw new \Exception('File konfigurasi tidak ditemukan', 500);
+        $config=Storage::get($path);
+        $config=json_decode($config, true);
+        $range=(int) $config['rentang'] ?? 1;
+        $threshold=(int) $config['threshold'];
+
+        $student=$user->siswa;
+        $studentIds=[$student->id];
+        $month=now()->month;
+        
+
+        // dd($students);
+        $mentalHealthData=Diary::getMentalHealthData($academicYear, $studentIds, $range);
+        $attendanceResults=Presensi::getAttendanceCalcThisMonth($academicYear, $studentIds);
+        
+
+        $mentalDetails = collect($mentalHealthData->get($student->id));
+        $dpMeter = $mentalDetails->reduce(function($acc, $row) {
+            $swafoto_pred=strtolower($row->swafoto_pred);
+            $catatan_pred=strtolower($row->catatan_pred);
+            $bool=($catatan_pred==='terindikasi depresi' && !in_array($swafoto_pred, ['happy', 'surprise']));
+            return $acc + (int) $bool;
+        }, 0);
+        
+        $percentage=0;
+        $totals=$mentalDetails->count();
+        
+        $day1="";
+        $day2="";
+        if($totals > 0)
+        {
+            $percentage=($dpMeter / $totals) * 100;
+            $day1=$mentalDetails->first()?->waktu;
+            $day2=$mentalDetails->last()?->waktu;
+
+            $day1=Carbon::parse($day1)->format('j F Y');
+            $day2=Carbon::parse($day2)->format('j F Y');
         }
 
-        $id_siswa = $user->siswa->id;
+        $mentalResults=collect([
+            'days'=>$totals,
+            'depression_rate'=>$percentage,
+            'time_range'=>"$day1 - $day2"
+        ]);
         
-        // Mood Chart Data (Last 14 Days)
-        $endDate = now();
-        $startDate = now()->subDays(13); // 14 days including today
 
-        $moodData = \App\Models\Presensi::where('id_siswa', $id_siswa)
-            ->whereDate('waktu', '>=', $startDate)
-            ->whereDate('waktu', '<=', $endDate)
-            ->with('diary')
-            ->orderBy('waktu')
-            ->get()
-            ->map(function ($presensi) {
-                $prediction = null;
-                if ($presensi->diary && $presensi->diary->swafoto_pred) {
-                    try {
-                        $predJson = json_decode($presensi->diary->swafoto_pred);
-                        if (isset($predJson->predicted)) {
-                            $prediction = $predJson->predicted;
-                        }
-                    } catch (\Exception $e) {
-                         // Keep null
-                    }
-                }
+       
 
-                $moodVal = null;
-                // Map prediction to 1-6 scale
-                if ($prediction) {
-                    switch(strtolower($prediction)) {
-                        case 'anger': $moodVal = 1; break;
-                        case 'disgust': $moodVal = 2; break;
-                        case 'fear': $moodVal = 3; break;
-                        case 'sadness': $moodVal = 4; break;
-                        case 'surprise': $moodVal = 5; break;
-                        case 'happy': $moodVal = 6; break;
-                    }
-                }
-
-                return [
-                    'date' => Carbon::parse($presensi->waktu)->format('d M'),
-                    'emoji' => $moodVal,
-                    'label' => $prediction
-                ];
-            });
-
-        // Determine Most Frequent Mood (last 14 days)
-        $validMoods = $moodData->pluck('emoji')->filter();
-        $averageMood = 0; 
-        $moodLabel = '-';
-        
-        if ($validMoods->isNotEmpty()) {
-            $counts = array_count_values($validMoods->toArray());
-            arsort($counts);
-            $mostFrequentVal = array_key_first($counts);
-            
-             switch($mostFrequentVal) {
-                case 1: $moodLabel = 'Marah 😠'; break;
-                case 2: $moodLabel = 'Jijik 🤢'; break;
-                case 3: $moodLabel = 'Takut 😨'; break;
-                case 4: $moodLabel = 'Sedih 😢'; break;
-                case 5: $moodLabel = 'Terkejut 😲'; break;
-                case 6: $moodLabel = 'Senang 😊'; break;
-            }
-            // Set averageMood to something valid so the view doesn't break, 
-            // though it's technically "mode" now.
-            $averageMood = $mostFrequentVal; 
-        }
-
-        // Calculate Attendance Percentage (Current Month)
-        $currentMonth = now()->month;
-        $currentYear = now()->year;
-        
-        $attendanceStats = \App\Models\Presensi::where('id_siswa', $id_siswa)
-            ->whereMonth('waktu', $currentMonth)
-            ->whereYear('waktu', $currentYear)
-            ->get();
-
-        $totalSessions = $attendanceStats->count();
-        $presentCount = $attendanceStats->where('status', 'H')->count(); // Assuming 'H' is Hadir
-        
-        // If we want to include Izin/Sakit as "attending" or partially, usually only H is 100%. 
-        // Let's stick to H for now or strictly "Kehadiran" usually implies presence. 
-        // If 'totalSessions' only includes days where data exists.
-        
-        $attendancePercentage = $totalSessions > 0 ? round(($presentCount / $totalSessions) * 100) : 0;
-
-        // Placeholders for Grades and Rank
-        $averageGrade = '-';
-        $rank = '-';
-
-        return view('dashboard.siswa', compact('moodData', 'averageMood', 'moodLabel', 'attendancePercentage', 'averageGrade', 'rank'));
+        // return view('dashboard.siswa', compact('moodData', 'averageMood', 'moodLabel', 'attendancePercentage', 'averageGrade', 'rank'));
+        return view('dashboard.siswa', compact('mentalResults', 'mentalDetails', 'attendanceResults'));
     }
     public function guruDashboard()
     {

@@ -13,8 +13,20 @@
 
 @section('content')
     <!-- Section Title -->
-    <h2 class="section-title">Ringkasan Aktivitas</h2>
+    <h2 class="section-title h4 mb-4">Ringkasan Aktivitas</h2>
 
+    @php
+        
+        $attendancePercentage=data_get($attendanceResults, 'persen_hadir', 0);
+        $moodLabel=collect($mentalDetails)
+        ->groupBy('swafoto_pred')
+        ->map(fn ($items) => $items->count())
+        ->sortDesc()
+        ->keys()
+        ->first() ?? '-';
+
+        
+    @endphp
     <!-- Stats Grid -->
     <div class="stats-grid">
         <div class="stat-card">
@@ -29,7 +41,7 @@
             </div>
         </div>
 
-        <div class="stat-card">
+        {{-- <div class="stat-card">
             <div class="stat-header">
                 <div class="stat-info">
                     <p class="stat-label">Rata-rata Nilai</p>
@@ -39,7 +51,7 @@
                     <i class="bi bi-graph-up"></i>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <div class="stat-card">
             <div class="stat-header">
@@ -53,7 +65,7 @@
             </div>
         </div>
 
-        <div class="stat-card">
+        {{-- <div class="stat-card">
             <div class="stat-header">
                 <div class="stat-info">
                     <p class="stat-label">Peringkat</p>
@@ -63,7 +75,7 @@
                     <i class="bi bi-trophy-fill"></i>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 
     <!-- Chart & Announcements Row -->
@@ -73,7 +85,7 @@
             <div class="chart-card">
                 <div class="chart-header">
                     <h3 class="chart-title">Mood Overall 14 Hari</h3>
-                    <p class="chart-subtitle">Rata-rata mood 14 hari terakhir: {{ $averageMood > 0 ? $averageMood.'/5' : '-' }}</p>
+                    {{-- <p class="chart-subtitle">Rata-rata mood 14 hari terakhir: {{ $averageMood > 0 ? $averageMood.'/5' : '-' }}</p> --}}
                 </div>
                 <div class="chart-content">
                     <canvas id="moodChart" height="200"></canvas>
@@ -121,84 +133,84 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('moodChart').getContext('2d');
-            const moodData = @json($moodData);
-
-            const labels = moodData.map(d => d.date);
-            const dataPoints = moodData.map(d => d.emoji);
-            const pointLabels = moodData.map(d => d.label); // For tooltips
-
-            // Emoji labels for Y-axis (Mapped from Controller)
-            const emojiLabels = {
-                1: '😠 Marah',
-                2: '🤢 Jijik',
-                3: '😨 Takut',
-                4: '😢 Sedih',
-                5: '😲 Terkejut',
-                6: '😊 Senang'
+            var ctx = document.getElementById('moodChart').getContext('2d');
+            const labels = [];
+            const moodData = @json($mentalDetails);
+            const emotionLabels = {
+                1: "sadness",
+                2: "anger",
+                3: "fear",
+                4: "disgust",
+                5: "happy",
+                6: "surprise"
             };
+            const emotionLabels2 = Object.fromEntries(Object.entries(emotionLabels).map(([key, value]) => [value, key]))
+            function loadPaginatedData(history, page=1)
+            {
+                // const end=10*page;
+                // const start=10*(page-1);
+                // const slicedHistory=history.slice(start, end)
+                const data=[];
+                const xLabels=[];
 
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Mood Level',
-                        data: dataPoints,
-                        borderColor: '#8B5CF6', // Purple
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.4, // Smooth curve
-                        fill: true,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#8B5CF6',
-                        pointRadius: 5,
-                        pointHoverRadius: 7
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const value = context.raw;
-                                    // Use the explicit label from backend if available, else map value
-                                    const idx = context.dataIndex;
-                                    const explicitLabel = pointLabels[idx];
-                                    if(explicitLabel) return explicitLabel.charAt(0).toUpperCase() + explicitLabel.slice(1);
+                history.forEach(e=>{
+                    data.push(emotionLabels2[e.swafoto_pred])
+                    xLabels.push(" ");
+                })
 
-                                    return emojiLabels[value] || 'Tidak ada data';
-                                }
-                            }
-                        }
+                loadDiagram(data, xLabels)
+            }
+            
+            function loadDiagram(data, xLabels)
+            {
+                console.log(data);
+                let myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: xLabels,
+                        datasets: [{
+                            
+                            data: data,
+                            borderWidth: 2,
+                            borderColor: "rgba(60,141,188,0.8)",
+                            backgroundColor: "rgba(60,141,188,0.2)",
+                            fill: false,
+                            // garis patah-patah
+                            tension: 0 // biar benar-benar patah
+                        }]
                     },
-                    scales: {
-                        y: {
-                            min: 0,
-                            max: 7, // Increased max for better spacing
-                            ticks: {
-                                stepSize: 1,
-                                callback: function(value) {
-                                    return emojiLabels[value] || '';
-                                }
-                            },
-                            grid: {
-                                borderDash: [5, 5]
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio : false,
+                        plugins : {
+                            legend : {
+                                display : false
                             }
                         },
-                        x: {
-                            grid: {
-                                display: false
+                        scales: {
+                            y  : {
+                                display:true,
+                                position: 'bottom',
+                                min: 0,
+                                    max: 7,
+                                ticks: {
+                                    
+                                    step: 1,
+                                    callback: function (value) {
+                                        return emotionLabels[value];
+                                    }
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
+
+            loadPaginatedData(moodData);
         });
     </script>
 @endsection

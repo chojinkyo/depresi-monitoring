@@ -118,7 +118,7 @@
                         data-bs-parent="#accordionExample"
                         >
                             <div class="accordion-body">
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae, qui!
+                                Konfigurasi jadwal harian untuk masing-masing jenjang
                             </div>
                         </div>
                         <hr class="m-0">
@@ -398,7 +398,7 @@
             <form action="{{ route('admin.presensi-libur.store') }}" method="post" x-data="{
                 async submitForm(event) {
                     const form = event.target;
-                    const month = calendarMonth;
+                    const month= calendarMonth+1;
                     document.getElementById('tanggal_mulai').value= selectedDates[0]
                     document.getElementById('tanggal_selesai').value= selectedDates[1] || selectedDates[0]
                     document.getElementById('bulan_mulai').value= month

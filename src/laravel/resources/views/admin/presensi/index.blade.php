@@ -269,14 +269,16 @@
     <div class="col-4">
         <div class="card shadow-sm bg-primary bg-gradient bg-opacity-50 mb-2">
             <div class="card-body d-flex align-items-center gap-2" x-data="{student : {}}" x-ref="student_container">
-                <div class="img-container col-2" style="aspect-ratio: 1/1;">
-                    <img 
-                    :src="student.user?.avatar_url ?
-                    `http://localhost:8000/files/images/users/id/${student.id_user}/${student.user.avatar_url}` :
-                    'http://localhost:8000/files/images/users/default'" 
-                    alt="" 
-                    class="w-100 img-fluid border border-2 border-black-50 rounded-circle"
-                    style="object-fit: contain;">
+                <div class="img-container col-2">
+                    <div class="w-100 ratio ratio-1x1">
+                        <img 
+                        :src="student.user?.avatar_url ?
+                        `http://localhost:8000/files/images/users/id/${student.id_user}/${student.user.avatar_url}` :
+                        'http://localhost:8000/files/images/users/default'" 
+                        alt="" 
+                        class="w-100 d-block border border-2 border-black-50 rounded-circle"
+                        style="object-fit: cover;">
+                    </div>
                 </div>
                 <div class="text-container col-8">
                     <h3 class="font-weight-bold h5 text-white">
@@ -292,7 +294,7 @@
             <div class="card-body d-flex align-items-center p-4">
                 <div class="box box-primary">
                     <div class="box-header with-border">
-                        <h3 class="box-title h5">Diagram Mental</h3>
+                        <h3 class="box-title h5">Diagram Kehadiran</h3>
                     </div>
                     <div class="box-body">
                         <div class="chart d-flex justify-content-center">
@@ -304,7 +306,7 @@
         </div>
         <div class="card shadow-sm ">
             <div class="card-header no-after py-4 d-flex justify-content-between align-items-center bg-warning bg-gradient bg-opacity-50">
-                <h2 class="h5 font-weight-bold m-0 text-black-50">Riwayat Mental</h2>
+                <h2 class="h5 font-weight-bold m-0 text-black-50">Riwayat Kehadiran</h2>
 
 
                 
@@ -584,7 +586,7 @@
         const studentContainer = Alpine.$data(document.querySelector('[x-ref="student_container"]'));
         const navContainer = Alpine.$data(document.querySelector('[x-ref="nav_container"]'));
         
-        navContainer.total=student.presensi.result.total_presensi;
+        navContainer.total=student.presensi?.result?.total_presensi || 0;
         navContainer.route=route;
         studentContainer.student=student;
         attendanceContainer.student=student;
